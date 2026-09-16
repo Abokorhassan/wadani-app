@@ -1,0 +1,204 @@
+{
+  "artboards": [
+    {
+      "file": "Welcome.dc.html",
+      "title": "S1 · Welcome",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844
+    },
+    {
+      "file": "RegisterPersonal.dc.html",
+      "title": "S2 · Register 1 — Personal",
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 1350
+    },
+    {
+      "file": "RegisterAddress.dc.html",
+      "title": "S2 · Register 2 — Address",
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844
+    },
+    {
+      "file": "RegisterPlan.dc.html",
+      "title": "S2 · Register 3 — Plan",
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 1080
+    },
+    {
+      "file": "RegisterPayment.dc.html",
+      "title": "S2 · Register 4 — Payment",
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 1230
+    },
+    {
+      "file": "Pending.dc.html",
+      "title": "S3 · Pending review",
+      "x": 2350,
+      "y": 0,
+      "w": 390,
+      "h": 844
+    },
+    {
+      "file": "Login.dc.html",
+      "title": "S4 · Login",
+      "x": 2820,
+      "y": 0,
+      "w": 390,
+      "h": 844
+    },
+    {
+      "file": "Main.dc.html",
+      "title": "S5 · Home",
+      "x": 0,
+      "y": 1530,
+      "w": 390,
+      "h": 1210
+    },
+    {
+      "file": "Card.dc.html",
+      "title": "S6 · My Card",
+      "x": 470,
+      "y": 1530,
+      "w": 390,
+      "h": 1120
+    },
+    {
+      "file": "Payments.dc.html",
+      "title": "S7 · Payment history",
+      "x": 940,
+      "y": 1530,
+      "w": 390,
+      "h": 844
+    },
+    {
+      "file": "Profile.dc.html",
+      "title": "S13 · Profile",
+      "x": 1410,
+      "y": 1530,
+      "w": 390,
+      "h": 910
+    },
+    {
+      "file": "Communications.dc.html",
+      "title": "S12 · Communications",
+      "x": 1880,
+      "y": 1530,
+      "w": 390,
+      "h": 844
+    },
+    {
+      "file": "NewsFeed.dc.html",
+      "title": "S9 · News & Events — News",
+      "x": 0,
+      "y": 2920,
+      "w": 390,
+      "h": 1010
+    },
+    {
+      "file": "Events.dc.html",
+      "title": "S9 · News & Events — Events",
+      "x": 470,
+      "y": 2920,
+      "w": 390,
+      "h": 844
+    },
+    {
+      "file": "Donate.dc.html",
+      "title": "S8 · Donate",
+      "x": 940,
+      "y": 2920,
+      "w": 390,
+      "h": 844
+    },
+    {
+      "file": "Family.dc.html",
+      "title": "S10 · Family",
+      "x": 1410,
+      "y": 2920,
+      "w": 390,
+      "h": 880
+    },
+    {
+      "file": "Contact.dc.html",
+      "title": "S11 · Contact & FAQs — Contact",
+      "x": 1880,
+      "y": 2920,
+      "w": 390,
+      "h": 844
+    },
+    {
+      "file": "Faqs.dc.html",
+      "title": "S11 · Contact & FAQs — FAQs",
+      "x": 2350,
+      "y": 2920,
+      "w": 390,
+      "h": 844
+    },
+    {
+      "file": "HomeDark.dc.html",
+      "title": "Alt · Home, dark",
+      "x": 0,
+      "y": 4110,
+      "w": 390,
+      "h": 1210
+    },
+    {
+      "file": "CardWallet.dc.html",
+      "title": "Alt · Card, wallet style",
+      "x": 470,
+      "y": 4110,
+      "w": 390,
+      "h": 880
+    }
+  ],
+  "annotations": [
+    {
+      "id": "row-onboarding",
+      "x": -380,
+      "y": 20,
+      "w": 300,
+      "text": "Onboarding\nWelcome → register (4 steps) → pending review, and login."
+    },
+    {
+      "id": "row-member",
+      "x": -380,
+      "y": 1550,
+      "w": 300,
+      "text": "Member area\nThe four tabs: Home, Card, Payments, Profile. Communications opens from the bell on Home."
+    },
+    {
+      "id": "row-engage",
+      "x": -380,
+      "y": 2940,
+      "w": 300,
+      "text": "From the Home tiles\nNews & Events, Donate, Family, Contact & FAQs."
+    },
+    {
+      "id": "row-alternates",
+      "x": -380,
+      "y": 4130,
+      "w": 300,
+      "text": "Alternates\nTwo other directions for the screens that define the look: a dark Home, and a wallet-style horizontal card."
+    },
+    {
+      "id": "system",
+      "x": -380,
+      "y": 360,
+      "w": 300,
+      "text": "Type: Bricolage Grotesque for headings, Figtree for text, IBM Plex Mono for member IDs and references.\nColour: orange is a surface and always carries dark text; olive green marks actions; ink cards for premium moments.\nSample people, IDs and contact details come from the prototype."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}
