@@ -1,0 +1,8 @@
+# Reference material from the backend developer: keep as delivered
+docs/waddani-membership.html
+
+node_modules/
+.expo/
+dist/
+android/
+ios/

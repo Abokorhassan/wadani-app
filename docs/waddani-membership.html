@@ -1,0 +1,2892 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Waddani Membership - Mobile Mockup</title>
+    <link rel="icon" href="assets/waddani-logo.png" />
+    <style>
+      :root {
+        --brand: #fd9001;
+        --brand-dark: #d97800;
+        --brand-fg: #1a1105;
+        --brand-tint: #fff3e6;
+        --accent: #fd9001;
+        --bg: #f4f6f5;
+        --card-bg: #ffffff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family:
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        color: var(--text);
+        background: var(--bg);
+      }
+
+      /* ---------- Desktop preview chrome (phone bezel) ---------- */
+      @media (min-width: 481px) {
+        body {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          background: #dfe3e6;
+          padding: 40px 16px;
+        }
+        .phone-frame {
+          width: 390px;
+          height: 844px;
+          border-radius: 46px;
+          border: 14px solid #111;
+          box-shadow:
+            0 30px 60px rgba(0, 0, 0, 0.35),
+            0 0 0 2px #333;
+          background: #000;
+        }
+      }
+      @media (max-width: 480px) {
+        .phone-frame {
+          width: 100%;
+          height: 100vh;
+          height: 100dvh;
+          border-radius: 0;
+          border: none;
+          box-shadow: none;
+          background: #000;
+        }
+        .notch {
+          display: none !important;
+        }
+      }
+
+      .phone-frame {
+        position: relative;
+        overflow: hidden;
+      }
+      .notch {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 26px;
+        background: #000;
+        border-radius: 20px;
+        z-index: 50;
+      }
+
+      .screen {
+        position: absolute;
+        inset: 0;
+        background: var(--bg);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      /* ---------- Status bar ---------- */
+      .status-bar {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 26px 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        background: var(--bg);
+        z-index: 10;
+      }
+      .status-bar .icons {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        font-size: 12px;
+      }
+
+      /* ---------- Scroll area ---------- */
+      .app-content {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 4px 18px 24px;
+      }
+
+      .view {
+        display: none;
+      }
+      .view.active {
+        display: block;
+      }
+
+      /* ---------- Auth screens ---------- */
+      .auth-screen {
+        padding-top: 28px;
+      }
+      .brand-mark {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 800;
+        font-size: 18px;
+        color: var(--brand-dark);
+        margin-bottom: 26px;
+      }
+      .brand-mark img {
+        height: 28px;
+        width: auto;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0 0 4px;
+      }
+      p.sub {
+        color: var(--muted);
+        font-size: 14px;
+        margin: 0 0 22px;
+      }
+
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: var(--muted);
+        margin: 14px 0 6px;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 13px 14px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 15px;
+        background: #fff;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--brand);
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+      }
+      .rowx {
+        display: flex;
+        gap: 10px;
+      }
+      .rowx > div {
+        flex: 1;
+      }
+
+      .btn {
+        display: block;
+        width: 100%;
+        background: var(--brand);
+        color: var(--brand-fg);
+        border: none;
+        border-radius: 12px;
+        padding: 14px 20px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 22px;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      .btn:active {
+        background: var(--brand-dark);
+        transform: scale(0.99);
+      }
+      .btn.secondary {
+        background: #eef2f1;
+        color: var(--brand-dark);
+      }
+      .btn.danger {
+        background: #fef2f2;
+        color: #b91c1c;
+      }
+
+      .error {
+        color: #b91c1c;
+        font-size: 13px;
+        margin-top: 10px;
+        display: none;
+        background: #fef2f2;
+        padding: 8px 10px;
+        border-radius: 8px;
+      }
+      .foot-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .foot-link a {
+        color: var(--brand);
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 700;
+      }
+
+      /* ---------- Welcome (choice) screen ---------- */
+      .welcome-screen {
+        padding-top: 8vh;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        min-height: 100%;
+      }
+      .view.active.welcome-screen {
+        display: flex;
+      }
+      .welcome-screen .brand-mark {
+        justify-content: center;
+        margin-bottom: 28px;
+        font-size: 20px;
+      }
+      .welcome-screen h1 {
+        font-size: 24px;
+        margin-bottom: 6px;
+      }
+      .welcome-screen p.sub {
+        margin-bottom: 24px;
+      }
+      .welcome-choices {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .choice-card {
+        width: 100%;
+        text-align: left;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        cursor: pointer;
+      }
+      .choice-card:active {
+        background: #f3f4f4;
+      }
+      .choice-card .choice-ico {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: var(--brand-tint);
+        color: var(--brand-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex: 0 0 auto;
+      }
+      .choice-card .choice-title {
+        font-weight: 700;
+        font-size: 15px;
+      }
+      .choice-card .choice-desc {
+        color: var(--muted);
+        font-size: 12.5px;
+        margin-top: 2px;
+      }
+      .choice-card .choice-arrow {
+        margin-left: auto;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      /* ---------- Register wizard (steps) ---------- */
+      .step-indicator {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .step-dot-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        flex: 0 0 auto;
+      }
+      .step-dot {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 2px solid var(--border);
+        background: #fff;
+        color: var(--muted);
+        font-size: 15px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+      .step-dot.disabled {
+        cursor: default;
+        opacity: 0.6;
+      }
+      .step-dot.active {
+        background: var(--brand);
+        border-color: var(--brand);
+        color: var(--brand-fg);
+      }
+      .step-dot.done {
+        background: var(--brand-tint);
+        border-color: var(--brand);
+        color: var(--brand-dark);
+      }
+      .step-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.2px;
+      }
+      .step-dot-wrap:has(.step-dot.active) .step-label {
+        color: var(--brand-dark);
+      }
+      .step-line {
+        flex: 1 1 auto;
+        height: 2px;
+        background: var(--border);
+        margin: 0 2px;
+        margin-bottom: 18px;
+      }
+      .reg-step {
+        display: none;
+      }
+      .reg-step.active {
+        display: block;
+      }
+      .step-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 22px;
+      }
+      .step-actions .btn {
+        margin-top: 0;
+      }
+      #reg-back-btn {
+        display: none;
+      }
+      .check-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        text-transform: none;
+        letter-spacing: 0;
+        color: var(--text);
+        margin-top: 14px;
+      }
+      .check-row input {
+        width: auto;
+        margin-top: 2px;
+      }
+
+      /* ---------- Pending review screen ---------- */
+      .pending-screen {
+        padding-top: 14vh;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        min-height: 100%;
+      }
+      .view.active.pending-screen {
+        display: flex;
+      }
+      .pending-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: #fffbeb;
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        margin-bottom: 20px;
+      }
+      .pending-screen h1 {
+        font-size: 20px;
+        margin-bottom: 10px;
+      }
+      .pending-screen p.sub {
+        margin-bottom: 6px;
+        max-width: 280px;
+      }
+
+      /* ---------- Login method tabs ---------- */
+      .method-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+      .method-tab {
+        flex: 1;
+        padding: 10px 6px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .method-tab.active {
+        background: var(--brand);
+        color: var(--brand-fg);
+        border-color: var(--brand);
+      }
+      .login-method {
+        display: none;
+      }
+      .login-method.active {
+        display: block;
+      }
+
+      .demo-otp-banner {
+        background: #fffbeb;
+        border: 1px dashed var(--accent);
+        color: #92400e;
+        font-size: 12px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        margin-bottom: 4px;
+      }
+      .otp-input {
+        letter-spacing: 8px;
+        font-size: 20px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      /* ---------- Modal overlays (account picker, complete profile) ---------- */
+      .modal-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 200;
+      }
+      .modal-overlay.show {
+        display: flex;
+      }
+      .modal-sheet {
+        background: #fff;
+        border-radius: 16px;
+        padding: 22px 20px;
+        width: 100%;
+        max-width: 320px;
+        max-height: 80%;
+        overflow-y: auto;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+      }
+      .modal-title {
+        font-size: 17px;
+        font-weight: 800;
+        margin-bottom: 2px;
+      }
+      .modal-sub {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 14px;
+      }
+
+      /* ---------- App screen header ---------- */
+      .screen-title {
+        font-size: 20px;
+        font-weight: 800;
+        margin: 10px 0 2px;
+      }
+      .screen-sub {
+        color: var(--muted);
+        font-size: 13px;
+        margin: 0 0 18px;
+      }
+
+      /* ---------- Membership card (matches system MembershipCard component) ---------- */
+      .membership-card {
+        position: relative;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .membership-card .card-logo-row {
+        padding: 18px 0 4px;
+        display: flex;
+        justify-content: center;
+      }
+      .membership-card .card-logo-row img {
+        height: 64px;
+        width: 64px;
+        object-fit: contain;
+      }
+      .membership-card .card-photo-wrap {
+        position: relative;
+        z-index: 2;
+        margin-bottom: -40px;
+      }
+      .membership-card .card-avatar {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        border: 4px solid var(--brand);
+        background: #eef2f1;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        font-weight: 800;
+        overflow: hidden;
+      }
+      .membership-card .card-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+      .membership-card .card-primary-panel {
+        width: 100%;
+        background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 70%);
+        color: var(--brand-fg);
+        padding: 44px 20px 18px;
+        border-radius: 24px 24px 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        text-align: center;
+      }
+      .membership-card .card-name {
+        font-size: 16px;
+        font-weight: 800;
+        text-transform: capitalize;
+        line-height: 1.25;
+      }
+      .membership-card .card-tier-pill {
+        background: rgba(26, 17, 5, 0.12);
+        padding: 3px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+      .membership-card .card-valid-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        opacity: 0.85;
+      }
+      .membership-card .card-valid-date {
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .membership-card .card-qr-wrap {
+        margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+      }
+      .membership-card .card-qr-box {
+        width: 64px;
+        height: 64px;
+        background: #fff;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #111;
+        font-size: 9px;
+        text-align: center;
+        padding: 4px;
+        line-height: 1.1;
+      }
+      .membership-card .card-qr-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .membership-card .card-qr-code {
+        font-family: monospace;
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+      .membership-card .card-social-footer {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 12px 0;
+        border-top: 1px solid var(--border);
+      }
+      .membership-card .social-chip {
+        width: 16px;
+        height: 16px;
+        border-radius: 3px;
+        background: #1a1105;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        line-height: 1;
+      }
+      .membership-card .social-handle {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+
+      .card-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+      }
+      .card-actions .btn {
+        margin-top: 0;
+      }
+
+      /* ---------- Home screen ---------- */
+      .brand-header {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 75%);
+        padding: 16px 18px;
+        margin: -4px -18px 18px;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 8px 20px rgba(253, 144, 1, 0.25);
+        overflow: hidden;
+      }
+      .brand-header::after {
+        content: '';
+        position: absolute;
+        right: -30px;
+        top: -30px;
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.14);
+        border-radius: 50%;
+      }
+      .brand-header-logo {
+        height: 46px;
+        width: 46px;
+        border-radius: 50%;
+        background: #fff;
+        padding: 4px;
+        object-fit: contain;
+        flex: 0 0 auto;
+        z-index: 1;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      }
+      .brand-header-text {
+        z-index: 1;
+        min-width: 0;
+      }
+      .brand-header-title {
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: 0.4px;
+        color: var(--brand-fg);
+      }
+      .brand-header-sub {
+        font-size: 11px;
+        color: var(--brand-fg);
+        opacity: 0.8;
+        margin-top: 1px;
+      }
+      .mini-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 70%);
+        color: var(--brand-fg);
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 18px;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(253, 144, 1, 0.3);
+      }
+      .mini-card-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .mini-card-left img {
+        height: 32px;
+        width: 32px;
+        border-radius: 50%;
+        background: #fff;
+        padding: 3px;
+        object-fit: contain;
+        flex: 0 0 auto;
+      }
+      .mini-card-name {
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .mini-card-id {
+        font-size: 11px;
+        opacity: 0.85;
+        font-family: monospace;
+        letter-spacing: 0.5px;
+      }
+      .mini-card-tier {
+        background: rgba(26, 17, 5, 0.14);
+        color: var(--brand-fg);
+        font-size: 10px;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 999px;
+        text-transform: uppercase;
+        flex: 0 0 auto;
+      }
+      .invite-banner {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--brand-tint);
+        border: 1px dashed var(--brand);
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 18px;
+      }
+      .invite-ico {
+        font-size: 26px;
+        flex: 0 0 auto;
+      }
+      .invite-text {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .invite-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: var(--brand-dark);
+      }
+      .invite-desc {
+        font-size: 11.5px;
+        color: var(--muted);
+        margin-top: 2px;
+        line-height: 1.35;
+      }
+      .invite-btn {
+        width: auto;
+        flex: 0 0 auto;
+        padding: 9px 16px;
+        font-size: 12.5px;
+        margin-top: 0;
+      }
+      .home-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .home-tile {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px 14px;
+        cursor: pointer;
+      }
+      .home-tile:active {
+        background: #f3f4f4;
+      }
+      .home-tile-ico {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: var(--brand-tint);
+        color: var(--brand-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        margin-bottom: 10px;
+      }
+      .home-tile-title {
+        font-weight: 700;
+        font-size: 13.5px;
+      }
+      .home-tile-desc {
+        color: var(--muted);
+        font-size: 11.5px;
+        margin-top: 2px;
+      }
+
+      /* ---------- Payment history ---------- */
+      .payment-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+      }
+      .payment-row .pay-method {
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .payment-row .pay-meta {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .payment-row .pay-amount {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--brand-dark);
+        text-align: right;
+      }
+      .payment-row .pay-status {
+        font-size: 9.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 999px;
+        margin-top: 4px;
+        display: inline-block;
+      }
+      .pay-status.completed {
+        background: var(--brand-tint);
+        color: var(--brand-dark);
+      }
+      .pay-status.pending {
+        background: #fffbeb;
+        color: #92400e;
+      }
+      .empty-state {
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+        padding: 40px 10px;
+      }
+
+      /* ---------- Communications / notifications ---------- */
+      .notif-row {
+        display: flex;
+        gap: 12px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 10px;
+      }
+      .notif-ico {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: var(--brand-tint);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex: 0 0 auto;
+      }
+      .notif-title {
+        font-size: 13.5px;
+        font-weight: 700;
+      }
+      .notif-text {
+        font-size: 12.5px;
+        color: var(--text);
+        margin-top: 3px;
+        line-height: 1.4;
+      }
+      .notif-meta {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      /* ---------- Donate ---------- */
+      .donate-amounts {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 6px;
+      }
+      .donate-amount-btn {
+        padding: 12px 4px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text);
+        cursor: pointer;
+      }
+      .donate-amount-btn.active {
+        background: var(--brand);
+        border-color: var(--brand);
+        color: var(--brand-fg);
+      }
+
+      /* ---------- News & Events ---------- */
+      .section-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .section-tab {
+        flex: 1;
+        padding: 10px 6px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #fff;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .section-tab.active {
+        background: var(--brand);
+        color: var(--brand-fg);
+        border-color: var(--brand);
+      }
+      .section-pane {
+        display: none;
+      }
+      .section-pane.active {
+        display: block;
+      }
+      .news-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+      .news-card-title {
+        font-size: 14.5px;
+        font-weight: 700;
+      }
+      .news-card-text {
+        font-size: 13px;
+        color: var(--text);
+        margin-top: 6px;
+        line-height: 1.45;
+      }
+      .news-card-meta {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 8px;
+      }
+      .event-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 12px;
+        display: flex;
+        gap: 12px;
+      }
+      .event-date-box {
+        flex: 0 0 auto;
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        background: var(--brand-tint);
+        color: var(--brand-dark);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .event-date-box .em {
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      .event-date-box .ed {
+        font-size: 17px;
+        font-weight: 800;
+        line-height: 1.1;
+      }
+      .event-body {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .event-title {
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .event-meta {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .event-actions {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+      }
+      .rsvp-btn {
+        padding: 7px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: 999px;
+        border: 1px solid var(--brand);
+        background: #fff;
+        color: var(--brand-dark);
+        cursor: pointer;
+      }
+      .rsvp-btn.going {
+        background: var(--brand);
+        color: var(--brand-fg);
+      }
+
+      /* ---------- Family ---------- */
+      .family-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+      }
+      .family-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--brand-tint);
+        color: var(--brand-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 16px;
+        flex: 0 0 auto;
+      }
+      .family-name {
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .family-meta {
+        font-size: 11.5px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .family-relation {
+        margin-left: auto;
+        font-size: 10.5px;
+        font-weight: 700;
+        color: var(--brand-dark);
+        background: var(--brand-tint);
+        padding: 3px 9px;
+        border-radius: 999px;
+        text-transform: uppercase;
+        flex: 0 0 auto;
+      }
+      .add-family-card {
+        border: 1px dashed var(--brand);
+        border-radius: 14px;
+        padding: 16px;
+        background: var(--brand-tint);
+        margin-top: 6px;
+      }
+
+      /* ---------- Contact & Feedback ---------- */
+      .contact-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 13px 14px;
+        margin-bottom: 10px;
+      }
+      .contact-ico {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: var(--brand-tint);
+        color: var(--brand-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex: 0 0 auto;
+      }
+      .contact-label {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .contact-value {
+        font-size: 13.5px;
+        font-weight: 700;
+      }
+      textarea {
+        width: 100%;
+        padding: 13px 14px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+        background: #fff;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 90px;
+      }
+      textarea:focus {
+        outline: none;
+        border-color: var(--brand);
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+      }
+      .feedback-status-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+      }
+      .feedback-status-pill {
+        font-size: 9.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 999px;
+      }
+      .fstatus-resolved {
+        background: var(--brand-tint);
+        color: var(--brand-dark);
+      }
+      .fstatus-review {
+        background: #fffbeb;
+        color: #92400e;
+      }
+
+      /* ---------- Plan switcher (pill tabs + gradient benefits card) ---------- */
+      .plan-tabs {
+        display: flex;
+        gap: 8px;
+        background: #eef1f0;
+        padding: 5px;
+        border-radius: 999px;
+        margin-bottom: 18px;
+        overflow-x: auto;
+      }
+      .plan-tab {
+        flex: 1 1 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 9px 10px;
+        border-radius: 999px;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font-size: 12.5px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .plan-tab .ico {
+        font-size: 13px;
+      }
+      .plan-tab.active {
+        background: #fff;
+        color: var(--brand-dark);
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+      }
+      .plan-hero {
+        position: relative;
+        border-radius: 26px;
+        padding: 30px 24px 26px;
+        background: linear-gradient(160deg, var(--brand) 0%, var(--brand-dark) 60%, #7a3f00 100%);
+        color: #fff;
+        overflow: hidden;
+      }
+      .plan-hero::after {
+        content: '';
+        position: absolute;
+        right: -40px;
+        bottom: -40px;
+        width: 160px;
+        height: 160px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+      }
+      .plan-hero-name {
+        font-size: 32px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        margin-bottom: 10px;
+      }
+      .plan-hero-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.22);
+        padding: 4px 14px;
+        border-radius: 999px;
+        font-size: 11.5px;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+      .plan-hero-price {
+        font-size: 12.5px;
+        opacity: 0.85;
+        margin-bottom: 20px;
+      }
+      .plan-hero-subhead {
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.8;
+        margin-bottom: 12px;
+      }
+      .plan-benefit-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 13.5px;
+        line-height: 1.4;
+        margin-bottom: 12px;
+        position: relative;
+        z-index: 1;
+      }
+      .plan-benefit-row .mark {
+        flex: 0 0 auto;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 800;
+        margin-top: 1px;
+      }
+      .plan-benefit-row.yes .mark {
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--brand-dark);
+      }
+      .plan-benefit-row.no {
+        opacity: 0.55;
+      }
+      .plan-benefit-row.no .mark {
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+      }
+      .plan-hero-cta {
+        margin-top: 22px;
+        width: 100%;
+        background: #fff;
+        color: var(--brand-dark);
+        border: none;
+        border-radius: 14px;
+        padding: 14px;
+        font-size: 14.5px;
+        font-weight: 800;
+        cursor: pointer;
+        position: relative;
+        z-index: 1;
+      }
+      .plan-hero-cta:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      .plan-hero.loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 220px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      /* ---------- Members list ---------- */
+      .member-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 4px;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+        background: #fff;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+        border: 1px solid var(--border);
+      }
+      .member-row small {
+        color: var(--muted);
+        display: block;
+        margin-top: 2px;
+        font-size: 12px;
+      }
+      .badge-tier {
+        font-size: 10px;
+        font-weight: 800;
+        padding: 3px 9px;
+        border-radius: 999px;
+        background: var(--brand-tint);
+        color: var(--brand-dark);
+        text-transform: uppercase;
+      }
+
+      /* ---------- Profile ---------- */
+      .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: var(--brand);
+        color: var(--brand-fg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 20px;
+        flex: 0 0 auto;
+        overflow: hidden;
+      }
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+      .profile-header .pname {
+        font-weight: 700;
+        font-size: 16px;
+      }
+      .profile-header .pemail {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .info-list {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 18px;
+      }
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 14px;
+        font-size: 14px;
+        border-bottom: 1px solid var(--border);
+      }
+      .info-row:last-child {
+        border-bottom: none;
+      }
+      .info-row span:first-child {
+        color: var(--muted);
+      }
+      .info-row span:last-child {
+        font-weight: 600;
+      }
+
+      /* ---------- Bottom tab bar ---------- */
+      .tab-bar {
+        display: none;
+        flex: 0 0 auto;
+        border-top: 1px solid var(--border);
+        background: #fff;
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 8px));
+        justify-content: space-around;
+      }
+      .tab-bar.show {
+        display: flex;
+      }
+      .tab-btn {
+        background: none;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 4px 14px;
+        border-radius: 10px;
+      }
+      .tab-btn .ico {
+        font-size: 20px;
+        line-height: 1;
+      }
+      .tab-btn.active {
+        color: var(--brand-dark);
+      }
+      .tab-btn.active .ico {
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="phone-frame">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="status-bar">
+          <span id="clock">9:41</span>
+          <span class="icons">📶 🛜 🔋</span>
+        </div>
+
+        <div class="app-content">
+          <!-- WELCOME / CHOICE VIEW -->
+          <section id="view-welcome" class="view welcome-screen active">
+            <div class="brand-mark">
+              <img src="assets/waddani-logo.png" alt="Xisbiga Waddani" /> WADDANI
+            </div>
+            <h1>Welcome</h1>
+            <p class="sub">Choose an option to get started.</p>
+
+            <div class="welcome-choices">
+              <div class="choice-card" onclick="showView('register')">
+                <div class="choice-ico">📝</div>
+                <div>
+                  <div class="choice-title">Register new member</div>
+                  <div class="choice-desc">Create a new membership account</div>
+                </div>
+                <div class="choice-arrow">›</div>
+              </div>
+              <div class="choice-card" onclick="showView('login')">
+                <div class="choice-ico">🔑</div>
+                <div>
+                  <div class="choice-title">I'm already a member</div>
+                  <div class="choice-desc">Log in to view your membership card</div>
+                </div>
+                <div class="choice-arrow">›</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- REGISTER VIEW (multi-step) -->
+          <section id="view-register" class="view auth-screen">
+            <div class="brand-mark">
+              <img src="assets/waddani-logo.png" alt="Xisbiga Waddani" /> WADDANI
+            </div>
+            <h1>Create your account</h1>
+            <p class="sub">Join Waddani membership.</p>
+
+            <div class="step-indicator" id="reg-step-indicator">
+              <div class="step-dot-wrap">
+                <div class="step-dot" data-step="0" onclick="regGoToStep(0)">1</div>
+                <span class="step-label">Personal</span>
+              </div>
+              <div class="step-line"></div>
+              <div class="step-dot-wrap">
+                <div class="step-dot" data-step="1" onclick="regGoToStep(1)">2</div>
+                <span class="step-label">Address</span>
+              </div>
+              <div class="step-line"></div>
+              <div class="step-dot-wrap">
+                <div class="step-dot" data-step="2" onclick="regGoToStep(2)">3</div>
+                <span class="step-label">Plan</span>
+              </div>
+              <div class="step-line"></div>
+              <div class="step-dot-wrap">
+                <div class="step-dot" data-step="3" onclick="regGoToStep(3)">4</div>
+                <span class="step-label">Payment</span>
+              </div>
+            </div>
+
+            <!-- Step 1: Personal information -->
+            <div class="reg-step active" id="reg-step-0">
+              <label for="reg-name">Full name</label>
+              <input id="reg-name" type="text" placeholder="e.g. Amina Yusuf" />
+
+              <label for="reg-gender">Gender</label>
+              <select id="reg-gender">
+                <option value="" disabled selected>Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+
+              <div class="rowx">
+                <div>
+                  <label for="reg-phone">Phone</label>
+                  <input id="reg-phone" type="tel" placeholder="+252 63 234 5678" />
+                </div>
+                <div>
+                  <label for="reg-whatsapp">WhatsApp (optional)</label>
+                  <input id="reg-whatsapp" type="tel" placeholder="+252 63 234 5678" />
+                </div>
+              </div>
+
+              <label for="reg-email">Email</label>
+              <input
+                id="reg-email"
+                type="email"
+                placeholder="you@example.com"
+                autocapitalize="off" />
+
+              <label for="reg-birthyear">Year of birth</label>
+              <input id="reg-birthyear" type="number" placeholder="e.g. 1998" />
+
+              <label for="reg-education">Educational level</label>
+              <select id="reg-education">
+                <option value="" disabled selected>Select educational level</option>
+                <option value="None">None</option>
+                <option value="Primary">Primary</option>
+                <option value="Secondary">Secondary</option>
+                <option value="Diploma">Diploma</option>
+                <option value="Bachelor's">Bachelor's degree</option>
+                <option value="Master's">Master's degree</option>
+                <option value="PhD">PhD</option>
+              </select>
+
+              <label for="reg-password">Password</label>
+              <input id="reg-password" type="password" placeholder="At least 6 characters" />
+            </div>
+
+            <!-- Step 2: Address -->
+            <div class="reg-step" id="reg-step-1">
+              <label for="reg-country">Country</label>
+              <input id="reg-country" type="text" placeholder="e.g. Somaliland" />
+
+              <label for="reg-city">City</label>
+              <input id="reg-city" type="text" placeholder="e.g. Mogadishu" />
+
+              <label for="reg-address">Address</label>
+              <input id="reg-address" type="text" placeholder="Street / neighborhood" />
+            </div>
+
+            <!-- Step 3: Membership plan -->
+            <div class="reg-step" id="reg-step-2">
+              <label style="margin-top: 0">Membership plan</label>
+              <div class="plan-tabs" id="reg-plan-tabs"></div>
+              <div class="plan-hero loading" id="reg-plan-hero">Loading plans…</div>
+              <select id="reg-tier" style="display: none"></select>
+              <p class="error" id="reg-plans-error">
+                Couldn't load plans. <a onclick="loadPlanOptions()">Retry</a>
+              </p>
+
+              <label for="reg-period">Membership period</label>
+              <select id="reg-period" disabled>
+                <option value="" selected>Loading periods…</option>
+              </select>
+              <p class="error" id="reg-periods-error">
+                Couldn't load periods. <a onclick="loadPeriodOptions()">Retry</a>
+              </p>
+            </div>
+
+            <!-- Step 4: Payment -->
+            <div class="reg-step" id="reg-step-3">
+              <label for="reg-pay-method">Payment method</label>
+              <select id="reg-pay-method">
+                <option value="Cash">Cash</option>
+                <option value="Zaad">Zaad</option>
+                <option value="eDahab">eDahab</option>
+                <option value="Dahabshiil">Dahabshiil</option>
+                <option value="Premier Bank">Premier Bank</option>
+              </select>
+
+              <label for="reg-pay-amount">Amount (USD)</label>
+              <input id="reg-pay-amount" type="text" placeholder="25.00" />
+
+              <label for="reg-pay-account">Account / phone paid from</label>
+              <input id="reg-pay-account" type="text" placeholder="e.g. +252 63 234 5678" />
+
+              <label for="reg-pay-reference">Reference / receipt #</label>
+              <input id="reg-pay-reference" type="text" placeholder="e.g. TX-102938" />
+            </div>
+
+            <p class="error" id="reg-error">Please fill in the required fields.</p>
+
+            <div class="step-actions">
+              <button class="btn secondary" id="reg-back-btn" onclick="regGoBack()">Back</button>
+              <button class="btn" id="reg-next-btn" onclick="regGoNext()">Next</button>
+            </div>
+
+            <p class="foot-link">
+              Already have an account? <a onclick="showView('login')">Log in</a>
+            </p>
+            <p class="foot-link"><a onclick="showView('welcome')">‹ Back</a></p>
+          </section>
+
+          <!-- PENDING REVIEW VIEW -->
+          <section id="view-pending" class="view pending-screen">
+            <div class="pending-icon">⏳</div>
+            <h1>We're reviewing your request</h1>
+            <p class="sub">
+              Thanks for registering with Waddani. Our team is reviewing your details and payment.
+            </p>
+            <p class="sub">
+              We will notify you on your WhatsApp and email once your membership is approved.
+            </p>
+            <button class="btn" style="max-width: 260px" onclick="showView('welcome')">
+              Back to start
+            </button>
+          </section>
+
+          <!-- LOGIN VIEW -->
+          <section id="view-login" class="view auth-screen">
+            <div class="brand-mark">
+              <img src="assets/waddani-logo.png" alt="Xisbiga Waddani" /> WADDANI
+            </div>
+            <h1>Welcome back</h1>
+            <p class="sub">Log in to view your membership card.</p>
+
+            <label for="login-identifier">Phone or email</label>
+            <input
+              id="login-identifier"
+              type="text"
+              placeholder="Phone number or email"
+              autocapitalize="off" />
+
+            <label for="login-password">Password</label>
+            <input id="login-password" type="password" placeholder="Your password" />
+
+            <p class="foot-link" style="text-align: right; margin-top: 8px">
+              <a onclick="alert('Prototype demo — password reset is not implemented.')"
+                >Forgot password?</a
+              >
+            </p>
+
+            <p class="error" id="login-error">No account found for that phone/email.</p>
+
+            <button class="btn" onclick="loginUser()">Log in</button>
+
+            <p class="foot-link">
+              New here? <a onclick="showView('register')">Create an account</a>
+            </p>
+            <p class="foot-link"><a onclick="showView('welcome')">‹ Back</a></p>
+          </section>
+
+          <!-- HOME VIEW -->
+          <section id="view-dashboard" class="view app-screen">
+            <div class="brand-header">
+              <img src="assets/waddani-logo.png" class="brand-header-logo" alt="Xisbiga Waddani" />
+              <div class="brand-header-text">
+                <div class="brand-header-title">XISBIGA WADDANI</div>
+                <div class="brand-header-sub">Somaliland National Party · Membership</div>
+              </div>
+            </div>
+
+            <div class="screen-title" id="home-greeting">Hi, Mohamed</div>
+            <p class="screen-sub">Welcome back to your Waddani membership.</p>
+
+            <div class="mini-card" onclick="showView('card')">
+              <div class="mini-card-left">
+                <img src="assets/waddani-logo.png" alt="Xisbiga Waddani" />
+                <div>
+                  <div class="mini-card-name" id="home-card-name">Mohamed Shibbin</div>
+                  <div class="mini-card-id" id="home-card-id">ID: WD-482913</div>
+                </div>
+              </div>
+              <div class="mini-card-tier" id="home-card-tier">STANDARD</div>
+            </div>
+
+            <div class="invite-banner">
+              <div class="invite-ico">🎉</div>
+              <div class="invite-text">
+                <div class="invite-title">Invite your family &amp; friends</div>
+                <div class="invite-desc">
+                  Grow the Waddani community — share the app and get them registered.
+                </div>
+              </div>
+              <button class="btn secondary invite-btn" onclick="inviteFamilyFriends()">
+                Invite
+              </button>
+            </div>
+
+            <div class="home-grid">
+              <div class="home-tile" onclick="showView('card')">
+                <div class="home-tile-ico">🪪</div>
+                <div class="home-tile-title">My Card</div>
+                <div class="home-tile-desc">View &amp; show your card</div>
+              </div>
+              <div class="home-tile" onclick="showView('payments')">
+                <div class="home-tile-ico">💳</div>
+                <div class="home-tile-title">Payments</div>
+                <div class="home-tile-desc">Payment history</div>
+              </div>
+              <div class="home-tile" onclick="showView('donate')">
+                <div class="home-tile-ico">🤲</div>
+                <div class="home-tile-title">Donate</div>
+                <div class="home-tile-desc">Support Waddani</div>
+              </div>
+              <div class="home-tile" onclick="showView('news')">
+                <div class="home-tile-ico">📰</div>
+                <div class="home-tile-title">News &amp; Events</div>
+                <div class="home-tile-desc">Updates &amp; RSVP</div>
+              </div>
+              <div class="home-tile" onclick="showView('family')">
+                <div class="home-tile-ico">👪</div>
+                <div class="home-tile-title">Family</div>
+                <div class="home-tile-desc">Manage family members</div>
+              </div>
+              <div class="home-tile" onclick="showView('contact')">
+                <div class="home-tile-ico">💬</div>
+                <div class="home-tile-title">Contact &amp; FAQs</div>
+                <div class="home-tile-desc">Help &amp; WhatsApp chat</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- CARD VIEW -->
+          <section id="view-card" class="view app-screen">
+            <div class="screen-title">My Card</div>
+            <p class="screen-sub">Show this at check-in.</p>
+
+            <div class="membership-card" id="member-card">
+              <div class="card-logo-row">
+                <img src="assets/waddani-logo.png" alt="Xisbiga Waddani" />
+              </div>
+              <div class="card-photo-wrap">
+                <div class="card-avatar" id="card-avatar">
+                  <img src="assets/member-photo.jpg" alt="Mohamed Shibbin" />
+                </div>
+              </div>
+              <div class="card-primary-panel">
+                <div class="card-name" id="card-name">Mohamed Shibbin</div>
+                <div class="card-tier-pill" id="card-tier">STANDARD</div>
+                <div>
+                  <div class="card-valid-label">Valid until</div>
+                  <div class="card-valid-date" id="card-since">Sep 2027</div>
+                </div>
+                <div class="card-qr-wrap">
+                  <div class="card-qr-box" id="card-qr">
+                    <img src="assets/qr-code.png" alt="Membership QR code" />
+                  </div>
+                  <div class="card-qr-code" id="card-id">WD-482913</div>
+                </div>
+              </div>
+              <div class="card-social-footer">
+                <span class="social-chip">f</span>
+                <span class="social-chip">𝕏</span>
+                <span class="social-chip">◎</span>
+                <span class="social-handle">@WaddaniParty</span>
+              </div>
+            </div>
+
+            <div class="card-actions">
+              <button class="btn secondary" onclick="printCard()">Save / Print</button>
+            </div>
+          </section>
+
+          <!-- PAYMENTS VIEW -->
+          <section id="view-payments" class="view app-screen">
+            <div class="screen-title">Payment History</div>
+            <p class="screen-sub">Your membership payments.</p>
+            <div id="payments-list-body">
+              <div class="payment-row">
+                <div>
+                  <div class="pay-method">Zaad</div>
+                  <div class="pay-meta">TX-102938 • Sep 12, 2026</div>
+                </div>
+                <div>
+                  <div class="pay-amount">$25.00</div>
+                  <span class="pay-status completed">Completed</span>
+                </div>
+              </div>
+              <div class="payment-row">
+                <div>
+                  <div class="pay-method">Cash</div>
+                  <div class="pay-meta">TX-098211 • Sep 12, 2025</div>
+                </div>
+                <div>
+                  <div class="pay-amount">$25.00</div>
+                  <span class="pay-status completed">Completed</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- DONATE VIEW -->
+          <section id="view-donate" class="view app-screen">
+            <div class="screen-title">Donate</div>
+            <p class="screen-sub">Support Xisbiga Waddani's work in your community.</p>
+
+            <div class="donate-amounts" id="donate-amounts">
+              <button type="button" class="donate-amount-btn" onclick="selectDonateAmount(this, 5)">
+                $5
+              </button>
+              <button
+                type="button"
+                class="donate-amount-btn"
+                onclick="selectDonateAmount(this, 10)">
+                $10
+              </button>
+              <button
+                type="button"
+                class="donate-amount-btn active"
+                onclick="selectDonateAmount(this, 25)">
+                $25
+              </button>
+              <button
+                type="button"
+                class="donate-amount-btn"
+                onclick="selectDonateAmount(this, 50)">
+                $50
+              </button>
+            </div>
+
+            <label for="donate-amount">Amount (USD)</label>
+            <input id="donate-amount" type="text" value="25.00" />
+
+            <label for="donate-method">Payment method</label>
+            <select id="donate-method">
+              <option value="Cash">Cash</option>
+              <option value="Zaad">Zaad</option>
+              <option value="eDahab">eDahab</option>
+              <option value="Dahabshiil">Dahabshiil</option>
+              <option value="Premier Bank">Premier Bank</option>
+            </select>
+
+            <p class="error" id="donate-error">Please enter an amount.</p>
+
+            <button class="btn" onclick="submitDonation()">Donate now</button>
+          </section>
+
+          <!-- NEWS & EVENTS VIEW -->
+          <section id="view-news" class="view app-screen">
+            <div class="screen-title">News &amp; Events</div>
+            <p class="screen-sub">Stay up to date with Xisbiga Waddani.</p>
+
+            <div class="section-tabs">
+              <button
+                type="button"
+                class="section-tab active"
+                data-pane="news"
+                onclick="selectNewsTab('news')">
+                📰 News
+              </button>
+              <button
+                type="button"
+                class="section-tab"
+                data-pane="events"
+                onclick="selectNewsTab('events')">
+                📅 Events
+              </button>
+            </div>
+
+            <div id="pane-news" class="section-pane active">
+              <div class="news-card">
+                <div class="news-card-title">Waddani opens new regional office in Burao</div>
+                <div class="news-card-text">
+                  The party continues to expand its presence across Somaliland to better serve
+                  members and coordinate community programs.
+                </div>
+                <div class="news-card-meta">Sep 10, 2026</div>
+              </div>
+              <div class="news-card">
+                <div class="news-card-title">Annual membership drive begins this month</div>
+                <div class="news-card-text">
+                  Invite family and friends to join — every new member strengthens our community.
+                </div>
+                <div class="news-card-meta">Sep 3, 2026</div>
+              </div>
+              <div class="news-card">
+                <div class="news-card-title">Chairman's statement on national development</div>
+                <div class="news-card-text">
+                  Read the full statement on our priorities for education, health and
+                  infrastructure.
+                </div>
+                <div class="news-card-meta">Aug 28, 2026</div>
+              </div>
+            </div>
+
+            <div id="pane-events" class="section-pane">
+              <div class="event-card">
+                <div class="event-date-box">
+                  <span class="em">Sep</span><span class="ed">21</span>
+                </div>
+                <div class="event-body">
+                  <div class="event-title">Community town hall — Hargeisa</div>
+                  <div class="event-meta">6:00 PM · Waddani Head Office</div>
+                  <div class="event-actions">
+                    <button type="button" class="rsvp-btn" onclick="toggleRsvp(this)">RSVP</button>
+                  </div>
+                </div>
+              </div>
+              <div class="event-card">
+                <div class="event-date-box">
+                  <span class="em">Oct</span><span class="ed">05</span>
+                </div>
+                <div class="event-body">
+                  <div class="event-title">Regional members meetup — Burao</div>
+                  <div class="event-meta">4:00 PM · Burao Branch Office</div>
+                  <div class="event-actions">
+                    <button type="button" class="rsvp-btn" onclick="toggleRsvp(this)">RSVP</button>
+                  </div>
+                </div>
+              </div>
+              <div class="event-card">
+                <div class="event-date-box">
+                  <span class="em">Oct</span><span class="ed">18</span>
+                </div>
+                <div class="event-body">
+                  <div class="event-title">Youth wing leadership training</div>
+                  <div class="event-meta">10:00 AM · Waddani Head Office</div>
+                  <div class="event-actions">
+                    <button type="button" class="rsvp-btn" onclick="toggleRsvp(this)">RSVP</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- FAMILY VIEW -->
+          <section id="view-family" class="view app-screen">
+            <div class="screen-title">Family</div>
+            <p class="screen-sub">Manage family members linked to your account.</p>
+
+            <div id="family-list-body">
+              <div class="family-row">
+                <div class="family-avatar">FS</div>
+                <div>
+                  <div class="family-name">Faduma Shibbin</div>
+                  <div class="family-meta">Spouse · WD-482914</div>
+                </div>
+                <div class="family-relation">Active</div>
+              </div>
+              <div class="family-row">
+                <div class="family-avatar">AS</div>
+                <div>
+                  <div class="family-name">Abdullahi Shibbin</div>
+                  <div class="family-meta">Child · WD-482915</div>
+                </div>
+                <div class="family-relation">Active</div>
+              </div>
+            </div>
+
+            <div class="add-family-card">
+              <label for="family-name-input">Full name</label>
+              <input id="family-name-input" type="text" placeholder="e.g. Hodan Shibbin" />
+              <label for="family-relation-input">Relation</label>
+              <select id="family-relation-input">
+                <option value="Spouse">Spouse</option>
+                <option value="Child">Child</option>
+                <option value="Parent">Parent</option>
+                <option value="Sibling">Sibling</option>
+              </select>
+              <p class="error" id="family-error">Please enter a name.</p>
+              <button class="btn" onclick="addFamilyMember()">Add family member</button>
+            </div>
+          </section>
+
+          <!-- CONTACT & FEEDBACK VIEW -->
+          <section id="view-contact" class="view app-screen">
+            <div class="screen-title">Contact &amp; Feedback</div>
+            <p class="screen-sub">Reach the Waddani office or send us feedback.</p>
+
+            <div class="section-tabs">
+              <button
+                type="button"
+                class="section-tab active"
+                data-pane="contact"
+                onclick="selectContactTab('contact')">
+                📞 Contact
+              </button>
+              <button
+                type="button"
+                class="section-tab"
+                data-pane="faq"
+                onclick="selectContactTab('faq')">
+                ❓ FAQs
+              </button>
+            </div>
+
+            <div id="pane-contact" class="section-pane active">
+              <div class="contact-row">
+                <div class="contact-ico">📞</div>
+                <div>
+                  <div class="contact-label">Phone</div>
+                  <div class="contact-value">+252 63 400 1122</div>
+                </div>
+              </div>
+              <div class="contact-row">
+                <div class="contact-ico">✉️</div>
+                <div>
+                  <div class="contact-label">Email</div>
+                  <div class="contact-value">info@waddani.so</div>
+                </div>
+              </div>
+              <div class="contact-row">
+                <div class="contact-ico">📍</div>
+                <div>
+                  <div class="contact-label">Head office</div>
+                  <div class="contact-value">Waddani House, Hargeisa</div>
+                </div>
+              </div>
+              <div class="contact-row">
+                <div class="contact-ico">🕐</div>
+                <div>
+                  <div class="contact-label">Office hours</div>
+                  <div class="contact-value">Sat–Thu, 8:00 AM – 4:00 PM</div>
+                </div>
+              </div>
+
+              <button
+                class="btn"
+                style="background: #25d366; color: #fff"
+                onclick="openWhatsappChat()">
+                💬 Chat on WhatsApp
+              </button>
+            </div>
+
+            <div id="pane-faq" class="section-pane">
+              <div class="news-card">
+                <div class="news-card-title">How do I renew my membership?</div>
+                <div class="news-card-text">
+                  Go to My Card and tap Renew, or Payments to pay via Zaad. Your card updates
+                  automatically once payment is confirmed.
+                </div>
+              </div>
+              <div class="news-card">
+                <div class="news-card-title">How does ZAAD payment work?</div>
+                <div class="news-card-text">
+                  Select Zaad at checkout, confirm the prompt on your phone, and your payment is
+                  verified instantly — no need to submit a receipt manually.
+                </div>
+              </div>
+              <div class="news-card">
+                <div class="news-card-title">Can I add family members to my account?</div>
+                <div class="news-card-text">
+                  Yes. Open the Family section from Home and tap Add family member. Each dependent
+                  can get their own digital card.
+                </div>
+              </div>
+              <div class="news-card">
+                <div class="news-card-title">My QR card isn't scanning, what do I do?</div>
+                <div class="news-card-text">
+                  Make sure your screen brightness is up and the QR code isn't cropped. If it still
+                  fails, chat with us on WhatsApp for help.
+                </div>
+              </div>
+              <div class="news-card">
+                <div class="news-card-title">How do I get help or report an issue?</div>
+                <div class="news-card-text">
+                  Tap "Chat on WhatsApp" under the Contact tab to reach the Waddani office directly.
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- COMMUNICATIONS VIEW -->
+          <section id="view-communications" class="view app-screen">
+            <div class="screen-title">Communications</div>
+            <p class="screen-sub">Notifications sent to your WhatsApp and email.</p>
+            <div id="communications-list-body">
+              <div class="notif-row">
+                <div class="notif-ico">✅</div>
+                <div class="notif-body">
+                  <div class="notif-title">Membership approved</div>
+                  <div class="notif-text">
+                    Your Waddani membership has been approved. Your digital card is ready.
+                  </div>
+                  <div class="notif-meta">Sent via WhatsApp &amp; Email • Sep 13, 2026</div>
+                </div>
+              </div>
+              <div class="notif-row">
+                <div class="notif-ico">💳</div>
+                <div class="notif-body">
+                  <div class="notif-title">Payment received</div>
+                  <div class="notif-text">
+                    We received your payment of $25.00 (Zaad, ref TX-102938).
+                  </div>
+                  <div class="notif-meta">Sent via WhatsApp &amp; Email • Sep 12, 2026</div>
+                </div>
+              </div>
+              <div class="notif-row">
+                <div class="notif-ico">⏳</div>
+                <div class="notif-body">
+                  <div class="notif-title">Application under review</div>
+                  <div class="notif-text">
+                    Thanks for registering. Our team is reviewing your details and payment.
+                  </div>
+                  <div class="notif-meta">Sent via WhatsApp &amp; Email • Sep 12, 2026</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- PROFILE VIEW -->
+          <section id="view-profile" class="view app-screen">
+            <div class="screen-title">Profile</div>
+            <p class="screen-sub">Your account details.</p>
+
+            <div class="profile-header">
+              <div class="avatar" id="profile-avatar">
+                <img src="assets/member-photo.jpg" alt="Mohamed Shibbin" />
+              </div>
+              <div>
+                <div class="pname" id="profile-name">Mohamed Shibbin</div>
+                <div class="pemail" id="profile-email">moshibbin@gmail.com</div>
+              </div>
+            </div>
+
+            <div class="info-list">
+              <div class="info-row">
+                <span>Member ID</span><span id="profile-id">WD-482913</span>
+              </div>
+              <div class="info-row"><span>Tier</span><span id="profile-tier">Standard</span></div>
+              <div class="info-row">
+                <span>Phone</span><span id="profile-phone">+252 63 234 5678</span>
+              </div>
+              <div class="info-row">
+                <span>Education</span><span id="profile-education">Bachelor's degree</span>
+              </div>
+              <div class="info-row">
+                <span>Member since</span><span id="profile-since">Sep 2025</span>
+              </div>
+            </div>
+
+            <button class="btn danger" onclick="logoutUser()">Log out</button>
+          </section>
+        </div>
+
+        <div class="tab-bar" id="tab-bar">
+          <button class="tab-btn" data-nav="dashboard"><span class="ico">🏠</span>Home</button>
+          <button class="tab-btn" data-nav="card"><span class="ico">🪪</span>Card</button>
+          <button class="tab-btn" data-nav="payments"><span class="ico">💳</span>Payments</button>
+          <button class="tab-btn" data-nav="profile"><span class="ico">👤</span>Profile</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const STORE_KEY = 'waddani_members_v1';
+      const PAYMENTS_KEY = 'waddani_payments_v1';
+      const SESSION_KEY = 'waddani_session_v1';
+      const APP_VIEWS = [
+        'dashboard',
+        'card',
+        'payments',
+        'communications',
+        'donate',
+        'profile',
+        'news',
+        'family',
+        'contact',
+      ];
+
+      function loadMembers() {
+        try {
+          return JSON.parse(localStorage.getItem(STORE_KEY)) || [];
+        } catch (e) {
+          return [];
+        }
+      }
+      function saveMembers(list) {
+        try {
+          localStorage.setItem(STORE_KEY, JSON.stringify(list));
+        } catch (e) {}
+      }
+      function loadPayments() {
+        try {
+          return JSON.parse(localStorage.getItem(PAYMENTS_KEY)) || {};
+        } catch (e) {
+          return {};
+        }
+      }
+      function savePayments(map) {
+        try {
+          localStorage.setItem(PAYMENTS_KEY, JSON.stringify(map));
+        } catch (e) {}
+      }
+      function addPayment(memberId, payment) {
+        const map = loadPayments();
+        if (!map[memberId]) map[memberId] = [];
+        map[memberId].unshift(payment);
+        savePayments(map);
+      }
+      function setSession(type, value) {
+        try {
+          localStorage.setItem(SESSION_KEY, JSON.stringify({ type, value }));
+        } catch (e) {}
+      }
+      function getSession() {
+        try {
+          const raw = localStorage.getItem(SESSION_KEY);
+          if (!raw) return null;
+          try {
+            return JSON.parse(raw);
+          } catch (e) {
+            return { type: 'email', value: raw };
+          }
+        } catch (e) {
+          return null;
+        }
+      }
+      function clearSession() {
+        try {
+          localStorage.removeItem(SESSION_KEY);
+        } catch (e) {}
+      }
+      function genId() {
+        return 'WD-' + Math.floor(100000 + Math.random() * 900000);
+      }
+      function normalizePhone(p) {
+        return (p || '').replace(/\D/g, '');
+      }
+
+      function showView(name) {
+        document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
+        document.getElementById('view-' + name).classList.add('active');
+
+        const tabBar = document.getElementById('tab-bar');
+        if (APP_VIEWS.includes(name)) {
+          tabBar.classList.add('show');
+          document.querySelectorAll('.tab-btn').forEach((b) => {
+            b.classList.toggle('active', b.getAttribute('data-nav') === name);
+          });
+        } else {
+          tabBar.classList.remove('show');
+        }
+
+        if (name === 'dashboard') renderHome();
+        if (name === 'card') renderCard();
+        if (name === 'payments') renderPayments();
+        if (name === 'communications') renderCommunications();
+        if (name === 'profile') renderProfile();
+        if (name === 'register') regResetWizard();
+
+        document.querySelector('.app-content').scrollTop = 0;
+      }
+
+      document.querySelectorAll('[data-nav]').forEach((el) => {
+        el.addEventListener('click', () => showView(el.getAttribute('data-nav')));
+      });
+
+      function currentMember() {
+        const s = getSession();
+        if (!s) return null;
+        const members = loadMembers();
+        if (s.type === 'phone') {
+          return (
+            members.find((m) => m.phone && normalizePhone(m.phone) === normalizePhone(s.value)) ||
+            null
+          );
+        }
+        return members.find((m) => m.email === s.value) || null;
+      }
+
+      /* ---------- Register wizard (steps) ---------- */
+      const REG_STEP_COUNT = 4;
+      let regStepIndex = 0;
+
+      function regShowError(msg) {
+        const errorEl = document.getElementById('reg-error');
+        errorEl.textContent = msg;
+        errorEl.style.display = 'block';
+      }
+      function regClearError() {
+        document.getElementById('reg-error').style.display = 'none';
+      }
+
+      function regValidateStep(i) {
+        if (i === 0) {
+          const name = document.getElementById('reg-name').value.trim();
+          const gender = document.getElementById('reg-gender').value;
+          const phone = document.getElementById('reg-phone').value.trim();
+          const email = document.getElementById('reg-email').value.trim();
+          const education = document.getElementById('reg-education').value;
+          const password = document.getElementById('reg-password').value;
+          if (!name || !gender || !phone || !email || !education || !password) {
+            regShowError(
+              'Please fill in name, gender, phone, email, educational level and password.'
+            );
+            return false;
+          }
+          if (password.length < 6) {
+            regShowError('Password must be at least 6 characters.');
+            return false;
+          }
+          const members = loadMembers();
+          if (members.some((m) => m.email === email.toLowerCase())) {
+            regShowError('An account with this email already exists.');
+            return false;
+          }
+        }
+        if (i === 1) {
+          const country = document.getElementById('reg-country').value.trim();
+          const city = document.getElementById('reg-city').value.trim();
+          if (!country || !city) {
+            regShowError('Please fill in country and city.');
+            return false;
+          }
+        }
+        if (i === 2) {
+          const tier = document.getElementById('reg-tier').value;
+          const period = document.getElementById('reg-period').value;
+          if (!tier || !period) {
+            regShowError('Please select a membership plan and period.');
+            return false;
+          }
+        }
+        if (i === 3) {
+          const amount = document.getElementById('reg-pay-amount').value.trim();
+          const account = document.getElementById('reg-pay-account').value.trim();
+          const reference = document.getElementById('reg-pay-reference').value.trim();
+          if (!amount || !account || !reference) {
+            regShowError('Please fill in amount, account and reference.');
+            return false;
+          }
+        }
+        regClearError();
+        return true;
+      }
+
+      function regRenderStep() {
+        document.querySelectorAll('.reg-step').forEach((el, i) => {
+          el.classList.toggle('active', i === regStepIndex);
+        });
+        document.querySelectorAll('#reg-step-indicator .step-dot').forEach((dot, i) => {
+          dot.classList.toggle('active', i === regStepIndex);
+          dot.classList.toggle('done', i < regStepIndex);
+        });
+        document.getElementById('reg-back-btn').style.display =
+          regStepIndex === 0 ? 'none' : 'block';
+        document.getElementById('reg-next-btn').textContent =
+          regStepIndex === REG_STEP_COUNT - 1 ? 'Create account & get card' : 'Next';
+        regClearError();
+        document.querySelector('.app-content').scrollTop = 0;
+      }
+
+      function regGoNext() {
+        if (!regValidateStep(regStepIndex)) return;
+        if (regStepIndex === REG_STEP_COUNT - 1) {
+          registerUser();
+          return;
+        }
+        if (regStepIndex === 2) {
+          const price = selectedPlanPrice();
+          const amountEl = document.getElementById('reg-pay-amount');
+          if (price != null && !amountEl.value.trim()) amountEl.value = price.toFixed(2);
+        }
+        regStepIndex++;
+        regRenderStep();
+      }
+      function regGoBack() {
+        if (regStepIndex === 0) return;
+        regStepIndex--;
+        regRenderStep();
+      }
+      function regGoToStep(target) {
+        if (target === regStepIndex) return;
+        regStepIndex = target;
+        regRenderStep();
+      }
+      function regResetWizard() {
+        regStepIndex = 0;
+        document
+          .querySelectorAll(
+            '#view-register input[type="text"], #view-register input[type="email"], #view-register input[type="tel"], #view-register input[type="number"], #view-register input[type="password"]'
+          )
+          .forEach((el) => (el.value = ''));
+        document
+          .querySelectorAll('#view-register input[type="checkbox"]')
+          .forEach((el) => (el.checked = false));
+        document.getElementById('reg-gender').value = '';
+        document.getElementById('reg-education').value = '';
+        document.getElementById('reg-pay-amount').value = '';
+        loadPlanOptions();
+        loadPeriodOptions();
+        regRenderStep();
+      }
+
+      /* ---------- Membership plans (prototype: mocks GET /plans, simulates network latency) ---------- */
+      let membershipPlans = [];
+      let regSelectedPlanId = null;
+      function fetchMembershipPlans() {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            // Simulated API response for GET /plans
+            resolve([
+              {
+                id: 'standard',
+                name: 'Standard',
+                icon: '📇',
+                priceUsd: 25,
+                benefits: [
+                  { text: 'Digital membership card & QR check-in', yes: true },
+                  { text: 'Party news & event invites', yes: true },
+                  { text: 'Vote in regional meetings', yes: false },
+                  { text: 'Priority support on WhatsApp', yes: false },
+                ],
+              },
+              {
+                id: 'silver',
+                name: 'Silver',
+                icon: '⭐',
+                priceUsd: 50,
+                benefits: [
+                  { text: 'Everything in Standard', yes: true },
+                  { text: 'Vote in regional meetings', yes: true },
+                  { text: 'Priority support on WhatsApp', yes: true },
+                  { text: 'Invite to leadership training', yes: false },
+                ],
+              },
+              {
+                id: 'gold',
+                name: 'Gold',
+                icon: '👑',
+                priceUsd: 100,
+                benefits: [
+                  { text: 'Everything in Silver', yes: true },
+                  { text: 'Invite to leadership training', yes: true },
+                  { text: 'Direct line to regional office', yes: true },
+                  { text: 'Recognition at annual convention', yes: true },
+                ],
+              },
+            ]);
+          }, 500);
+        });
+      }
+
+      function renderPlanHero(containerId, plan, opts) {
+        opts = opts || {};
+        const hero = document.getElementById(containerId);
+        if (!plan) {
+          hero.className = 'plan-hero loading';
+          hero.textContent = 'Unable to load plan.';
+          return;
+        }
+        hero.className = 'plan-hero';
+        hero.innerHTML =
+          '<div class="plan-hero-name">' +
+          plan.name +
+          '</div>' +
+          (opts.activeBadge ? '<div class="plan-hero-badge">Active</div><br>' : '') +
+          '<div class="plan-hero-price">$' +
+          plan.priceUsd +
+          ' / year</div>' +
+          '<div class="plan-hero-subhead">Top benefits</div>' +
+          plan.benefits
+            .map(
+              (b) =>
+                '<div class="plan-benefit-row ' +
+                (b.yes ? 'yes' : 'no') +
+                '">' +
+                '<span class="mark">' +
+                (b.yes ? '✓' : '✕') +
+                '</span><span>' +
+                b.text +
+                '</span>' +
+                '</div>'
+            )
+            .join('') +
+          (opts.ctaLabel
+            ? '<button type="button" class="plan-hero-cta" id="' +
+              containerId +
+              '-cta"' +
+              (opts.ctaDisabled ? ' disabled' : '') +
+              '>' +
+              opts.ctaLabel +
+              '</button>'
+            : '');
+      }
+
+      function renderPlanTabs(containerId, plans, selectedId, onSelect) {
+        const tabs = document.getElementById(containerId);
+        tabs.innerHTML = plans
+          .map(
+            (p) =>
+              '<button type="button" class="plan-tab' +
+              (p.id === selectedId ? ' active' : '') +
+              '" data-plan="' +
+              p.id +
+              '">' +
+              '<span class="ico">' +
+              p.icon +
+              '</span>' +
+              p.name +
+              '</button>'
+          )
+          .join('');
+        Array.from(tabs.children).forEach((btn) => {
+          btn.addEventListener('click', () => onSelect(btn.getAttribute('data-plan')));
+        });
+      }
+
+      function loadPlanOptions() {
+        const errorEl = document.getElementById('reg-plans-error');
+        const hero = document.getElementById('reg-plan-hero');
+        errorEl.style.display = 'none';
+        hero.className = 'plan-hero loading';
+        hero.textContent = 'Loading plans…';
+        document.getElementById('reg-plan-tabs').innerHTML = '';
+
+        fetchMembershipPlans()
+          .then((plans) => {
+            membershipPlans = plans;
+            regSelectedPlanId = plans[0].id;
+            renderPlanTabs('reg-plan-tabs', plans, regSelectedPlanId, selectRegPlan);
+            renderPlanHero('reg-plan-hero', plans[0]);
+            syncRegTierSelect();
+          })
+          .catch(() => {
+            hero.className = 'plan-hero loading';
+            hero.textContent = '';
+            errorEl.style.display = 'block';
+          });
+      }
+      function selectRegPlan(planId) {
+        regSelectedPlanId = planId;
+        const plan = membershipPlans.find((p) => p.id === planId);
+        renderPlanTabs('reg-plan-tabs', membershipPlans, regSelectedPlanId, selectRegPlan);
+        renderPlanHero('reg-plan-hero', plan);
+        syncRegTierSelect();
+      }
+      function syncRegTierSelect() {
+        const select = document.getElementById('reg-tier');
+        const plan = membershipPlans.find((p) => p.id === regSelectedPlanId);
+        select.innerHTML = plan
+          ? '<option value="' + plan.name + '" selected>' + plan.name + '</option>'
+          : '';
+      }
+      function selectedPlanPrice() {
+        const plan = membershipPlans.find((p) => p.id === regSelectedPlanId);
+        return plan ? plan.priceUsd : null;
+      }
+
+      /* ---------- Membership periods (prototype: mocks GET /membership-periods) ---------- */
+      function fetchMembershipPeriods() {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            // Simulated API response for GET /membership-periods
+            resolve([
+              { id: '1y', label: '1 year', months: 12 },
+              { id: '2y', label: '2 years', months: 24 },
+            ]);
+          }, 400);
+        });
+      }
+      function loadPeriodOptions() {
+        const select = document.getElementById('reg-period');
+        const errorEl = document.getElementById('reg-periods-error');
+        errorEl.style.display = 'none';
+        select.disabled = true;
+        select.innerHTML = '<option value="" selected>Loading periods…</option>';
+
+        fetchMembershipPeriods()
+          .then((periods) => {
+            select.innerHTML = periods
+              .map(
+                (p) =>
+                  '<option value="' +
+                  p.label +
+                  '" data-months="' +
+                  p.months +
+                  '">' +
+                  p.label +
+                  '</option>'
+              )
+              .join('');
+            select.disabled = false;
+          })
+          .catch(() => {
+            select.innerHTML = '<option value="">Unable to load periods</option>';
+            errorEl.style.display = 'block';
+          });
+      }
+
+      function registerUser() {
+        const name = document.getElementById('reg-name').value.trim();
+        const email = document.getElementById('reg-email').value.trim().toLowerCase();
+        const phone = document.getElementById('reg-phone').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const education = document.getElementById('reg-education').value;
+        const tier = document.getElementById('reg-tier').value;
+
+        const member = {
+          id: genId(),
+          name,
+          email,
+          phone,
+          password,
+          education,
+          tier,
+          since: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        };
+        const members = loadMembers();
+        members.push(member);
+        saveMembers(members);
+
+        addPayment(member.id, {
+          method: document.getElementById('reg-pay-method').value,
+          amount: document.getElementById('reg-pay-amount').value.trim(),
+          reference: document.getElementById('reg-pay-reference').value.trim(),
+          date: new Date().toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          }),
+          status: 'Pending',
+        });
+
+        regResetWizard();
+        showView('pending');
+      }
+
+      function logoutUser() {
+        clearSession();
+        resetLoginForm();
+        showView('welcome');
+      }
+
+      /* ---------- Password login (prototype: password stored in localStorage, plain text — demo only) ---------- */
+      function loginUser() {
+        const identifier = document.getElementById('login-identifier').value.trim();
+        const password = document.getElementById('login-password').value;
+        const errorEl = document.getElementById('login-error');
+        errorEl.style.display = 'none';
+
+        if (!identifier || !password) {
+          errorEl.textContent = 'Please enter your phone/email and password.';
+          errorEl.style.display = 'block';
+          return;
+        }
+
+        const members = loadMembers();
+        const idLower = identifier.toLowerCase();
+        const found = members.find(
+          (m) =>
+            (m.email && m.email === idLower) ||
+            (m.phone && normalizePhone(m.phone) === normalizePhone(identifier))
+        );
+
+        if (!found) {
+          errorEl.textContent = 'No account found for that phone/email.';
+          errorEl.style.display = 'block';
+          return;
+        }
+
+        setSession(found.email ? 'email' : 'phone', found.email || found.phone);
+        resetLoginForm();
+        showView('dashboard');
+      }
+
+      function resetLoginForm() {
+        document.getElementById('login-identifier').value = '';
+        document.getElementById('login-password').value = '';
+        document.getElementById('login-error').style.display = 'none';
+      }
+
+      function renderHome() {
+        const me = currentMember();
+        if (!me) {
+          showView('welcome');
+          return;
+        }
+        // Home, Card, Payments and Profile show fixed sample content for this prototype.
+      }
+
+      function renderCard() {
+        const me = currentMember();
+        if (!me) {
+          showView('welcome');
+          return;
+        }
+      }
+
+      function renderPayments() {
+        const me = currentMember();
+        if (!me) {
+          showView('welcome');
+          return;
+        }
+      }
+
+      function renderCommunications() {
+        const me = currentMember();
+        if (!me) {
+          showView('welcome');
+          return;
+        }
+        // Static sample notifications for this prototype.
+      }
+
+      function renderProfile() {
+        const me = currentMember();
+        if (!me) {
+          showView('welcome');
+          return;
+        }
+      }
+
+      function printCard() {
+        window.print();
+      }
+
+      function inviteFamilyFriends() {
+        const shareData = {
+          title: 'Waddani Membership',
+          text: 'Join me as a Waddani member! Register in under a minute:',
+          url: window.location.href,
+        };
+        if (navigator.share) {
+          navigator.share(shareData).catch(() => {});
+          return;
+        }
+        if (navigator.clipboard) {
+          navigator.clipboard
+            .writeText(shareData.text + ' ' + shareData.url)
+            .then(() => {
+              alert('Invite link copied. Share it with your family & friends!');
+            })
+            .catch(() => {
+              alert('Share this app with your family & friends: ' + shareData.url);
+            });
+          return;
+        }
+        alert('Share this app with your family & friends: ' + shareData.url);
+      }
+
+      function selectDonateAmount(btn, amount) {
+        document
+          .querySelectorAll('.donate-amount-btn')
+          .forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('donate-amount').value = amount.toFixed(2);
+      }
+
+      function submitDonation() {
+        const amount = document.getElementById('donate-amount').value.trim();
+        const errorEl = document.getElementById('donate-error');
+        if (!amount || Number(amount) <= 0) {
+          errorEl.textContent = 'Please enter a valid amount.';
+          errorEl.style.display = 'block';
+          return;
+        }
+        errorEl.style.display = 'none';
+        alert('Thank you for your $' + amount + ' donation to Xisbiga Waddani!');
+        showView('dashboard');
+      }
+
+      function selectNewsTab(pane) {
+        document.querySelectorAll('#view-news .section-tab').forEach((t) => {
+          t.classList.toggle('active', t.getAttribute('data-pane') === pane);
+        });
+        document.querySelectorAll('#view-news .section-pane').forEach((p) => {
+          p.classList.toggle('active', p.id === 'pane-' + pane);
+        });
+      }
+      function toggleRsvp(btn) {
+        const going = btn.classList.toggle('going');
+        btn.textContent = going ? "You're going" : 'RSVP';
+      }
+
+      function selectContactTab(pane) {
+        document.querySelectorAll('#view-contact .section-tab').forEach((t) => {
+          t.classList.toggle('active', t.getAttribute('data-pane') === pane);
+        });
+        document.querySelectorAll('#view-contact .section-pane').forEach((p) => {
+          p.classList.toggle('active', p.id === 'pane-' + pane);
+        });
+      }
+      function openWhatsappChat() {
+        const phone = '252634001122';
+        const text = encodeURIComponent("Hi Waddani, I'd like some help with my membership.");
+        window.open('https://wa.me/' + phone + '?text=' + text, '_blank');
+      }
+
+      function initials(name) {
+        return name
+          .trim()
+          .split(/\s+/)
+          .slice(0, 2)
+          .map((p) => p[0].toUpperCase())
+          .join('');
+      }
+      function addFamilyMember() {
+        const name = document.getElementById('family-name-input').value.trim();
+        const relation = document.getElementById('family-relation-input').value;
+        const errorEl = document.getElementById('family-error');
+        if (!name) {
+          errorEl.style.display = 'block';
+          return;
+        }
+        errorEl.style.display = 'none';
+        const row = document.createElement('div');
+        row.className = 'family-row';
+        row.innerHTML =
+          '<div class="family-avatar">' +
+          initials(name) +
+          '</div>' +
+          '<div><div class="family-name">' +
+          name +
+          '</div>' +
+          '<div class="family-meta">' +
+          relation +
+          ' · ' +
+          genId() +
+          '</div></div>' +
+          '<div class="family-relation">Pending</div>';
+        document.getElementById('family-list-body').appendChild(row);
+        document.getElementById('family-name-input').value = '';
+      }
+
+      function updateClock() {
+        const el = document.getElementById('clock');
+        const d = new Date();
+        let h = d.getHours(),
+          m = d.getMinutes();
+        h = h % 12 || 12;
+        el.textContent = h + ':' + String(m).padStart(2, '0');
+      }
+      updateClock();
+      setInterval(updateClock, 30000);
+
+      (function init() {
+        if (currentMember()) {
+          showView('dashboard');
+        } else {
+          showView('welcome');
+        }
+      })();
+    </script>
+  </body>
+</html>

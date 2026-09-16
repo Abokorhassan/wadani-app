@@ -1,0 +1,43 @@
+{
+  "common": {
+    "appName": "Waddani",
+    "partyName": "Xisbiga Waddani",
+    "partyTagline": "Somaliland National Party",
+    "next": "Next",
+    "back": "Back",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "close": "Close",
+    "save": "Save",
+    "logIn": "Log in",
+    "logOut": "Log out",
+    "loading": "Loading…"
+  },
+  "welcome": {
+    "title": "Welcome",
+    "subtitle": "Choose an option to get started.",
+    "registerTitle": "Register new member",
+    "registerDescription": "Create a new membership account",
+    "loginTitle": "I'm already a member",
+    "loginDescription": "Log in to view your membership card"
+  },
+  "login": {
+    "title": "Welcome back",
+    "subtitle": "Log in to view your membership card.",
+    "identifier": "Phone or email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "New here?",
+    "createAccount": "Create an account"
+  },
+  "tabs": {
+    "home": "Home",
+    "card": "Card",
+    "payments": "Payments",
+    "profile": "Profile"
+  },
+  "errors": {
+    "network": "No connection. Check your internet and try again.",
+    "unexpected": "Something went wrong. Please try again."
+  }
+}

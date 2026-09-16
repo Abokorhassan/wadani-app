@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "Waddani",
+    "slug": "waddani",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "waddani",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "icon": "./assets/brand/icon.png",
+    "ios": {
+      "bundleIdentifier": "so.waddani.membership",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "so.waddani.membership",
+      "adaptiveIcon": {
+        "backgroundColor": "#FE7B00",
+        "foregroundImage": "./assets/brand/android-icon-foreground.png",
+        "monochromeImage": "./assets/brand/android-icon-monochrome.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-localization",
+      "expo-sharing",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FE7B00",
+          "image": "./assets/brand/splash-icon.png",
+          "imageWidth": 180
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Waddani uses your photos so you can add a picture to your membership card.",
+          "cameraPermission": "Waddani uses the camera so you can take a picture for your membership card."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "savePhotosPermission": "Waddani saves your membership card to your photos.",
+          "isAccessMediaLocationEnabled": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": ""
+      }
+    }
+  }
+}
