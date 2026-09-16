@@ -676,11 +676,27 @@ Every phase ends with:
 - [x] i18n setup (`en`, plus an `so` skeleton)
 - [x] Jest with unit tests for formatting and error mapping
 - [ ] Visual direction: review the gallery on a device and settle the look before Phase 1 screens
-- [ ] First development build on a device (iOS locally; Android through EAS, no local SDK)
+- [ ] First development build on a device
+
+**Known issue — local iOS build blocked (2026-09-16):** this machine's Xcode (26.1.1 /
+Swift 6.2.1) is newer than what `expo-modules-jsi@57.1.0` (a dependency of
+`expo-modules-core`, pulled in by every Expo module) was built against. Compiling
+it locally hits three separate Swift 6 strict-concurrency errors. Two are fixed
+via `patches/expo-modules-jsi+57.1.0.patch` (`patch-package`, runs on `npm install`):
+a `weak let` property syntax the newer compiler rejects, and a `SWIFT_SHARED_REFERENCE`
+macro ordering issue. The third — raw pointers sent across an actor boundary in
+`JavaScriptRuntime.swift`'s host-callback bridge — needs real thread-safety
+verification of code we don't own, so it wasn't patched blind. Until Expo ships a
+fix (or SDK 58 stabilizes — the top-level `expo` package is preview-only as of this
+date, `58.0.0-preview.2`), **use EAS Build for iOS** (its managed macOS image is
+version-matched to the SDK, so it doesn't hit this) rather than `expo run:ios`
+locally. Android is unaffected — no Swift involved — and builds locally once the
+NDK is installed (`sdk.dir` in `android/local.properties`, itself gitignored since
+`android/` is a generated folder).
 
 **Exit criteria:**
 
-- The app boots on both platforms.
+- The app boots on both platforms — Android locally, iOS via an EAS development build.
 - The gallery shows every component in every state.
 - Switching between mock and live changes the data source without code changes.
 
