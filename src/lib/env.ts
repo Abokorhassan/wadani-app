@@ -11,6 +11,8 @@ export const env = {
   apiMock: process.env.EXPO_PUBLIC_API_MOCK ?? 'all',
   /** Delay added to mock responses, so loading states are visible. */
   mockLatencyMs: Number(process.env.EXPO_PUBLIC_MOCK_LATENCY_MS ?? 450),
+  /** Link shared by "Invite family & friends"; the store or landing page (build-plan D19). */
+  inviteUrl: process.env.EXPO_PUBLIC_INVITE_URL ?? '',
   appVersion: Constants.expoConfig?.version ?? '0.0.0',
   isDev: __DEV__,
 } as const;

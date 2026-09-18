@@ -10,6 +10,8 @@ const api = pickApi('membership', membershipApi, membershipApiMock);
 export const membershipKeys = {
   plans: ['plans'] as const,
   periods: ['periods'] as const,
+  /** Persisted to disk so the card opens offline (see src/api/query-client.ts). */
+  me: ['me'] as const,
 };
 
 export function usePlans() {
@@ -23,5 +25,12 @@ export function usePeriods() {
   return useQuery({
     queryKey: membershipKeys.periods,
     queryFn: () => api.getPeriods(),
+  });
+}
+
+export function useMe() {
+  return useQuery({
+    queryKey: membershipKeys.me,
+    queryFn: () => api.getMe(),
   });
 }

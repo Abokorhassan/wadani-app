@@ -50,14 +50,14 @@ export default function GalleryScreen() {
 
   const swatches: { name: string; color: string; onColor: string }[] = [
     { name: 'brand', color: theme.color.brand, onColor: theme.color.textOnBrand },
-    { name: 'brandDark', color: theme.color.brandDark, onColor: theme.color.textOnBrand },
+    { name: 'brandDark', color: theme.color.brandDeep, onColor: theme.color.textOnBrand },
     { name: 'action', color: theme.color.action, onColor: theme.color.textOnAction },
     { name: 'accent', color: theme.color.accent, onColor: theme.color.textOnAction },
     { name: 'surfaceWarm', color: theme.color.surfaceWarm, onColor: theme.color.text },
     { name: 'danger', color: theme.color.danger, onColor: theme.color.textOnAction },
   ];
 
-  const tones: StatusTone[] = ['neutral', 'brand', 'success', 'warning', 'danger', 'info'];
+  const tones: StatusTone[] = ['neutral', 'success', 'warning', 'danger', 'info', 'ink', 'onBrand'];
 
   return (
     <Screen>
@@ -174,7 +174,7 @@ export default function GalleryScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
           <Avatar name="Mohamed Shibbin" size={40} />
           <Avatar name="Faduma Shibbin" size={56} />
-          <Avatar name="Waddani Member" size={72} ringColor={theme.color.brand} />
+          <Avatar name="Waddani Member" size={72} radius={24} tone="brand" />
         </View>
       </Section>
 
@@ -186,8 +186,10 @@ export default function GalleryScreen() {
           <Card tone="warm">
             <Text variant="bodyStrong">Warm card</Text>
           </Card>
-          <Card tone="brandTint" onPress={() => toast.show('Card pressed', 'success')}>
-            <Text variant="bodyStrong">Tinted, pressable</Text>
+          <Card tone="ink" onPress={() => toast.show('Card pressed', 'success')}>
+            <Text variant="bodyStrong" color="textOnInk">
+              Ink, pressable
+            </Text>
           </Card>
         </View>
       </Section>

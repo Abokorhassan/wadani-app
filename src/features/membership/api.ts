@@ -1,9 +1,9 @@
 import { request } from '@/api/client';
 import { parseResponse } from '@/api/parse';
 
-import { toMembershipPeriod, toPlan } from './mappers';
-import { periodsResponse, plansResponse } from './schemas';
-import type { MembershipPeriod, Plan } from './types';
+import { toMember, toMembershipPeriod, toPlan } from './mappers';
+import { memberDto, periodsResponse, plansResponse } from './schemas';
+import type { Member, MembershipPeriod, Plan } from './types';
 
 /** Live endpoints. Paths are placeholders until the Postman collection lands. */
 export const membershipApi = {
@@ -14,9 +14,13 @@ export const membershipApi = {
 
   async getPeriods(): Promise<MembershipPeriod[]> {
     const data = await request('/membership-periods', { authenticated: false });
-    return parseResponse(periodsResponse, data, 'GET /membership-periods').map(
-      toMembershipPeriod
-    );
+    return parseResponse(periodsResponse, data, 'GET /membership-periods').map(toMembershipPeriod);
+  },
+
+  /** The signed-in member: profile, status, tier and card details. */
+  async getMe(): Promise<Member> {
+    const data = await request('/me');
+    return toMember(parseResponse(memberDto, data, 'GET /me'));
   },
 };
 

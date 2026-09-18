@@ -1,8 +1,8 @@
 import { Tabs } from 'expo-router';
-import { CreditCard, Home, IdCard, User } from 'lucide-react-native';
+import { House, IdCard, Receipt, User } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 
-import { useTheme } from '@/design-system';
+import { FloatingTabBar, useTheme } from '@/design-system';
 
 export default function TabsLayout() {
   const theme = useTheme();
@@ -10,42 +10,45 @@ export default function TabsLayout() {
 
   return (
     <Tabs
+      tabBar={(props) => <FloatingTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: theme.color.action,
-        tabBarInactiveTintColor: theme.color.textMuted,
-        tabBarStyle: {
-          backgroundColor: theme.color.surface,
-          borderTopColor: theme.color.border,
-        },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '700' },
+        sceneStyle: { backgroundColor: theme.color.background },
       }}>
       <Tabs.Screen
         name="home"
         options={{
           title: t('tabs.home'),
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <House size={size} color={color} strokeWidth={focused ? 2.2 : 2} />
+          ),
         }}
       />
       <Tabs.Screen
         name="card"
         options={{
           title: t('tabs.card'),
-          tabBarIcon: ({ color, size }) => <IdCard size={size} color={color} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <IdCard size={size} color={color} strokeWidth={focused ? 2.2 : 2} />
+          ),
         }}
       />
       <Tabs.Screen
         name="payments"
         options={{
           title: t('tabs.payments'),
-          tabBarIcon: ({ color, size }) => <CreditCard size={size} color={color} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <Receipt size={size} color={color} strokeWidth={focused ? 2.2 : 2} />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: t('tabs.profile'),
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <User size={size} color={color} strokeWidth={focused ? 2.2 : 2} />
+          ),
         }}
       />
     </Tabs>

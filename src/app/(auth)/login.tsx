@@ -34,7 +34,7 @@ export default function LoginScreen() {
         </Text>
       </View>
 
-      <View style={{ marginTop: theme.spacing.xl }}>
+      <View style={{ marginTop: theme.spacing.xl, gap: theme.spacing.lg + 2 }}>
         <TextField
           label={t('login.identifier')}
           value={identifier}

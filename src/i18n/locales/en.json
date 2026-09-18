@@ -2,6 +2,7 @@
   "common": {
     "appName": "Waddani",
     "partyName": "Xisbiga Waddani",
+    "partyNameCaps": "XISBIGA WADDANI",
     "partyTagline": "Somaliland National Party",
     "next": "Next",
     "back": "Back",
@@ -35,6 +36,100 @@
     "card": "Card",
     "payments": "Payments",
     "profile": "Profile"
+  },
+  "home": {
+    "greeting": "Hi, {{name}}",
+    "subtitle": "Welcome back to your Waddani membership.",
+    "notifications": "Notifications",
+    "inviteTitle": "Invite your family & friends",
+    "inviteText": "Grow the Waddani community — share the app and get them registered.",
+    "invite": "Invite",
+    "inviteMessage": "Join me as a Waddani member! Register in under a minute:",
+    "tiles": {
+      "card": "My Card",
+      "cardText": "View & show your card",
+      "payments": "Payments",
+      "paymentsText": "Payment history",
+      "donate": "Donate",
+      "donateText": "Support Waddani",
+      "news": "News & Events",
+      "newsText": "Updates & RSVP",
+      "family": "Family",
+      "familyText": "Manage family members",
+      "contact": "Contact & FAQs",
+      "contactText": "Help & WhatsApp chat"
+    }
+  },
+  "card": {
+    "title": "My Card",
+    "subtitle": "Show this at check-in.",
+    "membershipCard": "Membership card",
+    "memberId": "Member ID",
+    "validUntil": "Valid until",
+    "tierMember": "{{tier}} member",
+    "scan": "Scan at check-in",
+    "openCard": "Open membership card",
+    "save": "Save",
+    "share": "Share",
+    "saved": "Card saved to your photos.",
+    "saveFailed": "Couldn't save the card. Please try again.",
+    "photosDenied": "Allow photo access to save your card.",
+    "shareTitle": "My Waddani membership card",
+    "expiredNote": "Your membership has expired. Contact the office to renew.",
+    "loadFailed": "We couldn't load your card."
+  },
+  "payments": {
+    "title": "Payment history",
+    "subtitle": "Your membership payments.",
+    "validUntil": "Membership valid until",
+    "planMembership": "{{plan}} membership",
+    "emptyTitle": "No payments yet",
+    "emptyText": "Your membership payments will appear here.",
+    "loadFailed": "We couldn't load your payments."
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Your account details.",
+    "memberId": "Member ID",
+    "tier": "Tier",
+    "phone": "Phone",
+    "education": "Education",
+    "memberSince": "Member since",
+    "statusMember": "{{status}} member",
+    "loadFailed": "We couldn't load your profile."
+  },
+  "communications": {
+    "title": "Communications",
+    "subtitle": "Notifications sent to your WhatsApp and email.",
+    "emptyTitle": "No messages yet",
+    "emptyText": "Updates about your membership will appear here.",
+    "loadFailed": "We couldn't load your messages.",
+    "channels": {
+      "whatsapp": "WhatsApp",
+      "email": "Email"
+    }
+  },
+  "status": {
+    "pending": "Pending",
+    "active": "Active",
+    "rejected": "Rejected",
+    "expired": "Expired",
+    "completed": "Completed",
+    "failed": "Failed",
+    "unknown": "Unknown"
+  },
+  "education": {
+    "none": "None",
+    "primary": "Primary",
+    "secondary": "Secondary",
+    "diploma": "Diploma",
+    "bachelor": "Bachelor's degree",
+    "master": "Master's degree",
+    "phd": "PhD"
+  },
+  "comingSoon": {
+    "title": "Coming soon",
+    "text": "This part of the app is on its way."
   },
   "errors": {
     "network": "No connection. Check your internet and try again.",

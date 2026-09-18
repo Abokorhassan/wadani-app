@@ -31,7 +31,7 @@ export function EmptyState({ title, message, icon: Icon, actionLabel, onAction }
             justifyContent: 'center',
             marginBottom: theme.spacing.xs,
           }}>
-          <Icon size={26} color={theme.color.brandDark} />
+          <Icon size={26} color={theme.color.brandDeep} />
         </View>
       ) : null}
       <Text variant="heading" center>

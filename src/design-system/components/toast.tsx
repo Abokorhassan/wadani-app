@@ -85,7 +85,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             position: 'absolute',
             left: theme.spacing.lg,
             right: theme.spacing.lg,
-            bottom: insets.bottom + theme.spacing.xl,
+            // Sits above the floating tab bar (68pt tall, 8pt above the safe area).
+            bottom: Math.max(insets.bottom, 12) + 92,
             opacity,
             transform: [
               { translateY: opacity.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) },
@@ -97,7 +98,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               borderRadius: theme.radius.md,
               paddingHorizontal: theme.spacing.lg,
               paddingVertical: theme.spacing.md,
-              ...theme.shadow.medium,
+              ...theme.shadow.float,
             }}>
             <Text variant="small" style={{ color: colors.text }}>
               {message.text}

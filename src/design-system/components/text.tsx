@@ -1,22 +1,7 @@
 import { Text as RNText, type TextProps as RNTextProps, type TextStyle } from 'react-native';
 
-import { useTheme, type Theme } from '../theme';
+import { useTheme, type ColorRole } from '../theme';
 import type { TypographyVariant } from '../tokens/typography';
-
-type ColorRole = Extract<
-  keyof Theme['color'],
-  | 'text'
-  | 'textSecondary'
-  | 'textMuted'
-  | 'textOnBrand'
-  | 'textOnAction'
-  | 'brandDark'
-  | 'action'
-  | 'accent'
-  | 'success'
-  | 'warning'
-  | 'danger'
->;
 
 export interface TextProps extends RNTextProps {
   variant?: TypographyVariant;

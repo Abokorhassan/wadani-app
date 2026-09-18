@@ -9,17 +9,21 @@ import {
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
 import { useTheme } from '../theme';
+import { TAB_BAR_CLEARANCE } from './tab-bar';
 
 export interface ScreenProps {
   children: React.ReactNode;
   /** Scrolls by default. Set false for screens that manage their own list. */
   scroll?: boolean;
   padded?: boolean;
+  /** Leaves room under the content for the floating tab bar. */
+  withTabBar?: boolean;
   /** Pinned below the scroll area, e.g. wizard navigation buttons. */
   footer?: React.ReactNode;
   edges?: readonly Edge[];
   background?: 'background' | 'surface' | 'brand';
   contentStyle?: StyleProp<ViewStyle>;
+  refreshControl?: React.ComponentProps<typeof ScrollView>['refreshControl'];
   testID?: string;
 }
 
@@ -27,10 +31,12 @@ export function Screen({
   children,
   scroll = true,
   padded = true,
+  withTabBar = false,
   footer,
   edges = ['top', 'bottom', 'left', 'right'],
   background = 'background',
   contentStyle,
+  refreshControl,
   testID,
 }: ScreenProps) {
   const theme = useTheme();
@@ -41,12 +47,14 @@ export function Screen({
         ? theme.color.surface
         : theme.color.background;
 
-  const padding: ViewStyle = padded
-    ? { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.xl }
-    : {};
+  const padding: ViewStyle = {
+    paddingHorizontal: padded ? theme.spacing.gutter : 0,
+    paddingBottom: withTabBar ? TAB_BAR_CLEARANCE : theme.spacing.xl,
+  };
+  const safeEdges = withTabBar ? edges.filter((edge) => edge !== 'bottom') : edges;
 
   return (
-    <SafeAreaView edges={edges} style={{ flex: 1, backgroundColor }} testID={testID}>
+    <SafeAreaView edges={safeEdges} style={{ flex: 1, backgroundColor }} testID={testID}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -56,7 +64,8 @@ export function Screen({
             contentContainerStyle={[{ flexGrow: 1 }, padding, contentStyle]}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="on-drag"
-            showsVerticalScrollIndicator={false}>
+            showsVerticalScrollIndicator={false}
+            refreshControl={refreshControl}>
             {children}
           </ScrollView>
         ) : (
@@ -66,12 +75,9 @@ export function Screen({
         {footer ? (
           <View
             style={{
-              paddingHorizontal: theme.spacing.lg,
-              paddingTop: theme.spacing.md,
-              paddingBottom: theme.spacing.md,
-              borderTopWidth: 1,
-              borderTopColor: theme.color.border,
-              backgroundColor: theme.color.surface,
+              paddingHorizontal: theme.spacing.gutter,
+              paddingTop: theme.spacing.lg,
+              paddingBottom: theme.spacing.lg,
             }}>
             {footer}
           </View>

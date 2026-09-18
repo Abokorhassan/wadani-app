@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { View } from 'react-native';
+import { View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { useTheme } from '../theme';
 import { Text } from './text';
@@ -8,8 +8,10 @@ export interface AvatarProps {
   name: string;
   uri?: string | null;
   size?: number;
-  /** Ring colour, used on the membership card. */
-  ringColor?: string;
+  /** Corner radius; round by default. */
+  radius?: number;
+  tone?: 'warm' | 'action' | 'brand';
+  style?: StyleProp<ViewStyle>;
 }
 
 export function initialsOf(name: string): string {
@@ -21,24 +23,30 @@ export function initialsOf(name: string): string {
     .join('');
 }
 
-export function Avatar({ name, uri, size = 48, ringColor }: AvatarProps) {
+export function Avatar({ name, uri, size = 48, radius, tone = 'warm', style }: AvatarProps) {
   const theme = useTheme();
+  const [background, foreground] = {
+    warm: [theme.color.surfaceWarm, theme.color.accentDeep],
+    action: [theme.color.actionTint, theme.color.actionDeep],
+    brand: [theme.color.brandTint, theme.color.accentDeep],
+  }[tone];
 
   return (
     <View
       accessibilityRole="image"
       accessibilityLabel={name}
-      style={{
-        width: size,
-        height: size,
-        borderRadius: size / 2,
-        backgroundColor: theme.color.brandTint,
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        borderWidth: ringColor ? 3 : 0,
-        borderColor: ringColor,
-      }}>
+      style={[
+        {
+          width: size,
+          height: size,
+          borderRadius: radius ?? size / 2,
+          backgroundColor: background,
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+        },
+        style,
+      ]}>
       {uri ? (
         <Image
           source={{ uri }}
@@ -48,9 +56,13 @@ export function Avatar({ name, uri, size = 48, ringColor }: AvatarProps) {
         />
       ) : (
         <Text
-          variant="bodyStrong"
-          color="brandDark"
-          style={{ fontSize: size * 0.36, lineHeight: size * 0.44 }}>
+          variant="heading"
+          style={{
+            color: foreground,
+            fontSize: Math.round(size * 0.36),
+            lineHeight: Math.round(size * 0.44),
+            letterSpacing: -0.2,
+          }}>
           {initialsOf(name)}
         </Text>
       )}

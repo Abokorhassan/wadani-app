@@ -17,6 +17,13 @@ export function formatMonthYear(iso: string, locale = 'en'): string {
   return date.toLocaleDateString(locale, { month: 'short', year: 'numeric' });
 }
 
+/** "Sep 13", for recent items in a list. */
+export function formatDayMonth(iso: string, locale = 'en'): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
+}
+
 export function formatTime(iso: string, locale = 'en'): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return '';

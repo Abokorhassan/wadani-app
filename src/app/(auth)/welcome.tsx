@@ -59,7 +59,7 @@ export default function WelcomeScreen() {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                <Icon size={22} color={theme.color.brandDark} />
+                <Icon size={22} color={theme.color.brandDeep} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text variant="bodyStrong">{title}</Text>

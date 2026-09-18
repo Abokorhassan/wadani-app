@@ -11,6 +11,7 @@ export interface StepIndicatorProps {
   onStepPress?: (index: number) => void;
 }
 
+/** Segmented progress bar with labels: done = green, current = orange. */
 export function StepIndicator({ steps, current, onStepPress }: StepIndicatorProps) {
   const theme = useTheme();
 
@@ -18,66 +19,42 @@ export function StepIndicator({ steps, current, onStepPress }: StepIndicatorProp
     <View
       accessibilityRole="progressbar"
       accessibilityValue={{ min: 1, max: steps.length, now: current + 1 }}
-      style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+      style={{ flexDirection: 'row', gap: 6 }}>
       {steps.map((label, index) => {
         const done = index < current;
         const active = index === current;
         const tappable = done && Boolean(onStepPress);
 
         return (
-          <View key={label} style={{ flex: index === steps.length - 1 ? 0 : 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Pressable
-                disabled={!tappable}
-                onPress={() => onStepPress?.(index)}
-                accessibilityRole={tappable ? 'button' : undefined}
-                accessibilityLabel={`Step ${index + 1}: ${label}`}
-                hitSlop={6}
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: theme.radius.pill,
-                  borderWidth: 2,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: active
+          <Pressable
+            key={label}
+            disabled={!tappable}
+            onPress={() => onStepPress?.(index)}
+            accessibilityRole={tappable ? 'button' : undefined}
+            accessibilityLabel={`Step ${index + 1}: ${label}`}
+            style={{ flex: 1, gap: theme.spacing.sm }}>
+            <View
+              style={{
+                height: 5,
+                borderRadius: theme.radius.pill,
+                backgroundColor: done
+                  ? theme.color.action
+                  : active
                     ? theme.color.brand
-                    : done
-                      ? theme.color.brandTint
-                      : theme.color.surface,
-                  borderColor: active || done ? theme.color.brand : theme.color.border,
-                }}>
-                {done ? (
-                  <Check size={16} color={theme.color.brandDark} />
-                ) : (
-                  <Text
-                    variant="smallStrong"
-                    style={{ color: active ? theme.color.textOnBrand : theme.color.textMuted }}>
-                    {index + 1}
-                  </Text>
-                )}
-              </Pressable>
-
-              {index < steps.length - 1 ? (
-                <View
-                  style={{
-                    flex: 1,
-                    height: 2,
-                    marginHorizontal: theme.spacing.xs,
-                    backgroundColor: done ? theme.color.brand : theme.color.border,
-                  }}
-                />
-              ) : null}
+                    : theme.color.borderStrong,
+              }}
+            />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              {done ? <Check size={13} color={theme.color.actionDeep} strokeWidth={3} /> : null}
+              <Text
+                variant="captionStrong"
+                numberOfLines={1}
+                color={done ? 'actionDeep' : active ? 'text' : 'textMuted'}
+                style={active ? { fontFamily: theme.fonts.text700 } : null}>
+                {label}
+              </Text>
             </View>
-
-            <Text
-              variant="overline"
-              color={active ? 'brandDark' : 'textMuted'}
-              style={{ marginTop: theme.spacing.xs, width: 56 }}
-              numberOfLines={1}>
-              {label}
-            </Text>
-          </View>
+          </Pressable>
         );
       })}
     </View>

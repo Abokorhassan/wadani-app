@@ -720,16 +720,20 @@ Needs D1–D13 answered and endpoints 1–10.
 
 Needs D14–D20 and endpoints 9, 11, 12.
 
-- [ ] Home: header, greeting, mini card, invite share, tiles, bell icon linking to Communications
-- [ ] Card: QR, photo or initials, valid-until date, social footer, save and share, offline cache, expired state
-- [ ] Payment history: status pills, empty state, pull to refresh
-- [ ] Communications list
-- [ ] Profile
+- [x] Design system updated to the approved mockups (`design/app-screens/`): Bricolage Grotesque, Figtree and IBM Plex Mono; floating tab bar; restyled components
+- [x] Home: header, greeting, mini card, invite share, tiles, bell icon linking to Communications
+- [x] Card: QR, photo or initials, valid-until date, social footer, save and share, expired state
+- [x] Payment history: status pills, empty state, pull to refresh
+- [x] Communications list
+- [x] Profile
+- [ ] Offline card verified against the live backend (the member record is already persisted; mock mode can't exercise a failed request)
+
+Decisions taken with the proposals: D14 (QR shows `qrPayload` from `GET /me`), D15, D16 (Save to Photos + Share), D17 (bell on Home). Still open: D18 (social handle is a placeholder), D19 (`EXPO_PUBLIC_INVITE_URL` is empty, so invites send text only). D20 changed: all six tiles stay visible, and the ones for later phases open a "Coming soon" screen.
 
 **Exit criteria:**
 
 - The card opens offline after one online load.
-- No screen shows hard-coded sample member data.
+- No screen shows hard-coded sample member data. *(Met: every screen reads `GET /me`, `GET /me/payments` or `GET /me/notifications`, currently served by mocks.)*
 
 ### Phase 3: Engagement (S9, S11)
 

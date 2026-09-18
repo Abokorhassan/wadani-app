@@ -5,7 +5,7 @@ import { useTheme } from '../theme';
 export interface CardProps {
   children: React.ReactNode;
   onPress?: () => void;
-  tone?: 'surface' | 'warm' | 'brandTint';
+  tone?: 'surface' | 'warm' | 'ink';
   padded?: boolean;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
@@ -25,25 +25,22 @@ export function Card({
   const background =
     tone === 'warm'
       ? theme.color.surfaceWarm
-      : tone === 'brandTint'
-        ? theme.color.brandTint
+      : tone === 'ink'
+        ? theme.color.surfaceInk
         : theme.color.surface;
 
-  const base: StyleProp<ViewStyle> = [
-    {
-      backgroundColor: background,
-      borderRadius: theme.radius.lg,
-      borderWidth: 1,
-      borderColor: theme.color.border,
-      padding: padded ? theme.spacing.lg : 0,
-      overflow: 'hidden',
-    },
-    style,
-  ];
+  const base: ViewStyle = {
+    backgroundColor: background,
+    borderRadius: theme.radius.card,
+    borderWidth: tone === 'surface' ? 1 : 0,
+    borderColor: theme.color.border,
+    padding: padded ? theme.spacing.lg : 0,
+    overflow: 'hidden',
+  };
 
   if (!onPress) {
     return (
-      <View style={base} testID={testID}>
+      <View style={[base, style]} testID={testID}>
         {children}
       </View>
     );
@@ -55,7 +52,7 @@ export function Card({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [base, pressed && { backgroundColor: theme.color.surfaceSunken }]}>
+      style={({ pressed }) => [base, style, pressed && { opacity: 0.85 }]}>
       {children}
     </Pressable>
   );

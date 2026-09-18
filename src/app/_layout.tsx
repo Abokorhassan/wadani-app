@@ -1,4 +1,16 @@
+import {
+  BricolageGrotesque_700Bold,
+  BricolageGrotesque_800ExtraBold,
+} from '@expo-google-fonts/bricolage-grotesque';
+import {
+  Figtree_400Regular,
+  Figtree_500Medium,
+  Figtree_600SemiBold,
+  Figtree_700Bold,
+} from '@expo-google-fonts/figtree';
+import { IBMPlexMono_500Medium, IBMPlexMono_600SemiBold } from '@expo-google-fonts/ibm-plex-mono';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -42,16 +54,29 @@ function useAuthGate() {
 export default function RootLayout() {
   const restore = useSessionStore((state) => state.restore);
   const status = useAuthGate();
+  // Keys must match `fonts` in src/design-system/tokens/typography.ts.
+  const [fontsLoaded, fontError] = useFonts({
+    BricolageGrotesque_700Bold,
+    BricolageGrotesque_800ExtraBold,
+    Figtree_400Regular,
+    Figtree_500Medium,
+    Figtree_600SemiBold,
+    Figtree_700Bold,
+    IBMPlexMono_500Medium,
+    IBMPlexMono_600SemiBold,
+  });
+  // A font that fails to load falls back to the system font rather than blocking the app.
+  const ready = status !== 'restoring' && (fontsLoaded || Boolean(fontError));
 
   useEffect(() => {
     void restore();
   }, [restore]);
 
   useEffect(() => {
-    if (status !== 'restoring') void SplashScreen.hideAsync();
-  }, [status]);
+    if (ready) void SplashScreen.hideAsync();
+  }, [ready]);
 
-  if (status === 'restoring') return null;
+  if (!ready) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -60,7 +85,11 @@ export default function RootLayout() {
           <ThemeProvider value={lightTheme}>
             <ToastProvider>
               <StatusBar style="dark" />
-              <Stack screenOptions={{ headerShown: false }}>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: lightTheme.color.background },
+                }}>
                 <Stack.Screen name="index" />
                 <Stack.Screen name="(auth)" />
                 <Stack.Screen name="(app)" />

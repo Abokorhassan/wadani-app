@@ -42,14 +42,15 @@ export function SelectField<T extends string = string>({
   const selected = options.find((option) => option.value === value);
 
   return (
-    <View style={{ marginBottom: theme.spacing.lg }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs }}>
-        <Text variant="smallStrong" color="textSecondary">
+    <View style={{ gap: theme.spacing.sm }}>
+      <View
+        style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
+        <Text variant="label" color="textSecondary">
           {label}
         </Text>
         {optional ? (
-          <Text variant="caption" color="textMuted">
-            optional
+          <Text variant="captionStrong" color="textMuted">
+            Optional
           </Text>
         ) : null}
       </View>
@@ -66,27 +67,26 @@ export function SelectField<T extends string = string>({
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginTop: theme.spacing.xs + 2,
+          height: theme.controlHeight.field,
+          paddingHorizontal: theme.spacing.lg,
           borderWidth: 1.5,
-          borderColor: error ? theme.color.danger : theme.color.border,
-          borderRadius: theme.radius.md,
+          borderColor: error ? theme.color.danger : theme.color.fieldBorder,
+          borderRadius: theme.radius.lg,
           backgroundColor: pressed ? theme.color.surfaceSunken : theme.color.surface,
-          paddingHorizontal: theme.spacing.md,
-          minHeight: theme.hitSize + 6,
           opacity: disabled ? 0.5 : 1,
         })}>
-        <Text variant="body" color={selected ? 'text' : 'textMuted'}>
+        <Text variant="bodyMedium" color={selected ? 'text' : 'textPlaceholder'}>
           {selected?.label ?? placeholder}
         </Text>
         <ChevronDown size={20} color={theme.color.textMuted} />
       </Pressable>
 
       {error ? (
-        <Text variant="caption" color="danger" style={{ marginTop: theme.spacing.xs }}>
+        <Text variant="caption" color="danger" style={{ fontFamily: theme.fonts.text600 }}>
           {error}
         </Text>
       ) : hint ? (
-        <Text variant="caption" color="textMuted" style={{ marginTop: theme.spacing.xs }}>
+        <Text variant="caption" color="textMuted">
           {hint}
         </Text>
       ) : null}
@@ -99,17 +99,16 @@ export function SelectField<T extends string = string>({
           <Pressable
             onPress={(event) => event.stopPropagation()}
             style={{
-              backgroundColor: theme.color.surface,
-              borderTopLeftRadius: theme.radius.xl,
-              borderTopRightRadius: theme.radius.xl,
-              paddingTop: theme.spacing.lg,
-              paddingBottom: theme.spacing.xxl,
               maxHeight: '70%',
+              paddingTop: theme.spacing.xl,
+              paddingBottom: theme.spacing.xxl,
+              borderTopLeftRadius: theme.radius.sheet,
+              borderTopRightRadius: theme.radius.sheet,
+              backgroundColor: theme.color.background,
             }}>
-            <Text variant="heading" style={{ paddingHorizontal: theme.spacing.lg }}>
+            <Text variant="heading" style={{ paddingHorizontal: theme.spacing.gutter }}>
               {label}
             </Text>
-
             <ScrollView style={{ marginTop: theme.spacing.md }}>
               {options.map((option) => {
                 const isSelected = option.value === value;
@@ -127,19 +126,21 @@ export function SelectField<T extends string = string>({
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       gap: theme.spacing.md,
-                      paddingHorizontal: theme.spacing.lg,
-                      paddingVertical: theme.spacing.lg - 2,
+                      minHeight: 56,
+                      paddingHorizontal: theme.spacing.gutter,
                       backgroundColor: pressed ? theme.color.surfaceSunken : 'transparent',
                     })}>
                     <View style={{ flex: 1 }}>
-                      <Text variant={isSelected ? 'bodyStrong' : 'body'}>{option.label}</Text>
+                      <Text variant={isSelected ? 'bodyStrong' : 'bodyMedium'}>{option.label}</Text>
                       {option.description ? (
                         <Text variant="caption" color="textMuted">
                           {option.description}
                         </Text>
                       ) : null}
                     </View>
-                    {isSelected ? <Check size={20} color={theme.color.action} /> : null}
+                    {isSelected ? (
+                      <Check size={20} color={theme.color.action} strokeWidth={2.6} />
+                    ) : null}
                   </Pressable>
                 );
               })}

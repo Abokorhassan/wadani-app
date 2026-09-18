@@ -31,5 +31,31 @@ export const membershipPeriodDto = z.object({
 
 export const periodsResponse = z.array(membershipPeriodDto);
 
+const optional = <T extends z.ZodType>(schema: T) => schema.nullish();
+
+export const memberDto = z.object({
+  id: z.string(),
+  fullName: z.string(),
+  gender: z.enum(['male', 'female']),
+  phone: z.string(),
+  whatsapp: optional(z.string()),
+  email: z.string(),
+  birthYear: optional(z.number().int()),
+  education: z.enum(['none', 'primary', 'secondary', 'diploma', 'bachelor', 'master', 'phd']),
+  address: z.object({
+    country: z.string(),
+    city: z.string(),
+    line: optional(z.string()),
+  }),
+  photoUrl: optional(z.string()),
+  status: z.enum(['pending', 'active', 'rejected', 'expired']),
+  rejectionReason: optional(z.string()),
+  plan: z.object({ id: z.string(), name: z.string() }),
+  memberSince: optional(z.string()),
+  validUntil: optional(z.string()),
+  qrPayload: optional(z.string()),
+});
+
 export type PlanDto = z.infer<typeof planDto>;
 export type MembershipPeriodDto = z.infer<typeof membershipPeriodDto>;
+export type MemberDto = z.infer<typeof memberDto>;

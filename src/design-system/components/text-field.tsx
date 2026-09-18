@@ -19,11 +19,24 @@ export interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   optional?: boolean;
   /** Static text shown before the input, e.g. a dialling code. */
   prefix?: string;
+  /** Element at the end of the input, e.g. a show-password toggle. */
+  trailing?: React.ReactNode;
   containerStyle?: StyleProp<ViewStyle>;
 }
 
 export const TextField = forwardRef<TextInput, TextFieldProps>(function TextField(
-  { label, error, hint, optional, prefix, containerStyle, onFocus, onBlur, ...inputProps },
+  {
+    label,
+    error,
+    hint,
+    optional,
+    prefix,
+    trailing,
+    containerStyle,
+    onFocus,
+    onBlur,
+    ...inputProps
+  },
   ref
 ) {
   const theme = useTheme();
@@ -33,45 +46,54 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
     ? theme.color.danger
     : focused
       ? theme.color.action
-      : theme.color.border;
+      : theme.color.fieldBorder;
 
   return (
-    <View style={[{ marginBottom: theme.spacing.lg }, containerStyle]}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs }}>
-        <Text variant="smallStrong" color="textSecondary">
+    <View style={[{ gap: theme.spacing.sm }, containerStyle]}>
+      <View
+        style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
+        <Text variant="label" color="textSecondary">
           {label}
         </Text>
         {optional ? (
-          <Text variant="caption" color="textMuted">
-            optional
+          <Text variant="captionStrong" color="textMuted">
+            Optional
           </Text>
         ) : null}
       </View>
 
       <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginTop: theme.spacing.xs + 2,
-          borderWidth: 1.5,
-          borderColor,
-          borderRadius: theme.radius.md,
-          backgroundColor: theme.color.surface,
-          paddingHorizontal: theme.spacing.md,
-          minHeight: theme.hitSize + 6,
-        }}>
+        style={[
+          {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.spacing.md,
+            height: theme.controlHeight.field,
+            paddingHorizontal: theme.spacing.lg,
+            borderWidth: 1.5,
+            borderColor,
+            borderRadius: theme.radius.lg,
+            backgroundColor: theme.color.surface,
+          },
+          focused && !error ? { boxShadow: '0px 0px 0px 4px rgba(102, 120, 60, 0.14)' } : null,
+        ]}>
         {prefix ? (
-          <Text variant="body" color="textSecondary" style={{ marginRight: theme.spacing.sm }}>
-            {prefix}
-          </Text>
+          <>
+            <Text variant="bodyMedium" style={{ fontFamily: theme.fonts.text600 }}>
+              {prefix}
+            </Text>
+            <View style={{ width: 1, height: 24, backgroundColor: theme.color.borderStrong }} />
+          </>
         ) : null}
         <TextInput
           ref={ref}
           style={[
-            theme.typography.body,
-            { flex: 1, color: theme.color.text, paddingVertical: theme.spacing.md },
+            theme.typography.bodyMedium,
+            { flex: 1, color: theme.color.text, paddingVertical: 0 },
           ]}
-          placeholderTextColor={theme.color.textMuted}
+          placeholderTextColor={theme.color.textPlaceholder}
+          selectionColor={theme.color.action}
+          cursorColor={theme.color.action}
           accessibilityLabel={label}
           onFocus={(e) => {
             setFocused(true);
@@ -83,14 +105,15 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
           }}
           {...inputProps}
         />
+        {trailing}
       </View>
 
       {error ? (
-        <Text variant="caption" color="danger" style={{ marginTop: theme.spacing.xs }}>
+        <Text variant="caption" color="danger" style={{ fontFamily: theme.fonts.text600 }}>
           {error}
         </Text>
       ) : hint ? (
-        <Text variant="caption" color="textMuted" style={{ marginTop: theme.spacing.xs }}>
+        <Text variant="caption" color="textMuted">
           {hint}
         </Text>
       ) : null}
@@ -101,29 +124,25 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
 export function PasswordField(props: TextFieldProps) {
   const theme = useTheme();
   const [hidden, setHidden] = useState(true);
+  const Icon = hidden ? EyeOff : Eye;
 
   return (
-    <View>
-      <TextField
-        {...props}
-        secureTextEntry={hidden}
-        autoCapitalize="none"
-        autoComplete="password"
-        autoCorrect={false}
-      />
-      <Pressable
-        onPress={() => setHidden((v) => !v)}
-        accessibilityRole="button"
-        accessibilityLabel={hidden ? 'Show password' : 'Hide password'}
-        hitSlop={8}
-        style={{ position: 'absolute', right: theme.spacing.md, top: theme.spacing.xl + 6 }}>
-        {hidden ? (
-          <EyeOff size={20} color={theme.color.textMuted} />
-        ) : (
-          <Eye size={20} color={theme.color.textMuted} />
-        )}
-      </Pressable>
-    </View>
+    <TextField
+      {...props}
+      secureTextEntry={hidden}
+      autoCapitalize="none"
+      autoComplete="password"
+      autoCorrect={false}
+      trailing={
+        <Pressable
+          onPress={() => setHidden((value) => !value)}
+          accessibilityRole="button"
+          accessibilityLabel={hidden ? 'Show password' : 'Hide password'}
+          hitSlop={12}>
+          <Icon size={20} color={theme.color.textMuted} />
+        </Pressable>
+      }
+    />
   );
 }
 

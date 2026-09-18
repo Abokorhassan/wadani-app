@@ -1,8 +1,29 @@
 import { mockRespond } from '@/api/mock/latency';
 
 import type { MembershipApi } from './api';
-import { toMembershipPeriod, toPlan } from './mappers';
-import type { MembershipPeriodDto, PlanDto } from './schemas';
+import { toMember, toMembershipPeriod, toPlan } from './mappers';
+import type { MemberDto, MembershipPeriodDto, PlanDto } from './schemas';
+
+/** Sample member from the prototype. */
+export const memberFixture: MemberDto = {
+  id: 'WD-482913',
+  fullName: 'Mohamed Shibbin',
+  gender: 'male',
+  phone: '+252 63 234 5678',
+  whatsapp: '+252 63 234 5678',
+  email: 'moshibbin@gmail.com',
+  birthYear: 1994,
+  education: 'bachelor',
+  address: { country: 'Somaliland', city: 'Hargeisa', line: null },
+  photoUrl: null,
+  status: 'active',
+  rejectionReason: null,
+  plan: { id: 'standard', name: 'Standard' },
+  memberSince: '2025-09-12T00:00:00.000Z',
+  validUntil: '2027-09-12T00:00:00.000Z',
+  // The real payload is a signed token from the backend (build-plan D14).
+  qrPayload: 'waddani:member:WD-482913',
+};
 
 /** Fixtures from the prototype (build-plan §1.4). */
 export const planFixtures: PlanDto[] = [
@@ -52,4 +73,5 @@ export const periodFixtures: MembershipPeriodDto[] = [
 export const membershipApiMock: MembershipApi = {
   getPlans: () => mockRespond(planFixtures.map(toPlan)),
   getPeriods: () => mockRespond(periodFixtures.map(toMembershipPeriod), 350),
+  getMe: () => mockRespond(toMember(memberFixture)),
 };

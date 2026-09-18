@@ -45,21 +45,26 @@ export function SegmentedTabs<T extends string = string>({
             onPress={() => onChange(item.key)}
             accessibilityRole="tab"
             accessibilityState={{ selected: active }}
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: theme.spacing.xs + 2,
-              paddingVertical: theme.spacing.sm + 2,
-              borderRadius: theme.radius.pill,
-              backgroundColor: active ? theme.color.surface : 'transparent',
-              ...(active ? theme.shadow.low : null),
-            }}>
+            style={[
+              {
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: theme.spacing.sm,
+                height: theme.controlHeight.chip,
+                borderRadius: theme.radius.pill,
+                backgroundColor: active ? theme.color.surface : 'transparent',
+              },
+              active ? theme.shadow.raised : null,
+            ]}>
             {Icon ? (
-              <Icon size={16} color={active ? theme.color.action : theme.color.textMuted} />
+              <Icon size={18} color={active ? theme.color.text : theme.color.textMuted} />
             ) : null}
-            <Text variant="smallStrong" color={active ? 'action' : 'textMuted'}>
+            <Text
+              variant={active ? 'smallStrong' : 'label'}
+              color={active ? 'text' : 'textMuted'}
+              style={{ fontSize: 15 }}>
               {item.label}
             </Text>
           </Pressable>

@@ -1,77 +1,227 @@
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
+import {
+  Bell,
+  Heart,
+  IdCard,
+  MessageCircle,
+  Newspaper,
+  Receipt,
+  Share2,
+  Users,
+  type LucideIcon,
+} from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Pressable, RefreshControl, Share, View } from 'react-native';
 
-import { Button, Card, Screen, Text, useTheme } from '@/design-system';
+import {
+  Button,
+  ErrorState,
+  IconButton,
+  IconTile,
+  Rosette,
+  Screen,
+  Skeleton,
+  Text,
+  useTheme,
+  type IconTileTone,
+} from '@/design-system';
 import { useSessionStore } from '@/features/auth/session-store';
+import { MiniCard, useMe } from '@/features/membership';
+import { env } from '@/lib/env';
 import { firstName } from '@/lib/format';
 
-const seal = require('@/assets/brand/seal-color.png');
+const sealBlack = require('@/assets/brand/seal-black.png');
+
+interface Tile {
+  icon: LucideIcon;
+  tone: IconTileTone;
+  title: string;
+  text: string;
+  href: Href;
+}
 
 export default function HomeScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
-  const member = useSessionStore((state) => state.member);
+  const summary = useSessionStore((state) => state.member);
+  const me = useMe();
+
+  const name = me.data?.fullName ?? summary?.fullName ?? '';
+
+  const tiles: Tile[] = [
+    {
+      icon: IdCard,
+      tone: 'brand',
+      title: t('home.tiles.card'),
+      text: t('home.tiles.cardText'),
+      href: '/card',
+    },
+    {
+      icon: Receipt,
+      tone: 'action',
+      title: t('home.tiles.payments'),
+      text: t('home.tiles.paymentsText'),
+      href: '/payments',
+    },
+    {
+      icon: Heart,
+      tone: 'accent',
+      title: t('home.tiles.donate'),
+      text: t('home.tiles.donateText'),
+      href: '/donate',
+    },
+    {
+      icon: Newspaper,
+      tone: 'brand',
+      title: t('home.tiles.news'),
+      text: t('home.tiles.newsText'),
+      href: '/news-events',
+    },
+    {
+      icon: Users,
+      tone: 'action',
+      title: t('home.tiles.family'),
+      text: t('home.tiles.familyText'),
+      href: '/family',
+    },
+    {
+      icon: MessageCircle,
+      tone: 'accent',
+      title: t('home.tiles.contact'),
+      text: t('home.tiles.contactText'),
+      href: '/contact',
+    },
+  ];
+
+  const invite = () =>
+    void Share.share({
+      message: [t('home.inviteMessage'), env.inviteUrl].filter(Boolean).join(' '),
+    });
 
   return (
-    <Screen padded={false}>
-      {/* Brand header: orange surface, dark text (white would fail contrast). */}
+    <Screen
+      withTabBar
+      refreshControl={
+        <RefreshControl
+          refreshing={me.isRefetching}
+          onRefresh={() => void me.refetch()}
+          tintColor={theme.color.brand}
+        />
+      }>
+      {/* Brand strip */}
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          gap: theme.spacing.md,
-          backgroundColor: theme.color.brand,
-          paddingHorizontal: theme.spacing.lg,
-          paddingVertical: theme.spacing.lg,
-          borderBottomLeftRadius: theme.radius.xl,
-          borderBottomRightRadius: theme.radius.xl,
+          justifyContent: 'space-between',
+          paddingTop: theme.spacing.md,
         }}>
-        <View
-          style={{
-            width: 46,
-            height: 46,
-            borderRadius: theme.radius.pill,
-            backgroundColor: theme.color.surface,
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 4,
-          }}>
-          <Image source={seal} style={{ width: '100%', height: '100%' }} contentFit="contain" />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Image
+            source={sealBlack}
+            style={{ width: 40, height: 40 }}
+            accessibilityLabel={t('common.partyName')}
+          />
+          <View style={{ gap: 1 }}>
+            <Text variant="brand">{t('common.partyNameCaps')}</Text>
+            <Text variant="captionStrong" color="textMuted">
+              {t('common.partyTagline')}
+            </Text>
+          </View>
         </View>
-        <View style={{ flex: 1 }}>
-          <Text variant="smallStrong" color="textOnBrand">
-            {t('common.partyName').toUpperCase()}
-          </Text>
-          <Text variant="caption" color="textOnBrand" style={{ opacity: 0.8 }}>
-            {t('common.partyTagline')} · Membership
-          </Text>
-        </View>
+        <IconButton
+          icon={Bell}
+          badge
+          accessibilityLabel={t('home.notifications')}
+          onPress={() => router.push('/communications')}
+        />
       </View>
 
-      <View style={{ padding: theme.spacing.lg, gap: theme.spacing.lg }}>
-        <View>
-          <Text variant="title">Hi, {firstName(member?.fullName ?? 'Member')}</Text>
-          <Text variant="small" color="textMuted" style={{ marginTop: theme.spacing.xs }}>
-            Welcome back to your Waddani membership.
+      <View style={{ marginTop: 26, gap: 6 }}>
+        <Text variant="title" style={{ fontSize: 36, lineHeight: 40, letterSpacing: -0.72 }}>
+          {t('home.greeting', { name: firstName(name) })}
+        </Text>
+        <Text variant="subtitle" color="textMuted">
+          {t('home.subtitle')}
+        </Text>
+      </View>
+
+      <View style={{ marginTop: 22 }}>
+        {me.data ? (
+          <MiniCard member={me.data} onPress={() => router.push('/card')} />
+        ) : me.isError ? (
+          <ErrorState
+            message={t('card.loadFailed')}
+            onRetry={() => void me.refetch()}
+            retryLabel={t('common.retry')}
+          />
+        ) : (
+          <Skeleton height={204} radius={theme.radius.hero} />
+        )}
+      </View>
+
+      {/* Invite */}
+      <View
+        style={{
+          marginTop: 14,
+          overflow: 'hidden',
+          alignItems: 'flex-start',
+          gap: 14,
+          padding: 18,
+          borderRadius: theme.radius.card,
+          backgroundColor: theme.color.surfaceInk,
+        }}>
+        <View style={{ position: 'absolute', right: -120, bottom: -150 }}>
+          <Rosette size={280} color={theme.color.brand} opacity={0.22} layers={3} waves={12} />
+        </View>
+        <View style={{ gap: 4, paddingRight: 40 }}>
+          <Text variant="heading" color="textOnInk">
+            {t('home.inviteTitle')}
+          </Text>
+          <Text variant="small" color="textOnInkSoft">
+            {t('home.inviteText')}
           </Text>
         </View>
-
-        <Card tone="brandTint">
-          <Text variant="bodyStrong">Phase 0 shell</Text>
-          <Text variant="small" color="textSecondary" style={{ marginTop: theme.spacing.xs }}>
-            Navigation, theming and the API layer are in place. Home, the card, payments and the
-            profile are built in Phase 2.
-          </Text>
-        </Card>
-
         <Button
-          label="Open component gallery"
-          variant="secondary"
-          onPress={() => router.push('/gallery')}
+          label={t('home.invite')}
+          icon={Share2}
+          variant="brand"
+          size="sm"
+          block={false}
+          onPress={invite}
         />
+      </View>
+
+      {/* Tiles */}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 24 }}>
+        {tiles.map((tile) => (
+          <Pressable
+            key={tile.title}
+            onPress={() => router.push(tile.href)}
+            accessibilityRole="button"
+            accessibilityLabel={tile.title}
+            style={({ pressed }) => ({
+              flexBasis: '46%',
+              flexGrow: 1,
+              gap: 14,
+              paddingVertical: 16,
+              paddingHorizontal: 14,
+              borderRadius: theme.radius.card,
+              borderWidth: 1,
+              borderColor: theme.color.border,
+              backgroundColor: pressed ? theme.color.surfaceSunken : theme.color.surface,
+            })}>
+            <IconTile icon={tile.icon} tone={tile.tone} />
+            <View style={{ gap: 2 }}>
+              <Text variant="smallStrong">{tile.title}</Text>
+              <Text variant="caption" color="textMuted">
+                {tile.text}
+              </Text>
+            </View>
+          </Pressable>
+        ))}
       </View>
     </Screen>
   );
