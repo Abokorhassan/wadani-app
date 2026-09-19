@@ -2,10 +2,12 @@
 
 Waddani membership app: Expo (React Native) client for a backend built by a separate developer.
 
-**Read [docs/build-plan.md](docs/build-plan.md) first.** It holds the functional
-spec, the open decisions (D1–D26), the architecture and the phase plan.
+**Read [docs/build-plan.md](docs/build-plan.md) first**, and
+[docs/handover.md](docs/handover.md) for the current state, machine setup and the
+decisions already taken.
+The build plan holds the functional spec, the open decisions (D1–D26), the architecture and the phase plan.
 [docs/waddani-membership.html](docs/waddani-membership.html) is a prototype from
-the backend developer: it defines the *workflow* only, never the visual design.
+the backend developer: it defines the _workflow_ only, never the visual design.
 
 Expo has changed a lot; check the versioned docs at
 https://docs.expo.dev/versions/v57.0.0/ before writing native or router code.
