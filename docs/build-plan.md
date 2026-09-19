@@ -733,16 +733,18 @@ Decisions taken with the proposals: D14 (QR shows `qrPayload` from `GET /me`), D
 **Exit criteria:**
 
 - The card opens offline after one online load.
-- No screen shows hard-coded sample member data. *(Met: every screen reads `GET /me`, `GET /me/payments` or `GET /me/notifications`, currently served by mocks.)*
+- No screen shows hard-coded sample member data. _(Met: every screen reads `GET /me`, `GET /me/payments` or `GET /me/notifications`, currently served by mocks.)_
 
 ### Phase 3: Engagement (S9, S11)
 
 Needs D21–D23 and endpoints 13–16.
 
-- [ ] News & Events tabs, with RSVP that updates instantly and rolls back on error
-- [ ] Contact rows that open call, email or maps; WhatsApp deep link; FAQs
+- [x] News & Events tabs, with RSVP that updates instantly and rolls back on error
+- [x] Contact rows that open call, email or maps; WhatsApp deep link; FAQs
 
-**Exit criteria:** an RSVP survives an app restart and shows on another device.
+D21 taken: the FAQ answers were rewritten in `src/features/support/api.mock.ts` so they describe v1 (no in-app renewal; Zaad payments confirmed by staff, not instantly). **The party still reviews this copy.** D23 taken: contact details come from `GET /contact`, with the prototype's values as the mock — the party confirms the real ones. D22 taken: no feedback form; the screen is "Contact & FAQs".
+
+**Exit criteria:** an RSVP survives an app restart and shows on another device. _(Pending a live backend: the mock keeps RSVPs in memory for the session only.)_
 
 ### Phase 4: Family & Donate (S8, S10)
 

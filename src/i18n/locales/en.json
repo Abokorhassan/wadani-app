@@ -134,5 +134,34 @@
   "errors": {
     "network": "No connection. Check your internet and try again.",
     "unexpected": "Something went wrong. Please try again."
+  },
+  "news": {
+    "title": "News & Events",
+    "subtitle": "Stay up to date with Xisbiga Waddani.",
+    "tabNews": "News",
+    "tabEvents": "Events",
+    "emptyNewsTitle": "No news yet",
+    "emptyNewsText": "Party updates will appear here.",
+    "emptyEventsTitle": "No events yet",
+    "emptyEventsText": "Upcoming events will appear here.",
+    "newsFailed": "We couldn't load the news.",
+    "eventsFailed": "We couldn't load the events.",
+    "rsvp": "RSVP",
+    "going": "You're going",
+    "rsvpFailed": "Couldn't save your RSVP. Please try again."
+  },
+  "contact": {
+    "title": "Contact & FAQs",
+    "subtitle": "Reach the Waddani office.",
+    "tabContact": "Contact",
+    "tabFaqs": "FAQs",
+    "whatsappTitle": "Chat on WhatsApp",
+    "whatsappMessage": "Hi Waddani, I'd like some help with my membership.",
+    "phone": "Phone",
+    "email": "Email",
+    "office": "Head office",
+    "hours": "Office hours",
+    "contactFailed": "We couldn't load the contact details.",
+    "faqsFailed": "We couldn't load the FAQs."
   }
 }
