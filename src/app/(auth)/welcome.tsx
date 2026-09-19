@@ -1,77 +1,133 @@
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import { ChevronRight, KeyRound, UserPlus } from 'lucide-react-native';
+import { useRouter, type Href } from 'expo-router';
+import { ArrowRight, KeyRound, UserPlus, type LucideIcon } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Card, Screen, Text, useTheme } from '@/design-system';
+import { Rosette, Text, useTheme } from '@/design-system';
 
 const lockup = require('@/assets/brand/lockup-color.png');
 
 export default function WelcomeScreen() {
   const theme = useTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
 
-  const choices = [
-    {
-      icon: UserPlus,
-      title: t('welcome.registerTitle'),
-      description: t('welcome.registerDescription'),
-      onPress: () => router.push('/register'),
-    },
-    {
-      icon: KeyRound,
-      title: t('welcome.loginTitle'),
-      description: t('welcome.loginDescription'),
-      onPress: () => router.push('/login'),
-    },
-  ];
-
   return (
-    <Screen contentStyle={{ justifyContent: 'center' }}>
-      <View style={{ alignItems: 'center', marginBottom: theme.spacing.xxl }}>
+    <View style={{ flex: 1, backgroundColor: theme.color.brand }}>
+      <View style={{ position: 'absolute', left: -85, top: -32 }}>
+        <Rosette size={560} color={theme.color.text} opacity={0.08} layers={5} waves={16} />
+      </View>
+
+      <View
+        style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: insets.top }}>
         <Image
           source={lockup}
-          style={{ width: 180, height: 244 }}
+          style={{ width: 204, height: 277 }}
           contentFit="contain"
           accessibilityLabel={t('common.partyName')}
         />
       </View>
 
-      <Text variant="title" center>
-        {t('welcome.title')}
-      </Text>
-      <Text variant="small" color="textMuted" center style={{ marginTop: theme.spacing.xs }}>
-        {t('welcome.subtitle')}
-      </Text>
+      <View
+        style={{
+          gap: theme.spacing.xl,
+          paddingHorizontal: theme.spacing.gutter,
+          paddingTop: theme.spacing.xxl,
+          paddingBottom: insets.bottom + theme.spacing.xxl,
+          borderTopLeftRadius: theme.radius.sheet,
+          borderTopRightRadius: theme.radius.sheet,
+          backgroundColor: theme.color.background,
+        }}>
+        <View style={{ gap: theme.spacing.sm }}>
+          <Text variant="hero">{t('welcome.title')}</Text>
+          <Text variant="body" color="textMuted">
+            {t('welcome.subtitle')}
+          </Text>
+        </View>
 
-      <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.xl }}>
-        {choices.map(({ icon: Icon, title, description, onPress }) => (
-          <Card key={title} onPress={onPress} accessibilityLabel={title}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.lg }}>
-              <View
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: theme.radius.md,
-                  backgroundColor: theme.color.brandTint,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Icon size={22} color={theme.color.brandDeep} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text variant="bodyStrong">{title}</Text>
-                <Text variant="caption" color="textMuted">
-                  {description}
-                </Text>
-              </View>
-              <ChevronRight size={20} color={theme.color.textMuted} />
-            </View>
-          </Card>
-        ))}
+        <View style={{ gap: theme.spacing.md }}>
+          <Choice
+            icon={UserPlus}
+            title={t('welcome.registerTitle')}
+            description={t('welcome.registerDescription')}
+            href="/register"
+            primary
+            onPress={() => router.push('/register')}
+          />
+          <Choice
+            icon={KeyRound}
+            title={t('welcome.loginTitle')}
+            description={t('welcome.loginDescription')}
+            href="/login"
+            onPress={() => router.push('/login')}
+          />
+        </View>
       </View>
-    </Screen>
+    </View>
+  );
+}
+
+function Choice({
+  icon: Icon,
+  title,
+  description,
+  primary = false,
+  onPress,
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  href: Href;
+  primary?: boolean;
+  onPress: () => void;
+}) {
+  const theme = useTheme();
+  const foreground = primary ? theme.color.textOnAction : theme.color.text;
+
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      style={({ pressed }) => [
+        {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 14,
+          padding: theme.spacing.lg,
+          borderRadius: theme.radius.card,
+          borderWidth: primary ? 0 : 1,
+          borderColor: theme.color.border,
+          backgroundColor: primary ? theme.color.action : theme.color.surface,
+          opacity: pressed ? 0.9 : 1,
+        },
+        primary ? theme.shadow.action : null,
+      ]}>
+      <View
+        style={{
+          width: 52,
+          height: 52,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: theme.radius.lg,
+          backgroundColor: primary ? 'rgba(255, 255, 255, 0.16)' : theme.color.brandTint,
+        }}>
+        <Icon size={24} color={primary ? theme.color.textOnAction : theme.color.brandDeep} />
+      </View>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text variant="bodyStrong" style={{ fontSize: 17, color: foreground }}>
+          {title}
+        </Text>
+        <Text
+          variant="caption"
+          style={{ color: primary ? theme.color.textOnAction : theme.color.textMuted }}>
+          {description}
+        </Text>
+      </View>
+      <ArrowRight size={22} color={foreground} />
+    </Pressable>
   );
 }

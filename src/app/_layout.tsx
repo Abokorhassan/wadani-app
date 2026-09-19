@@ -31,6 +31,7 @@ void SplashScreen.preventAutoHideAsync();
  */
 function useAuthGate() {
   const status = useSessionStore((state) => state.status);
+  const memberStatus = useSessionStore((state) => state.member?.status);
   const segments = useSegments();
   const router = useRouter();
 
@@ -40,13 +41,17 @@ function useAuthGate() {
     const group = segments[0];
     const inAuthGroup = group === '(auth)';
     const inAppGroup = group === '(app)';
+    // Members waiting for approval, or turned down, never reach the app (D2).
+    const awaitingReview = memberStatus === 'pending' || memberStatus === 'rejected';
 
     if (status === 'signed-out' && inAppGroup) {
       router.replace('/welcome');
-    } else if (status === 'signed-in' && inAuthGroup) {
+    } else if (status === 'signed-in' && awaitingReview && !inAuthGroup) {
+      router.replace('/pending');
+    } else if (status === 'signed-in' && !awaitingReview && inAuthGroup) {
       router.replace('/home');
     }
-  }, [status, segments, router]);
+  }, [status, memberStatus, segments, router]);
 
   return status;
 }

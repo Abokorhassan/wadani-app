@@ -17,7 +17,9 @@ https://docs.expo.dev/versions/v57.0.0/ before writing native or router code.
 - `src/app/` holds routes only. They compose feature components and contain no
   data fetching or business logic.
 - A feature (`src/features/<name>/`) exposes a public `index.ts`; other features
-  import only from that.
+  import only from that. The one exception: a feature's _data_ layer (api,
+  mappers, hooks) imports another feature's data module directly, so screens'
+  components never get pulled into non-UI code.
 - Screens use domain types from a feature's `mappers.ts`, never raw backend
   payloads. Responses are validated with zod at the API boundary.
 - Every user-facing string goes through i18n (`src/i18n`).

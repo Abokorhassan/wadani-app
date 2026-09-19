@@ -704,17 +704,19 @@ NDK is installed (`sdk.dir` in `android/local.properties`, itself gitignored sin
 
 Needs D1–D13 answered and endpoints 1–10.
 
-- [ ] Welcome
-- [ ] Registration wizard:
+- [x] Welcome
+- [x] Registration wizard:
   - the rules in §1.3
   - plan and period loading, error and retry
   - amount prefill (D5), photo (D4), consent (D11), draft (D12)
   - server field errors mapped back to their fields
-- [ ] Pending screen and routing by status (D2)
-- [ ] Login, forgot password (D10), logout, session restore on launch
-- [ ] Maestro flows for register and login
+- [x] Pending screen and routing by status (D2)
+- [x] Login, forgot password (D10), logout, session restore on launch
+- [ ] Maestro flows for register and login (covered for now by the phase checks and a manual pass)
 
-**Exit criteria:** register → pending → approved in the admin panel → login → Home placeholder, working on both mock and live.
+Decisions taken as proposed: D1 (the password is checked; the mock rejects a wrong one), D2 (pending and rejected members are routed to the review screen and cannot reach the app, on launch as well), D3 (every collected field is sent), D4 (optional photo on step 1), D5 (the amount is prefilled with price × years and stays editable), D6 (only completed steps are tappable), D7 (a server field error jumps the wizard back to that field's step), D8 (email stays required), D9 (birth year optional, must be a real 4-digit year), D10 (no reset endpoint yet, so "Forgot password?" opens WhatsApp to the office), D11 (consent is required), D12 (the draft survives a restart and the password is never written to disk).
+
+**Exit criteria:** register → pending → approved in the admin panel → login → Home, working on both mock and live. _(Verified on mock end to end: registering lands on the review screen and survives a relaunch; the approved fixture member logs in to Home and a wrong password is refused. The live half waits on the API.)_
 
 ### Phase 2: Membership core (S5, S6, S7, S12, S13)
 

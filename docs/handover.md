@@ -64,14 +64,14 @@ builds may simply work — worth trying.
 
 ## 3. Where the project stands
 
-| Phase                   | State                                                                                                                                                           |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **0 — Foundations**     | Done. Expo SDK 57, Expo Router, design system, API layer with mock mode, i18n, tests, EAS profiles.                                                             |
-| **1 — Onboarding**      | **Not started.** Welcome, registration and login are still Phase 0 shells; "Log in" creates a demo session with no password check. Blocked on decisions D1–D13. |
-| **2 — Membership core** | Done. Home, My Card (QR, save to Photos, share), Payment history, Profile, Communications — all on mock data.                                                   |
-| **3 — Engagement**      | Done. News & Events with RSVP, Contact & FAQs (call, email, maps and WhatsApp links).                                                                           |
-| **4 — Family & Donate** | Done. Family list and add form, donations recorded for the office to confirm.                                                                                   |
-| **5–6**                 | Not started: release hardening, then payment gateways, renewal and push.                                                                                        |
+| Phase                   | State                                                                                                                                                              |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **0 — Foundations**     | Done. Expo SDK 57, Expo Router, design system, API layer with mock mode, i18n, tests, EAS profiles.                                                                |
+| **1 — Onboarding**      | Done. Welcome, the 4-step registration wizard, review screen and login; the password is checked and pending members stay out of the app. D1–D13 taken as proposed. |
+| **2 — Membership core** | Done. Home, My Card (QR, save to Photos, share), Payment history, Profile, Communications — all on mock data.                                                      |
+| **3 — Engagement**      | Done. News & Events with RSVP, Contact & FAQs (call, email, maps and WhatsApp links).                                                                              |
+| **4 — Family & Donate** | Done. Family list and add form, donations recorded for the office to confirm.                                                                                      |
+| **5–6**                 | Not started: release hardening, then payment gateways, renewal and push.                                                                                           |
 
 Nothing talks to a real backend yet: `EXPO_PUBLIC_API_MOCK=all` serves every
 feature from fixtures. Endpoints can be switched to live one at a time — see
@@ -128,13 +128,14 @@ copied to the same path on the new machine.)_
 
 ## 6. What to do next
 
-1. **Answer D1–D13** in build-plan §2 — they block Phase 1 (registration and
-   login). Accepting the proposals as written is enough.
+1. **Review the D1–D13 choices** recorded in build-plan §7, Phase 1 — they were
+   implemented as proposed. Say if any should change (for example whether email
+   stays required, or whether registration should ask for a photo).
 2. **Chase the Postman collection.** Build-plan §4.4 lists the endpoints the app
    expects, and §4.5 lists what to ask for alongside it (auth scheme, error
    format, date and money formats, a staging URL).
-3. **Build Phase 1** — the registration wizard, real login, pending-review
-   screen, and routing by membership status.
+3. **Phase 5 (release) or Phase 6 (payments)** — Phase 5 needs store accounts,
+   a privacy policy and EAS credentials from you.
 4. Still open: the social handle on the card (D18), the invite link
    `EXPO_PUBLIC_INVITE_URL` (D19), the FAQ copy (D21), Somali translations (D13),
    and the real contact details (D23).

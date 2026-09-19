@@ -112,9 +112,124 @@ describe('Phase 0 — foundations', () => {
 });
 
 describe('Phase 1 — onboarding', () => {
-  it.todo('registration wizard with per-step validation (blocked on decisions D1–D13)');
-  it.todo('login against the backend, with a real password check (D1)');
-  it.todo('pending screen and routing by membership status (D2)');
+  it('has the welcome, register, pending and login screens, no longer shells', () => {
+    for (const route of ['welcome', 'register', 'pending', 'login']) {
+      expect(exists(`app/(auth)/${route}.tsx`)).toBe(true);
+      expect(source(`app/(auth)/${route}.tsx`)).not.toContain('Phase 0 shell');
+    }
+  });
+
+  it('serves auth from live or mock alike', () => {
+    apiSurfacesMatch('auth', 'authApi', 'authApiMock');
+  });
+
+  it('checks the password instead of waving anyone through (D1)', async () => {
+    const { authApiMock, DEMO_PASSWORD } = require('../features/auth/api.mock');
+    const { memberFixture } = require('../features/membership/api.mock');
+
+    await expect(
+      authApiMock.login({ identifier: memberFixture.email, password: 'wrong-password' })
+    ).rejects.toMatchObject({ error: { kind: 'validation' } });
+
+    const session = await authApiMock.login({
+      identifier: memberFixture.email,
+      password: DEMO_PASSWORD,
+    });
+    expect(session.member.id).toBe(memberFixture.id);
+    expect(session.accessToken).toBeTruthy();
+  });
+
+  it('registers a member as pending, and rejects a duplicate email (D7)', async () => {
+    const { authApiMock } = require('../features/auth/api.mock');
+    const payload = {
+      fullName: 'Amina Yusuf',
+      gender: 'female',
+      phone: '+252 63 111 2222',
+      email: `amina${Date.now()}@example.com`,
+      education: 'bachelor',
+      password: 'secret123',
+      address: { country: 'Somaliland', city: 'Hargeisa' },
+      planId: 'silver',
+      periodId: '1y',
+      payment: { method: 'zaad', amountUsd: 50, account: '+252 63 111 2222', reference: 'TX-1' },
+      acceptedTerms: true,
+    };
+
+    const session = await authApiMock.register(payload);
+    expect(session.member.status).toBe('pending');
+
+    await expect(authApiMock.register(payload)).rejects.toMatchObject({
+      error: { fieldErrors: { email: expect.any(String) } },
+    });
+  });
+
+  it('keeps members waiting for approval out of the app (D2)', () => {
+    const entry = source('app/index.tsx');
+    expect(entry).toContain("'pending'");
+    expect(entry).toContain('/pending');
+    expect(source('app/_layout.tsx')).toContain('awaitingReview');
+  });
+
+  it('validates each step on its own, including the optional birth year (D9)', () => {
+    const {
+      personalSchema,
+      addressSchema,
+      paymentSchema,
+      STEP_FIELDS,
+      stepForField,
+    } = require('../features/registration/form');
+
+    expect(STEP_FIELDS).toHaveLength(4);
+    expect(addressSchema.safeParse({ country: 'Somaliland', city: '' }).success).toBe(false);
+    // Birth year may be left out, but a stray value has to be a real year.
+    const base = {
+      fullName: 'Amina Yusuf',
+      gender: 'female',
+      phone: '+252 63 111 2222',
+      email: 'amina@example.com',
+      education: 'bachelor',
+      password: 'secret123',
+    };
+    expect(personalSchema.safeParse(base).success).toBe(true);
+    expect(personalSchema.safeParse({ ...base, birthYear: '98' }).success).toBe(false);
+    expect(personalSchema.safeParse({ ...base, birthYear: '1998' }).success).toBe(true);
+    // A server-side email clash sends the wizard back to the first step (D7).
+    expect(stepForField('email')).toBe(0);
+    expect(stepForField('reference')).toBe(3);
+
+    // Consent is required before an account can be created (D11).
+    const payment = { method: 'zaad', amount: '50', account: '+252', reference: 'TX-1' };
+    expect(paymentSchema.safeParse({ ...payment, acceptedTerms: false }).success).toBe(false);
+    expect(paymentSchema.safeParse({ ...payment, acceptedTerms: true }).success).toBe(true);
+  });
+
+  it('never writes the password into the saved draft (D12)', () => {
+    const { useDraftStore } = require('../features/registration/draft-store');
+    const { emptyRegistration } = require('../features/registration/form');
+
+    useDraftStore
+      .getState()
+      .save({ ...emptyRegistration, fullName: 'Amina', password: 'secret123' }, 1);
+    const draft = useDraftStore.getState().draft;
+    expect(draft).toMatchObject({ fullName: 'Amina', step: 1 });
+    expect(JSON.stringify(draft)).not.toContain('secret123');
+    useDraftStore.getState().clear();
+    expect(useDraftStore.getState().draft).toBeNull();
+  });
+
+  it('has the wording for every Phase 1 screen', () => {
+    for (const key of [
+      'welcome.title',
+      'register.title',
+      'register.consent',
+      'register.submit',
+      'pending.title',
+      'pending.stepApproved',
+      'login.forgotPassword',
+    ]) {
+      expect(hasText(key)).toBe(true);
+    }
+  });
 });
 
 describe('Phase 2 — membership core', () => {
