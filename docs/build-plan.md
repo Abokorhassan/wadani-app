@@ -750,10 +750,12 @@ D21 taken: the FAQ answers were rewritten in `src/features/support/api.mock.ts` 
 
 Needs D24–D25 and endpoints 17–18.
 
-- [ ] Family list and add form (new members start as Pending)
-- [ ] Donate: quick amounts, manual methods through the payments registry, thank-you screen
+- [x] Family list and add form (new members start as Pending)
+- [x] Donate: quick amounts, manual methods through the payments registry, thank-you screen
 
-**Exit criteria:** both flows work on the live backend, and Donate uses the same payment registry as registration.
+D24 taken: a new family member is added with a name and relation only, comes back **pending** and has no member ID until the office approves them. Ask the backend whether dependents also need a birth year, gender or their own payment. D25 taken: a donation is recorded as **pending** for the office to confirm, and the thank-you screen says what happens next (cash is handed in at the office; other methods are confirmed when the payment arrives). **Open:** non-cash donations may need a reference number for the office to reconcile — the approved design has no field for it.
+
+**Exit criteria:** both flows work on the live backend, and Donate uses the same payment registry as registration. _(Donate already reads `PAYMENT_METHODS`; the live-backend half waits on the API.)_
 
 ### Phase 5: Hardening & v1 release
 
@@ -775,6 +777,18 @@ Needs D24–D25 and endpoints 17–18.
 **Exit criteria:** a gateway payment completes end to end, and card validity updates without staff action.
 
 ---
+
+## 7.1 Checking a phase is really done
+
+`npm run verify:phases` runs [src/**tests**/phase-deliverables.test.ts](../src/__tests__/phase-deliverables.test.ts),
+which turns the checklists above into assertions: the screens exist and are no
+longer placeholders, each feature's mock offers exactly what its live client
+does, the behaviour each phase promised holds (offline card persistence,
+optimistic RSVP, pending family members, pending donations), and every screen's
+wording exists in the i18n bundle. Phases not yet built are listed as `todo`, so
+the outstanding work stays visible. It also runs as part of `npm test`.
+
+Keep it honest: when a phase gains a deliverable, add the matching check.
 
 ## 8. Immediate next actions
 

@@ -163,5 +163,41 @@
     "hours": "Office hours",
     "contactFailed": "We couldn't load the contact details.",
     "faqsFailed": "We couldn't load the FAQs."
+  },
+  "family": {
+    "title": "Family",
+    "subtitle": "Manage family members linked to your account.",
+    "addTitle": "Add a family member",
+    "fullName": "Full name",
+    "namePlaceholder": "e.g. Hodan Shibbin",
+    "relation": "Relation",
+    "add": "Add family member",
+    "nameRequired": "Please enter a name.",
+    "added": "{{name}} was added and is waiting for approval.",
+    "addFailed": "Couldn't add them. Please try again.",
+    "awaitingApproval": "Awaiting approval",
+    "emptyTitle": "No family members yet",
+    "emptyText": "Add your spouse, children, parents or siblings below.",
+    "loadFailed": "We couldn't load your family members."
+  },
+  "relations": {
+    "spouse": "Spouse",
+    "child": "Child",
+    "parent": "Parent",
+    "sibling": "Sibling"
+  },
+  "donate": {
+    "title": "Donate",
+    "subtitle": "Support Xisbiga Waddani's work in your community.",
+    "amount": "Amount (USD)",
+    "method": "Payment method",
+    "submit": "Donate now",
+    "invalidAmount": "Please enter an amount.",
+    "failed": "Couldn't record your donation. Please try again.",
+    "thanksTitle": "Thank you",
+    "thanksText": "Your donation of {{amount}} is recorded. The office confirms it once your {{method}} payment arrives.",
+    "thanksCash": "Your donation of {{amount}} is recorded. Please pay the amount at a Waddani office.",
+    "done": "Back to home",
+    "another": "Donate again"
   }
 }

@@ -10,6 +10,11 @@ module.exports = defineConfig([
     ignores: ['dist/*', '.expo/*', 'node_modules/*'],
   },
   {
+    // The phase check loads modules by path on purpose, to prove they exist.
+    files: ['src/__tests__/**'],
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
+  },
+  {
     // i18next's documented usage goes through the default export.
     files: ['src/i18n/**'],
     rules: { 'import/no-named-as-default-member': 'off' },

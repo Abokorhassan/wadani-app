@@ -45,6 +45,7 @@
   "devDependencies": {
     "@testing-library/react-native": "^14.0.1",
     "@types/jest": "29.5.14",
+    "@types/node": "^26.6.2",
     "@types/react": "~19.2.2",
     "eslint": "^9.39.5",
     "eslint-config-expo": "~57.0.2",
@@ -66,7 +67,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "brand:assets": "python3 scripts/build-brand-assets.py",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "verify:phases": "jest src/__tests__/phase-deliverables.test.ts --verbose"
   },
   "private": true
 }

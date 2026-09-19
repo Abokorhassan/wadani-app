@@ -52,6 +52,7 @@ Afterwards the app stays installed, so day to day you only need `npm start`
 (then press `a`), or relaunch the app and run `adb reverse tcp:8081 tcp:8081`.
 
 **Checks before committing:** `npm run typecheck && npm run lint && npm test`
+`npm run verify:phases` prints each phase's deliverables as a pass/todo checklist.
 
 **iOS is currently blocked.** Expo SDK 57's `expo-modules-jsi` does not compile
 under Xcode 26.1.1 / Swift 6.2.1. `patches/expo-modules-jsi+57.1.0.patch` fixes
@@ -68,7 +69,9 @@ builds may simply work — worth trying.
 | **0 — Foundations**     | Done. Expo SDK 57, Expo Router, design system, API layer with mock mode, i18n, tests, EAS profiles.                                                             |
 | **1 — Onboarding**      | **Not started.** Welcome, registration and login are still Phase 0 shells; "Log in" creates a demo session with no password check. Blocked on decisions D1–D13. |
 | **2 — Membership core** | Done. Home, My Card (QR, save to Photos, share), Payment history, Profile, Communications — all on mock data.                                                   |
-| **3–6**                 | Not started. Donate, News & Events, Family and Contact open a "Coming soon" screen.                                                                             |
+| **3 — Engagement**      | Done. News & Events with RSVP, Contact & FAQs (call, email, maps and WhatsApp links).                                                                           |
+| **4 — Family & Donate** | Done. Family list and add form, donations recorded for the office to confirm.                                                                                   |
+| **5–6**                 | Not started: release hardening, then payment gateways, renewal and push.                                                                                        |
 
 Nothing talks to a real backend yet: `EXPO_PUBLIC_API_MOCK=all` serves every
 feature from fixtures. Endpoints can be switched to live one at a time — see

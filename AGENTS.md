@@ -31,3 +31,7 @@ https://docs.expo.dev/versions/v57.0.0/ before writing native or router code.
 ```bash
 npm run typecheck && npm run lint && npm test
 ```
+
+`npm test` includes the phase acceptance checks. To see a phase's deliverables
+as a checklist, run `npm run verify:phases`; add a check there whenever a phase
+gains a deliverable.
