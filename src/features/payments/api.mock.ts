@@ -4,26 +4,34 @@ import type { PaymentsApi } from './api';
 import { toPayment } from './mappers';
 import type { PaymentDto } from './schemas';
 
-/** Sample payments from the prototype. */
+/** Sample payments, in the live payload shape. */
 export const paymentFixtures: PaymentDto[] = [
   {
-    id: 'pay-2',
-    method: 'zaad',
-    amountUsd: 25,
+    id: 'aaaa1111-0000-0000-0000-000000000002',
+    memberId: '6f1c0f8e-6d6a-4d1a-9f0e-2c7a1b3d4e5f',
+    method: 'WAAFI',
+    status: 'COMPLETED',
+    amount: '25.00',
+    currency: 'USD',
     reference: 'TX-102938',
-    date: '2026-09-12T00:00:00.000Z',
-    status: 'completed',
+    accountPaid: '+252632345678',
+    paidAt: '2026-09-12T00:00:00.000Z',
   },
   {
-    id: 'pay-1',
-    method: 'cash',
-    amountUsd: 25,
+    id: 'aaaa1111-0000-0000-0000-000000000001',
+    memberId: '6f1c0f8e-6d6a-4d1a-9f0e-2c7a1b3d4e5f',
+    method: 'EDAHAB',
+    status: 'COMPLETED',
+    amount: '25.00',
+    currency: 'USD',
     reference: 'TX-098211',
-    date: '2025-09-12T00:00:00.000Z',
-    status: 'completed',
+    accountPaid: '+252652345678',
+    paidAt: '2025-09-12T00:00:00.000Z',
   },
 ];
 
 export const paymentsApiMock: PaymentsApi = {
   getPayments: () => mockRespond(paymentFixtures.map(toPayment)),
+  renew: () => mockRespond({ payment: paymentFixtures[0] }, 800),
+  confirmCard: () => mockRespond({ purpose: 'REGISTER' }, 800),
 };

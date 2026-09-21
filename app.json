@@ -48,7 +48,8 @@
           "savePhotosPermission": "Waddani saves your membership card to your photos.",
           "isAccessMediaLocationEnabled": false
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

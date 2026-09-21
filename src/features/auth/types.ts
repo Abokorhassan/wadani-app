@@ -1,37 +1,51 @@
-import type { EducationLevel, Gender, Member } from '@/features/membership';
-import type { PaymentMethodId } from '@/features/payments';
+// Data-layer to data-layer, to keep UI out of this module (AGENTS.md).
+import type {
+  Address,
+  EducationLevel,
+  Gender,
+  Member,
+  MemberCard,
+} from '@/features/membership/types';
+import type { CardCheckout, ChargeRequest } from '@/features/payments/types';
 
 export interface Credentials {
-  /** Phone or email — the backend works out which (build-plan S4). */
+  /** Phone or email — the backend works out which. */
   identifier: string;
   password: string;
 }
 
-/** Everything the registration wizard collects (build-plan D3: nothing is dropped). */
+/**
+ * What the wizard collects. Every field the backend requires is here, and
+ * nothing it does not accept (api-contract/, POST /mobile/auth/register).
+ */
 export interface RegistrationPayload {
   fullName: string;
   gender: Gender;
   phone: string;
   whatsapp?: string;
-  email: string;
-  birthYear?: number;
+  email?: string;
+  /** A URL the backend can reach: registration is rejected without one. */
+  photoUrl: string;
   education: EducationLevel;
+  professionalWork: string;
+  birthYear: number;
+  membershipTypeId: string;
+  membershipPeriodId: string;
+  address: Address;
   password: string;
-  photoUri?: string;
-  address: { country: string; city: string; line?: string };
-  planId: string;
-  periodId: string;
-  payment: {
-    method: PaymentMethodId;
-    amountUsd: number;
-    account: string;
-    reference: string;
-  };
-  acceptedTerms: boolean;
+  charge: ChargeRequest;
 }
 
+/**
+ * Registration either completes outright (wallet charge) or hands back a
+ * Sifalo checkout page to visit first (card). Nothing exists yet in that case.
+ */
+export type RegistrationResult =
+  | { kind: 'registered'; member: Member; card?: MemberCard }
+  | { kind: 'checkout'; checkout: CardCheckout };
+
+/** Login is the only call that returns a token; registration does not. */
 export interface AuthSession {
   accessToken: string;
-  refreshToken?: string;
-  member: Member;
+  memberId: string;
 }

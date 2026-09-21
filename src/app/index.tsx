@@ -9,8 +9,8 @@ export default function Index() {
 
   if (status === 'restoring') return null;
   if (status !== 'signed-in') return <Redirect href="/welcome" />;
-  // Approval is still outstanding, so the app itself stays closed (build-plan D2).
-  if (memberStatus === 'pending' || memberStatus === 'rejected')
+  // The card is only issued once Sifalo settles the charge (build-plan D2).
+  if (memberStatus === 'registered' || memberStatus === 'paymentPending')
     return <Redirect href="/pending" />;
   return <Redirect href="/home" />;
 }

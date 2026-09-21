@@ -5,21 +5,19 @@ import { toNewsItem, toPartyEvent } from './mappers';
 import { eventsResponse, newsResponse } from './schemas';
 import type { NewsItem, PartyEvent } from './types';
 
-/** Live endpoints. Paths are placeholders until the Postman collection lands. */
+/** No RSVP endpoint exists; the party isn't supporting it for now (docs/api-gaps.md, question 2). */
 export const newsEventsApi = {
   async getNews(): Promise<NewsItem[]> {
-    const data = await request('/news');
-    return parseResponse(newsResponse, data, 'GET /news').map(toNewsItem);
+    const data = await request('/mobile/news', {
+      authenticated: false,
+      query: { page: 1, pageSize: 50 },
+    });
+    return parseResponse(newsResponse, data, 'GET /mobile/news').news.map(toNewsItem);
   },
 
   async getEvents(): Promise<PartyEvent[]> {
-    const data = await request('/events');
-    return parseResponse(eventsResponse, data, 'GET /events').map(toPartyEvent);
-  },
-
-  /** RSVP to an event, or take it back. */
-  async setRsvp(eventId: string, going: boolean): Promise<void> {
-    await request(`/events/${eventId}/rsvp`, { method: going ? 'POST' : 'DELETE' });
+    const data = await request('/mobile/events', { authenticated: false });
+    return parseResponse(eventsResponse, data, 'GET /mobile/events').events.map(toPartyEvent);
   },
 };
 

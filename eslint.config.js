@@ -10,8 +10,9 @@ module.exports = defineConfig([
     ignores: ['dist/*', '.expo/*', 'node_modules/*'],
   },
   {
-    // The phase check loads modules by path on purpose, to prove they exist.
-    files: ['src/__tests__/**'],
+    // The phase check loads modules by path on purpose, to prove they exist,
+    // and a test reloading a module under new config has to require() it.
+    files: ['src/__tests__/**', 'src/**/*.test.ts', 'src/**/*.test.tsx'],
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
   {

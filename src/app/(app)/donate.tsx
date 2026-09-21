@@ -4,27 +4,44 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
-import { Button, Screen, ScreenHeader, Text, TextField, useTheme, useToast } from '@/design-system';
+import {
+  Button,
+  PhoneField,
+  Screen,
+  ScreenHeader,
+  Text,
+  TextField,
+  useTheme,
+  useToast,
+} from '@/design-system';
 import {
   DONATION_PRESETS,
   parseAmount,
   useCreateDonation,
   type Donation,
 } from '@/features/donations';
-import { PAYMENT_METHODS, type PaymentMethodId } from '@/features/payments';
+import {
+  isWalletMethod,
+  PAYMENT_METHODS,
+  useCardCheckout,
+  type ChargeMethod,
+} from '@/features/payments';
 import { formatUsd } from '@/lib/format';
 
-const METHOD_IDS = Object.keys(PAYMENT_METHODS) as PaymentMethodId[];
+const METHOD_IDS = Object.keys(PAYMENT_METHODS) as ChargeMethod[];
 
 export default function DonateScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const toast = useToast();
   const createDonation = useCreateDonation();
+  const runCardCheckout = useCardCheckout();
 
   const [amount, setAmount] = useState('25.00');
-  const [method, setMethod] = useState<PaymentMethodId>('zaad');
+  const [method, setMethod] = useState<ChargeMethod>('WAAFI');
+  const [payerPhone, setPayerPhone] = useState('');
   const [error, setError] = useState<string>();
+  const [phoneError, setPhoneError] = useState<string>();
   const [done, setDone] = useState<Donation>();
 
   if (done) {
@@ -37,11 +54,32 @@ export default function DonateScreen() {
       setError(t('donate.invalidAmount'));
       return;
     }
+    if (isWalletMethod(method) && !payerPhone.trim()) {
+      setPhoneError(t('donate.payerPhoneRequired'));
+      return;
+    }
     setError(undefined);
+    setPhoneError(undefined);
+
     createDonation.mutate(
-      { amountUsd, method },
+      { amountUsd, method, payerPhone: payerPhone.trim() || undefined },
       {
-        onSuccess: setDone,
+        onSuccess: (result) => {
+          if (result.kind === 'donated') {
+            setDone(result.donation);
+            return;
+          }
+          // A card donation is only real once Sifalo sends the member back.
+          runCardCheckout(result.checkout)
+            .then(() => setDone({
+              id: result.checkout.checkoutId,
+              amountUsd,
+              currency: 'USD',
+              method,
+              donatedAt: new Date().toISOString(),
+            }))
+            .catch(() => toast.show(t('donate.failed'), 'danger'));
+        },
         onError: () => toast.show(t('donate.failed'), 'danger'),
       }
     );
@@ -151,6 +189,16 @@ export default function DonateScreen() {
           </View>
         </View>
 
+        {isWalletMethod(method) ? (
+          <PhoneField
+            label={t('donate.payerPhone')}
+            hint={t('donate.payerPhoneHint')}
+            value={payerPhone}
+            onChangeText={setPayerPhone}
+            error={phoneError}
+          />
+        ) : null}
+
         <Button
           label={t('donate.submit')}
           icon={Heart}
@@ -162,7 +210,7 @@ export default function DonateScreen() {
   );
 }
 
-/** Manual donations are recorded, not charged, so say what happens next (build-plan D25). */
+/** The charge has already gone through Sifalo by the time this shows. */
 function DonationThanks({ donation, onAgain }: { donation: Donation; onAgain: () => void }) {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -188,9 +236,7 @@ function DonationThanks({ donation, onAgain }: { donation: Donation; onAgain: ()
           {t('donate.thanksTitle')}
         </Text>
         <Text variant="body" color="textMuted" center>
-          {donation.method === 'cash'
-            ? t('donate.thanksCash', { amount })
-            : t('donate.thanksText', { amount, method })}
+          {t('donate.thanksText', { amount, method })}
         </Text>
         <View style={{ alignSelf: 'stretch', gap: 12, marginTop: 12 }}>
           <Button label={t('donate.done')} onPress={() => router.back()} />

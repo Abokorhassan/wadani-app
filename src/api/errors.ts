@@ -45,9 +45,9 @@ export function describeError(error: ApiError): string {
 }
 
 /**
- * Best-effort mapping of a backend error body to field errors. The exact shape
- * is unknown until the collection arrives, so the common conventions are tried
- * and anything unrecognised falls back to a plain message.
+ * Maps a backend error body to field errors. The API's own shape is
+ * `{ error: { message, details, traceId } }` (api-contract/, schema Error);
+ * `details` is free-form, so the common conventions are tried around it.
  */
 export function parseValidationBody(body: unknown): {
   fieldErrors: Record<string, string>;
@@ -57,11 +57,15 @@ export function parseValidationBody(body: unknown): {
   let message: string | undefined;
 
   if (body && typeof body === 'object') {
-    const record = body as Record<string, unknown>;
+    const outer = body as Record<string, unknown>;
+    const record =
+      outer.error && typeof outer.error === 'object'
+        ? (outer.error as Record<string, unknown>)
+        : outer;
 
     if (typeof record.message === 'string') message = record.message;
 
-    const errors = record.errors ?? record.fieldErrors ?? record.fields;
+    const errors = record.details ?? record.errors ?? record.fieldErrors ?? record.fields;
     if (errors && typeof errors === 'object') {
       for (const [field, value] of Object.entries(errors as Record<string, unknown>)) {
         if (typeof value === 'string') fieldErrors[field] = value;

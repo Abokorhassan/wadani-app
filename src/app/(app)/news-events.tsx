@@ -1,8 +1,8 @@
 import { Image } from 'expo-image';
-import { Calendar, Check, Clock, MapPin, Newspaper } from 'lucide-react-native';
+import { Calendar, Clock, MapPin, Newspaper } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, RefreshControl, View } from 'react-native';
+import { RefreshControl, View } from 'react-native';
 
 import {
   EmptyState,
@@ -14,15 +14,8 @@ import {
   Skeleton,
   Text,
   useTheme,
-  useToast,
 } from '@/design-system';
-import {
-  useEvents,
-  useNews,
-  useRsvp,
-  type NewsItem,
-  type PartyEvent,
-} from '@/features/news-events';
+import { useEvents, useNews, type NewsItem, type PartyEvent } from '@/features/news-events';
 import { formatDate, formatTime } from '@/lib/format';
 
 const sealBlack = require('@/assets/brand/seal-black.png');
@@ -132,16 +125,7 @@ function NewsCard({ item, featured }: { item: NewsItem; featured: boolean }) {
 
 function EventCard({ event }: { event: PartyEvent }) {
   const theme = useTheme();
-  const { t } = useTranslation();
-  const toast = useToast();
-  const rsvp = useRsvp();
   const date = new Date(event.startsAt);
-
-  const toggle = () =>
-    rsvp.mutate(
-      { eventId: event.id, going: !event.isGoing },
-      { onError: () => toast.show(t('news.rsvpFailed'), 'danger') }
-    );
 
   return (
     <View
@@ -162,15 +146,12 @@ function EventCard({ event }: { event: PartyEvent }) {
           justifyContent: 'center',
           gap: 2,
           borderRadius: theme.radius.button,
-          backgroundColor: event.isGoing ? theme.color.surfaceInk : theme.color.brandTint,
+          backgroundColor: theme.color.brandTint,
         }}>
-        <Text variant="overline" color={event.isGoing ? 'brand' : 'accentDeep'}>
+        <Text variant="overline" color="accentDeep">
           {date.toLocaleDateString('en', { month: 'short' })}
         </Text>
-        <Text
-          variant="display"
-          color={event.isGoing ? 'textOnInk' : 'text'}
-          style={{ fontSize: 30, lineHeight: 32 }}>
+        <Text variant="display" style={{ fontSize: 30, lineHeight: 32 }}>
           {date.getDate()}
         </Text>
       </View>
@@ -183,44 +164,14 @@ function EventCard({ event }: { event: PartyEvent }) {
             {formatTime(event.startsAt)}
           </Text>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <MapPin size={15} color={theme.color.textMuted} />
-          <Text variant="caption" color="textMuted">
-            {event.venue}
-          </Text>
-        </View>
-
-        <Pressable
-          onPress={toggle}
-          accessibilityRole="button"
-          accessibilityState={{ selected: event.isGoing }}
-          accessibilityLabel={`${event.isGoing ? t('news.going') : t('news.rsvp')}: ${event.title}`}
-          style={({ pressed }) => ({
-            alignSelf: 'flex-start',
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 6,
-            height: 36,
-            marginTop: 6,
-            paddingHorizontal: event.isGoing ? 14 : 18,
-            borderRadius: theme.radius.pill,
-            borderWidth: 1.5,
-            borderColor: theme.color.action,
-            backgroundColor: event.isGoing ? theme.color.action : 'transparent',
-            opacity: pressed ? 0.8 : 1,
-          })}>
-          {event.isGoing ? (
-            <Check size={16} color={theme.color.textOnAction} strokeWidth={2.6} />
-          ) : null}
-          <Text
-            variant="smallStrong"
-            style={{
-              fontSize: 14,
-              color: event.isGoing ? theme.color.textOnAction : theme.color.actionDeep,
-            }}>
-            {event.isGoing ? t('news.going') : t('news.rsvp')}
-          </Text>
-        </Pressable>
+        {event.venue ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <MapPin size={15} color={theme.color.textMuted} />
+            <Text variant="caption" color="textMuted">
+              {event.venue}
+            </Text>
+          </View>
+        ) : null}
       </View>
     </View>
   );

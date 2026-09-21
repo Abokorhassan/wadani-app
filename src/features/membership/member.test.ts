@@ -10,7 +10,13 @@ describe('member mapping', () => {
   it('turns backend nulls into absent fields', () => {
     const member = toMember(memberFixture);
     expect(member.photoUrl).toBeUndefined();
-    expect(member.address.line).toBeUndefined();
-    expect(member.plan).toEqual({ id: 'standard', name: 'Standard' });
+    expect(member.address.district).toBeUndefined();
+  });
+
+  it('lowercases the backend enums into the domain ones', () => {
+    const member = toMember(memberFixture);
+    expect(member.gender).toBe('male');
+    expect(member.education).toBe('bachelor');
+    expect(member.status).toBe('cardIssued');
   });
 });

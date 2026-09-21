@@ -1,0 +1,1699 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Waddani Mobile Auth API",
+    "version": "1.0.0",
+    "description": "Member-facing auth endpoints for the mobile app. Kept separate from the staff-facing /auth/* endpoints -- member and staff tokens are never interchangeable (see requireMemberAuth vs requireAuth)."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "This server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Registration",
+      "description": "Catalog reads and account creation -- no member token needed yet"
+    },
+    {
+      "name": "Auth",
+      "description": "Login, session, and password reset for an existing member"
+    },
+    {
+      "name": "Membership Card",
+      "description": "View (not edit) the member's own card"
+    },
+    {
+      "name": "Payments",
+      "description": "The member's own payment history"
+    },
+    {
+      "name": "Donations",
+      "description": "Simple, campaign-less donations -- give an amount, view the member's own history"
+    },
+    {
+      "name": "Events",
+      "description": "Public, read-only -- viewing events needs no member token"
+    },
+    {
+      "name": "News",
+      "description": "Public, read-only, paginated -- viewing news needs no member token"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "memberBearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Address": {
+        "type": "object",
+        "required": [
+          "line1",
+          "city",
+          "region",
+          "country"
+        ],
+        "properties": {
+          "line1": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "district": {
+            "type": "string"
+          }
+        }
+      },
+      "Member": {
+        "type": "object",
+        "description": "The full member record -- same shape the staff admin panel uses.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ]
+          },
+          "phone": {
+            "type": "string"
+          },
+          "whatsapp": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "photoUrl": {
+            "type": "string"
+          },
+          "educationalLevel": {
+            "type": "string",
+            "enum": [
+              "PRIMARY",
+              "SECONDARY",
+              "DIPLOMA",
+              "BACHELOR",
+              "MASTER",
+              "DOCTORATE",
+              "OTHER"
+            ]
+          },
+          "professionalWork": {
+            "type": "string"
+          },
+          "birthYear": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "REGISTERED",
+              "PAYMENT_PENDING",
+              "PAID",
+              "CARD_ISSUED"
+            ]
+          },
+          "isNewMember": {
+            "type": "boolean"
+          },
+          "registeredBy": {
+            "type": "string",
+            "enum": [
+              "SELF",
+              "STAFF"
+            ]
+          },
+          "registrationType": {
+            "type": "string",
+            "enum": [
+              "SINGLE",
+              "BUNDLE"
+            ]
+          },
+          "membershipTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "membershipPeriodId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "membershipExpiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isEligibleForPayment": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Payment": {
+        "type": "object",
+        "description": "The WAAFI payment charged during registration -- same shape the staff admin panel uses.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "memberId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "ONLINE",
+              "CASH",
+              "ZAAD",
+              "EDAHAB",
+              "DARASALAAM",
+              "DAHABSHIIL",
+              "PREMIER_BANK",
+              "WAAFI",
+              "PREMIER_WALLET"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "COMPLETED",
+              "FAILED"
+            ]
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal string, e.g. \"24.00\""
+          },
+          "currency": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string",
+            "description": "Sifalo Pay transaction id (sid)"
+          },
+          "accountPaid": {
+            "type": "string",
+            "description": "The phone number charged"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "NewsArticle": {
+        "type": "object",
+        "description": "Staff-managed, read-only for mobile. Scoped to the fixed \"Online\" organization every mobile member belongs to.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string",
+            "description": "Rich text (HTML), written via the admin portal's WYSIWYG editor."
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Featured image URL, uploaded via POST /uploads."
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "description": "Staff-managed, read-only for mobile. Scoped to the fixed \"Online\" organization every mobile member belongs to.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "Donation": {
+        "type": "object",
+        "description": "A single, campaign-less donation -- no goal/progress tracking.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "memberId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "WAAFI",
+              "EDAHAB",
+              "PREMIER_WALLET"
+            ]
+          },
+          "amount": {
+            "type": "string",
+            "description": "Decimal string, e.g. \"10.00\""
+          },
+          "currency": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string",
+            "description": "Sifalo Pay transaction id (sid)"
+          },
+          "accountPaid": {
+            "type": "string"
+          },
+          "donatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MembershipCard": {
+        "type": "object",
+        "description": "Issued automatically during registration (see registerAndPayMobileMember) -- never created or edited by the member directly.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "memberId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cardCode": {
+            "type": "string",
+            "description": "The QR/scan value, e.g. \"MC-2026-AB12CD\""
+          },
+          "memberFullName": {
+            "type": "string"
+          },
+          "photoUrl": {
+            "type": "string"
+          },
+          "membershipType": {
+            "type": "string"
+          },
+          "membershipTypeStars": {
+            "type": "integer",
+            "nullable": true
+          },
+          "cardLayout": {
+            "type": "string",
+            "enum": [
+              "HORIZONTAL",
+              "VERTICAL"
+            ]
+          },
+          "validUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "issuedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "type": "object"
+              },
+              "traceId": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/mobile/plans": {
+      "get": {
+        "tags": [
+          "Registration"
+        ],
+        "summary": "List membership plans",
+        "description": "Public, no auth -- populates the plan selector during registration, before a member has an account. Only plans marked isPublic are returned. \"Plans\" is the mobile-facing name for the staff-facing MembershipType catalog.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "plans": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "price": {
+                            "type": "string",
+                            "description": "Decimal string, e.g. \"24.00\""
+                          },
+                          "benefits": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "stars": {
+                            "type": "integer",
+                            "nullable": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/membership-periods": {
+      "get": {
+        "tags": [
+          "Registration"
+        ],
+        "summary": "List membership periods",
+        "description": "Public, no auth -- populates the period selector during registration.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "membershipPeriods": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "months": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/news": {
+      "get": {
+        "tags": [
+          "News"
+        ],
+        "summary": "List news articles (paginated)",
+        "description": "Public, no auth. Scoped to the fixed \"Online\" organization. Newest first.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "news": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/NewsArticle"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/news/{id}": {
+      "get": {
+        "tags": [
+          "News"
+        ],
+        "summary": "Get a single news article",
+        "description": "Public, no auth.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "article": {
+                      "$ref": "#/components/schemas/NewsArticle"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/events": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "List events",
+        "description": "Public, no auth. Scoped to the fixed \"Online\" organization.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Event"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/events/{id}": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Get a single event",
+        "description": "Public, no auth.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "event": {
+                      "$ref": "#/components/schemas/Event"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/auth/register": {
+      "post": {
+        "tags": [
+          "Registration"
+        ],
+        "summary": "Self-register a mobile member and pay via Sifalo Pay (Waafi, eDahab or Premier Wallet)",
+        "description": "No ID document / signed-terms upload -- only a photo is required. Attaches the new member to the fixed \"Online\" organization. Sets termsAcceptedAt to the current time (click-through acceptance, not a document). Registration is atomic with payment: amount and method are client-supplied (amount is trusted as-is, not cross-checked against the plan's price) and charged via WAAFI mobile money against payerPhone (separate from the registrant's own phone). If the charge fails the member is rolled back (soft-deleted) -- there is no half-registered, unpaid state.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "fullName",
+                  "gender",
+                  "phone",
+                  "photoUrl",
+                  "educationalLevel",
+                  "professionalWork",
+                  "birthYear",
+                  "membershipTypeId",
+                  "membershipPeriodId",
+                  "address",
+                  "password",
+                  "amount",
+                  "method"
+                ],
+                "properties": {
+                  "fullName": {
+                    "type": "string"
+                  },
+                  "gender": {
+                    "type": "string",
+                    "enum": [
+                      "MALE",
+                      "FEMALE"
+                    ]
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "whatsapp": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "photoUrl": {
+                    "type": "string"
+                  },
+                  "educationalLevel": {
+                    "type": "string",
+                    "enum": [
+                      "PRIMARY",
+                      "SECONDARY",
+                      "DIPLOMA",
+                      "BACHELOR",
+                      "MASTER",
+                      "DOCTORATE",
+                      "OTHER"
+                    ]
+                  },
+                  "professionalWork": {
+                    "type": "string"
+                  },
+                  "birthYear": {
+                    "type": "integer"
+                  },
+                  "membershipTypeId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "membershipPeriodId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "address": {
+                    "$ref": "#/components/schemas/Address"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8
+                  },
+                  "payerPhone": {
+                    "type": "string",
+                    "description": "Required for wallet methods: the wallet (per `method`) to charge the plan fee to -- may differ from `phone` (e.g. a family member paying on the registrant's behalf). Not used for CARD."
+                  },
+                  "returnUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Optional override for where Sifalo sends the customer after the hosted checkout. Defaults to the server CARD_RETURN_URL -- the bundled verification page, which confirms the payment and shows the outcome. Sifalo appends sid; the API appends checkout_id."
+                  },
+                  "amount": {
+                    "type": "string",
+                    "description": "Decimal string, e.g. \"24.00\". Trusted as sent -- not validated against the plan's feeAmount."
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "WAAFI",
+                      "EDAHAB",
+                      "PREMIER_WALLET",
+                      "CARD"
+                    ],
+                    "description": "Processed through Sifalo Pay. WAAFI covers ZAAD, EVC, eSAHAL, CASHPLUS and JEEB and is charged directly. CARD (Visa/Mastercard) uses hosted checkout: the member is only created after POST /mobile/payments/card/confirm verifies the payment."
+                  }
+                }
+              },
+              "example": {
+                "fullName": "Mobile Tester",
+                "gender": "MALE",
+                "phone": "+252611111111",
+                "email": "mobile.tester@example.com",
+                "photoUrl": "https://example.com/photo.jpg",
+                "educationalLevel": "BACHELOR",
+                "professionalWork": "Engineer",
+                "birthYear": 1995,
+                "membershipTypeId": "00000000-0000-0000-0000-000000000000",
+                "membershipPeriodId": "00000000-0000-0000-0000-000000000000",
+                "address": {
+                  "line1": "123 Main St",
+                  "city": "Hargeisa",
+                  "region": "Woqooyi Galbeed",
+                  "country": "Somaliland"
+                },
+                "password": "SuperSecret123",
+                "payerPhone": "+252611111111",
+                "amount": "24.00",
+                "method": "WAAFI"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Member created, payment completed, and membership card issued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "member": {
+                      "$ref": "#/components/schemas/Member"
+                    },
+                    "payment": {
+                      "$ref": "#/components/schemas/Payment"
+                    },
+                    "membershipCard": {
+                      "$ref": "#/components/schemas/MembershipCard"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "method CARD: nothing has been created yet. Send the customer to checkoutUrl; when they return, call POST /mobile/payments/card/confirm with checkoutId and the sid Sifalo appended to returnUrl.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "checkoutId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "checkoutUrl": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid payload or unknown membershipTypeId/membershipPeriodId",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A member with this phone or email already exists (phone and email are unique among active members; email is case-insensitive). For CARD this is checked before the checkout starts; for wallets the charge is not attempted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Sifalo Pay declined the charge (insufficient balance, wrong PIN, cancelled, etc.) -- the member was not created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Sifalo Pay gateway is not configured or unreachable -- the member was not created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Log in with phone/email + password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "identifier",
+                  "password"
+                ],
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "description": "Phone or email"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "identifier": "mobile.tester@example.com",
+                "password": "SuperSecret123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string"
+                    },
+                    "memberId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Log out",
+        "description": "Stateless JWT -- this just validates the token; the client is responsible for discarding it.",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Logged out"
+          },
+          "401": {
+            "description": "Missing/invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get the caller's own member id/org (from the token)",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "member": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "organizationId": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/auth/password/forgot": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Request a password reset",
+        "description": "Always returns 200 regardless of whether the identifier matches a member -- never reveals account existence. Delivers the raw reset token via EmailJS.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "identifier"
+                ],
+                "properties": {
+                  "identifier": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "identifier": "mobile.tester@example.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Always returned, whether or not the account exists"
+          }
+        }
+      }
+    },
+    "/mobile/auth/password/reset": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Reset password with a token",
+        "description": "The token is single-use and expires 30 minutes after issuance.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token",
+                  "newPassword"
+                ],
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "minLength": 8
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset"
+          },
+          "400": {
+            "description": "Invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/members/me/card": {
+      "get": {
+        "tags": [
+          "Membership Card"
+        ],
+        "summary": "Get the caller's own membership card",
+        "description": "View only -- always scoped to the authenticated member, never a URL param, so a member can never read anyone else's card. Returns membershipCard: null if none has been issued yet (should not normally happen, since registration always issues one).",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "membershipCard": {
+                      "$ref": "#/components/schemas/MembershipCard"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/members/me/payments": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Get the caller's own payment history",
+        "description": "View only -- always scoped to the authenticated member, never a URL param.",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "payments": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Payment"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/members/me/donations": {
+      "get": {
+        "tags": [
+          "Donations"
+        ],
+        "summary": "Get the caller's own donation history",
+        "description": "View only -- always scoped to the authenticated member, never a URL param.",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "donations": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Donation"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Donations"
+        ],
+        "summary": "Donate an amount",
+        "description": "No campaign, no eligibility check -- any authenticated member can donate any amount at any time. Same trust rules as registration/renewal: amount is client-supplied and trusted as sent, method must be one of WAAFI, EDAHAB or PREMIER_WALLET, payerPhone may differ from the member's own phone.",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "amount",
+                  "method"
+                ],
+                "properties": {
+                  "payerPhone": {
+                    "type": "string",
+                    "description": "Required for wallet methods; not used for CARD."
+                  },
+                  "returnUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Optional override for where Sifalo sends the customer after the hosted checkout. Defaults to the server CARD_RETURN_URL -- the bundled verification page, which confirms the payment and shows the outcome. Sifalo appends sid; the API appends checkout_id."
+                  },
+                  "amount": {
+                    "type": "string",
+                    "description": "Decimal string, e.g. \"10.00\". Trusted as sent."
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "WAAFI",
+                      "EDAHAB",
+                      "PREMIER_WALLET",
+                      "CARD"
+                    ]
+                  }
+                }
+              },
+              "example": {
+                "payerPhone": "+252611111111",
+                "amount": "10.00",
+                "method": "WAAFI"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Donated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "donation": {
+                      "$ref": "#/components/schemas/Donation"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "method CARD: nothing has been donated yet. Send the customer to checkoutUrl; when they return, call POST /mobile/payments/card/confirm with checkoutId and the sid Sifalo appended to returnUrl.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "checkoutId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "checkoutUrl": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Sifalo Pay declined the charge",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Sifalo Pay gateway is not configured or unreachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/members/me/renew": {
+      "post": {
+        "tags": [
+          "Membership Card"
+        ],
+        "summary": "Renew the caller's own membership",
+        "description": "Only reachable once the current membership period has actually expired -- an early renewal attempt is rejected with 409 (the same eligibility check the staff payment endpoints use). amount/method/payerPhone follow the same rules as registration: amount is trusted as sent, method must be one of WAAFI, EDAHAB or PREMIER_WALLET, payerPhone may differ from the member's own phone. On success, extends the existing card's validUntil rather than issuing a new one.",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "amount",
+                  "method"
+                ],
+                "properties": {
+                  "payerPhone": {
+                    "type": "string",
+                    "description": "Required for wallet methods; not used for CARD."
+                  },
+                  "returnUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Optional override for where Sifalo sends the customer after the hosted checkout. Defaults to the server CARD_RETURN_URL -- the bundled verification page, which confirms the payment and shows the outcome. Sifalo appends sid; the API appends checkout_id."
+                  },
+                  "amount": {
+                    "type": "string",
+                    "description": "Decimal string, e.g. \"24.00\". Trusted as sent."
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "WAAFI",
+                      "EDAHAB",
+                      "PREMIER_WALLET",
+                      "CARD"
+                    ]
+                  }
+                }
+              },
+              "example": {
+                "payerPhone": "+252611111111",
+                "amount": "24.00",
+                "method": "WAAFI"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Renewed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "payment": {
+                      "$ref": "#/components/schemas/Payment"
+                    },
+                    "membershipCard": {
+                      "$ref": "#/components/schemas/MembershipCard"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Member not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Not eligible yet -- the member's current membership period is still active",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Sifalo Pay declined the charge",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Sifalo Pay gateway is not configured or unreachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/payments/card/checkouts/{checkoutId}": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Read a card checkout status",
+        "description": "Used by the verification page to show what is being paid while it confirms, and to tell an already-completed checkout from a dead link. No auth: the id is an unguessable uuid and nothing identifying is returned -- no member, payload or result.",
+        "parameters": [
+          {
+            "name": "checkoutId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checkout summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "checkout": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "purpose": {
+                          "type": "string",
+                          "enum": [
+                            "REGISTER",
+                            "RENEW",
+                            "DONATE"
+                          ]
+                        },
+                        "amount": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "PENDING",
+                            "PROCESSING",
+                            "COMPLETED",
+                            "FAILED_AFTER_PAYMENT"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid checkout id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown checkout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/payments/card/confirm": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Confirm a card payment and complete the registration, renewal or donation",
+        "description": "Step 2 of a CARD payment (step 1 is register / renew / donate with method CARD). Call it when the customer returns from Sifalo hosted checkout, with the checkout_id and sid from the return URL. The API verifies the sid with Sifalo (status success, code 601). The paid amount is not compared to the checkout: Sifalo deducts fees from card payments, so it reports a lower net amount, then creates the member / records the payment or donation exactly as the wallet flow would. No auth: card registration has no member yet, so the checkout id plus a Sifalo-verified sid is the proof. Safe to repeat: a completed checkout returns its stored result, and a sid completes only one checkout.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "checkoutId",
+                  "sid"
+                ],
+                "properties": {
+                  "checkoutId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "sid": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed. Body carries purpose (REGISTER | RENEW | DONATE) plus that flow's normal result: member + payment + membershipCard, payment + membershipCard, or donation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "purpose": {
+                      "type": "string",
+                      "enum": [
+                        "REGISTER",
+                        "RENEW",
+                        "DONATE"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown checkout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Checkout already used or in progress, or the request can no longer be completed (e.g. phone registered meanwhile -- the payment then needs a manual refund)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Payment not completed (still pending or failed at Sifalo)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Sifalo Pay gateway is not configured or unreachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

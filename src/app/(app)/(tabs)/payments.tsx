@@ -14,10 +14,12 @@ import {
   useTheme,
   type StatusTone,
 } from '@/design-system';
-import { useMe } from '@/features/membership';
+import { useCard } from '@/features/membership';
 import {
   groupByYear,
-  PAYMENT_METHODS,
+  paymentMethodIcon,
+  paymentMethodLabel,
+  paymentMethodTone,
   usePayments,
   type Payment,
   type PaymentStatus,
@@ -34,11 +36,11 @@ const STATUS_TONE: Record<PaymentStatus, StatusTone> = {
 export default function PaymentsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
-  const me = useMe();
+  const card = useCard();
   const payments = usePayments();
 
   const refresh = () => {
-    void me.refetch();
+    void card.refetch();
     void payments.refetch();
   };
 
@@ -54,7 +56,7 @@ export default function PaymentsScreen() {
       }>
       <ScreenHeader title={t('payments.title')} subtitle={t('payments.subtitle')} />
 
-      {me.data?.validUntil ? (
+      {card.data ? (
         <View
           style={{
             flexDirection: 'row',
@@ -72,12 +74,12 @@ export default function PaymentsScreen() {
             <Text variant="overline" color="accentDeep">
               {t('payments.validUntil')}
             </Text>
-            <Text variant="display">{formatMonthYear(me.data.validUntil)}</Text>
+            <Text variant="display">{formatMonthYear(card.data.validUntil)}</Text>
             <Text
               variant="caption"
               color="textSecondary"
               style={{ fontFamily: theme.fonts.text600 }}>
-              {t('payments.planMembership', { plan: me.data.plan.name })}
+              {t('payments.planMembership', { plan: card.data.membershipType })}
             </Text>
           </View>
           <IconTile icon={ShieldCheck} tone="surface" size={52} round />
@@ -119,12 +121,12 @@ export default function PaymentsScreen() {
 function PaymentRow({ payment }: { payment: Payment }) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const method = PAYMENT_METHODS[payment.method];
+  const label = paymentMethodLabel(payment.method);
 
   return (
     <View
       accessible
-      accessibilityLabel={`${method.label}, ${formatUsd(payment.amountUsd)}, ${t(`status.${payment.status}`)}, ${formatDate(payment.date)}`}
+      accessibilityLabel={`${label}, ${formatUsd(payment.amountUsd)}, ${t(`status.${payment.status}`)}, ${formatDate(payment.date)}`}
       style={{
         flexDirection: 'row',
         alignItems: 'center',
@@ -137,9 +139,13 @@ function PaymentRow({ payment }: { payment: Payment }) {
         borderColor: theme.color.border,
         backgroundColor: theme.color.surface,
       }}>
-      <IconTile icon={method.icon} tone={method.tone} size={46} />
+      <IconTile
+        icon={paymentMethodIcon(payment.method)}
+        tone={paymentMethodTone(payment.method)}
+        size={46}
+      />
       <View style={{ flex: 1, gap: 2 }}>
-        <Text variant="bodyStrong">{method.label}</Text>
+        <Text variant="bodyStrong">{label}</Text>
         <Text variant="caption" color="textMuted">
           {formatDate(payment.date)}
         </Text>

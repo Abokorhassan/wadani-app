@@ -1,14 +1,17 @@
+import { toUsd } from '@/features/membership/mappers';
+
 import type { DonationDto } from './schemas';
 import type { Donation } from './types';
 
 export function toDonation(dto: DonationDto): Donation {
-  const status = dto.status.toLowerCase();
   return {
     id: dto.id,
-    amountUsd: dto.amountUsd,
+    amountUsd: toUsd(dto.amount),
+    currency: dto.currency ?? 'USD',
     method: dto.method,
-    status: status === 'completed' || status === 'failed' ? status : 'pending',
-    createdAt: dto.createdAt,
+    reference: dto.reference ?? undefined,
+    accountPaid: dto.accountPaid ?? undefined,
+    donatedAt: dto.donatedAt ?? new Date().toISOString(),
   };
 }
 

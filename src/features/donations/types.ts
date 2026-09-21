@@ -1,18 +1,26 @@
-import type { PaymentMethodId } from '@/features/payments';
+import type { CardCheckout, ChargeMethod } from '@/features/payments/types';
 
 export interface DonationDraft {
   amountUsd: number;
-  method: PaymentMethodId;
+  method: ChargeMethod;
+  /** The wallet to charge; not used for CARD. */
+  payerPhone?: string;
 }
 
 export interface Donation {
   id: string;
   amountUsd: number;
-  method: PaymentMethodId;
-  /** Manual donations start as pending until the office confirms them (build-plan D25). */
-  status: 'pending' | 'completed' | 'failed';
-  createdAt: string;
+  currency: string;
+  method: ChargeMethod;
+  reference?: string;
+  accountPaid?: string;
+  donatedAt: string;
 }
+
+/** A card donation opens a Sifalo checkout before anything is recorded. */
+export type DonationResult =
+  | { kind: 'donated'; donation: Donation }
+  | { kind: 'checkout'; checkout: CardCheckout };
 
 /** Quick-pick amounts from the prototype. */
 export const DONATION_PRESETS = [5, 10, 25, 50];

@@ -1,5 +1,7 @@
+import { toUsd } from '@/features/membership/mappers';
+
 import type { PaymentDto } from './schemas';
-import type { Payment, PaymentStatus } from './types';
+import type { Payment, PaymentMethod, PaymentStatus } from './types';
 
 const KNOWN_STATUSES: PaymentStatus[] = ['pending', 'completed', 'failed'];
 
@@ -7,10 +9,12 @@ export function toPayment(dto: PaymentDto): Payment {
   const status = dto.status.toLowerCase() as PaymentStatus;
   return {
     id: dto.id,
-    method: dto.method,
-    amountUsd: dto.amountUsd,
-    reference: dto.reference,
-    date: dto.date,
+    method: dto.method as PaymentMethod,
+    amountUsd: toUsd(dto.amount),
+    currency: dto.currency ?? 'USD',
+    reference: dto.reference ?? undefined,
+    accountPaid: dto.accountPaid ?? undefined,
+    date: dto.paidAt ?? '',
     status: KNOWN_STATUSES.includes(status) ? status : 'unknown',
   };
 }

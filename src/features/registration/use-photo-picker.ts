@@ -3,7 +3,11 @@ import { useTranslation } from 'react-i18next';
 
 import { useToast } from '@/design-system';
 
-/** Optional membership-card photo, chosen from the gallery (build-plan D4). */
+/**
+ * The membership-card photo, chosen from the gallery (build-plan D4). It is
+ * required: the backend rejects a registration without a `photoUrl`. Cropped
+ * square and re-encoded at 0.7 so the upload stays small on a mobile network.
+ */
 export function usePhotoPicker(onPicked: (uri: string) => void) {
   const { t } = useTranslation();
   const toast = useToast();

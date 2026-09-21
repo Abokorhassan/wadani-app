@@ -31,38 +31,23 @@ export const eventFixtures: EventDto[] = [
     id: 'event-1',
     title: 'Community town hall — Hargeisa',
     startsAt: '2026-09-21T15:00:00.000Z',
-    venue: 'Waddani Head Office',
-    isGoing: true,
+    location: 'Waddani Head Office',
   },
   {
     id: 'event-2',
     title: 'Regional members meetup — Burao',
     startsAt: '2026-10-05T13:00:00.000Z',
-    venue: 'Burao Branch Office',
-    isGoing: false,
+    location: 'Burao Branch Office',
   },
   {
     id: 'event-3',
     title: 'Youth wing leadership training',
     startsAt: '2026-10-18T07:00:00.000Z',
-    venue: 'Waddani Head Office',
-    isGoing: false,
+    location: 'Waddani Head Office',
   },
 ];
 
-/** The mock keeps RSVPs in memory, so a toggle survives a refetch in mock mode. */
-const rsvps = new Map(eventFixtures.map((event) => [event.id, event.isGoing ?? false]));
-
 export const newsEventsApiMock: NewsEventsApi = {
   getNews: () => mockRespond(newsFixtures.map(toNewsItem)),
-  getEvents: () =>
-    mockRespond(
-      eventFixtures.map((event) =>
-        toPartyEvent({ ...event, isGoing: rsvps.get(event.id) ?? false })
-      )
-    ),
-  setRsvp: async (eventId, going) => {
-    await mockRespond(null, 300);
-    rsvps.set(eventId, going);
-  },
+  getEvents: () => mockRespond(eventFixtures.map(toPartyEvent)),
 };

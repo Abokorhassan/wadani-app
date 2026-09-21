@@ -41,8 +41,8 @@ function useAuthGate() {
     const group = segments[0];
     const inAuthGroup = group === '(auth)';
     const inAppGroup = group === '(app)';
-    // Members waiting for approval, or turned down, never reach the app (D2).
-    const awaitingReview = memberStatus === 'pending' || memberStatus === 'rejected';
+    // Until the charge settles there is no card, so the app stays closed (D2).
+    const awaitingReview = memberStatus === 'registered' || memberStatus === 'paymentPending';
 
     if (status === 'signed-out' && inAppGroup) {
       router.replace('/welcome');

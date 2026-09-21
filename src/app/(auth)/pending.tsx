@@ -16,10 +16,8 @@ export default function PendingScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
-  const member = useSessionStore((state) => state.member);
   const signOut = useSessionStore((state) => state.signOut);
   const contact = useContactInfo();
-  const rejected = member?.status === 'rejected';
 
   return (
     <Screen contentStyle={{ justifyContent: 'center' }}>
@@ -48,9 +46,9 @@ export default function PendingScreen() {
               borderRadius: theme.radius.pill,
               borderWidth: 4,
               borderColor: theme.color.background,
-              backgroundColor: rejected ? theme.color.dangerTint : theme.color.warningTint,
+              backgroundColor: theme.color.warningTint,
             }}>
-            <Hourglass size={20} color={rejected ? theme.color.danger : theme.color.warning} />
+            <Hourglass size={20} color={theme.color.warning} />
           </View>
         </View>
 
@@ -58,42 +56,37 @@ export default function PendingScreen() {
           variant="title"
           center
           style={{ marginTop: theme.spacing.xl, fontSize: 30, lineHeight: 35 }}>
-          {rejected ? t('pending.rejectedTitle') : t('pending.title')}
+          {t('pending.title')}
         </Text>
         <Text variant="body" color="textMuted" center style={{ marginTop: theme.spacing.md }}>
-          {rejected ? t('pending.rejectedBody') : t('pending.body')}
+          {t('pending.body')}
         </Text>
       </View>
 
-      {rejected ? null : (
-        <View
-          style={{
-            marginTop: theme.spacing.xl,
-            padding: theme.spacing.gutter,
-            borderRadius: theme.radius.card,
-            borderWidth: 1,
-            borderColor: theme.color.border,
-            backgroundColor: theme.color.surface,
-          }}>
-          <Timeline state="done" title={t('pending.stepSubmitted')} />
-          <Timeline
-            state="now"
-            title={t('pending.stepReview')}
-            note={t('pending.stepReviewNote')}
-          />
-          <Timeline
-            state="next"
-            title={t('pending.stepApproved')}
-            note={t('pending.stepApprovedNote')}
-            last
-          />
-        </View>
-      )}
+      <View
+        style={{
+          marginTop: theme.spacing.xl,
+          padding: theme.spacing.gutter,
+          borderRadius: theme.radius.card,
+          borderWidth: 1,
+          borderColor: theme.color.border,
+          backgroundColor: theme.color.surface,
+        }}>
+        <Timeline state="done" title={t('pending.stepSubmitted')} />
+        <Timeline state="now" title={t('pending.stepReview')} note={t('pending.stepReviewNote')} />
+        <Timeline
+          state="next"
+          title={t('pending.stepApproved')}
+          note={t('pending.stepApprovedNote')}
+          last
+        />
+      </View>
 
       <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.xl }}>
-        {rejected && contact.data ? (
+        {contact.data ? (
           <Button
             label={t('pending.contactUs')}
+            variant="secondary"
             icon={MessageCircle}
             onPress={() =>
               void openWhatsApp(contact.data.whatsappNumber, t('contact.whatsappMessage'))

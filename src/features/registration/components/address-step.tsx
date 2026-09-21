@@ -14,6 +14,20 @@ export function AddressStep({ control }: { control: Control<RegistrationForm> })
     <View style={{ gap: theme.spacing.gutter }}>
       <Controller
         control={control}
+        name="line1"
+        render={({ field, fieldState }) => (
+          <TextField
+            label={t('register.addressLine')}
+            value={field.value}
+            onChangeText={field.onChange}
+            onBlur={field.onBlur}
+            error={fieldState.error?.message}
+            placeholder={t('register.addressPlaceholder')}
+          />
+        )}
+      />
+      <Controller
+        control={control}
         name="country"
         render={({ field, fieldState }) => (
           <TextField
@@ -43,16 +57,31 @@ export function AddressStep({ control }: { control: Control<RegistrationForm> })
       />
       <Controller
         control={control}
-        name="line"
+        name="region"
         render={({ field, fieldState }) => (
           <TextField
-            label={t('register.addressLine')}
+            label={t('register.region')}
+            value={field.value}
+            onChangeText={field.onChange}
+            onBlur={field.onBlur}
+            error={fieldState.error?.message}
+            placeholder={t('register.regionPlaceholder')}
+            autoCapitalize="words"
+          />
+        )}
+      />
+      <Controller
+        control={control}
+        name="district"
+        render={({ field, fieldState }) => (
+          <TextField
+            label={t('register.district')}
             optional
             value={field.value ?? ''}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
             error={fieldState.error?.message}
-            placeholder={t('register.addressPlaceholder')}
+            autoCapitalize="words"
           />
         )}
       />

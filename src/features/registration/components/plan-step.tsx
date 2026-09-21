@@ -1,4 +1,4 @@
-import { Check, Crown, IdCard, Star, X, type LucideIcon } from 'lucide-react-native';
+import { Check, Crown, IdCard, Star, type LucideIcon } from 'lucide-react-native';
 import { useEffect } from 'react';
 import { Controller, type Control, type UseFormSetValue } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +16,10 @@ import { formatUsd } from '@/lib/format';
 
 import type { RegistrationForm } from '../form';
 
-const PLAN_ICONS: Record<string, LucideIcon> = { standard: IdCard, silver: Star, gold: Crown };
+/** Plan ids are uuids, so the backend's `stars` rank picks the icon. */
+const PLAN_ICONS: readonly LucideIcon[] = [IdCard, Star, Crown];
+
+const planIconRank = (stars?: number): number => (!stars || stars <= 1 ? 0 : stars >= 3 ? 2 : 1);
 
 export interface PlanStepProps {
   control: Control<RegistrationForm>;
@@ -31,12 +34,23 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
   const plans = usePlans();
   const periods = usePeriods();
 
-  // Preselect the first plan and period, as the prototype did.
+  /*
+   * Preselect the first plan and period, and repair a choice the backend no
+   * longer offers. A saved draft keeps the id it was written with, so a plan
+   * retired since then would otherwise leave the step with no plan, no price
+   * and no way out (build-plan D12).
+   */
   useEffect(() => {
-    if (!planId && plans.data?.[0]) setValue('planId', plans.data[0].id);
+    const list = plans.data;
+    if (!list?.length) return;
+    if (!planId || !list.some((option) => option.id === planId)) setValue('planId', list[0].id);
   }, [planId, plans.data, setValue]);
+
   useEffect(() => {
-    if (!periodId && periods.data?.[0]) setValue('periodId', periods.data[0].id);
+    const list = periods.data;
+    if (!list?.length) return;
+    if (!periodId || !list.some((option) => option.id === periodId))
+      setValue('periodId', list[0].id);
   }, [periodId, periods.data, setValue]);
 
   const plan = plans.data?.find((candidate) => candidate.id === planId);
@@ -44,7 +58,8 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
 
   return (
     <View style={{ gap: theme.spacing.gutter }}>
-      <View style={{ gap: 10 }}>
+      {/* The party currently offers one plan, and a one-option picker is noise. */}
+      <View style={{ gap: 10, display: plans.data?.length === 1 ? 'none' : 'flex' }}>
         <Text variant="label" color="textSecondary">
           {t('register.plan')}
         </Text>
@@ -67,7 +82,7 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
                 items={plans.data.map((option) => ({
                   key: option.id,
                   label: option.name,
-                  icon: PLAN_ICONS[option.id],
+                  icon: PLAN_ICONS[planIconRank(option.stars)],
                 }))}
               />
             )}
@@ -151,7 +166,7 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
 function PlanCard({ plan }: { plan: Plan }) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const Icon = PLAN_ICONS[plan.id] ?? IdCard;
+  const Icon = PLAN_ICONS[planIconRank(plan.stars)];
 
   return (
     <View
@@ -196,42 +211,41 @@ function PlanCard({ plan }: { plan: Plan }) {
         </Text>
       </View>
 
-      <View style={{ height: 1, backgroundColor: 'rgba(255, 239, 219, 0.12)' }} />
-
-      <View style={{ gap: 14 }}>
-        <Text variant="overline" color="textOnInkFaint">
-          {t('register.topBenefits')}
-        </Text>
-        {plan.benefits.map((benefit) => (
-          <View
-            key={benefit.text}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
-            <View
-              style={{
-                width: 24,
-                height: 24,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 12,
-                borderWidth: benefit.included ? 0 : 1.5,
-                borderColor: 'rgba(255, 239, 219, 0.28)',
-                backgroundColor: benefit.included ? theme.color.brand : 'transparent',
-              }}>
-              {benefit.included ? (
-                <Check size={14} color={theme.color.textOnBrand} strokeWidth={3} />
-              ) : (
-                <X size={13} color={theme.color.textOnInkFaint} strokeWidth={2.6} />
-              )}
-            </View>
-            <Text
-              variant="small"
-              color={benefit.included ? 'textOnInk' : 'textOnInkFaint'}
-              style={{ flex: 1, fontSize: 15 }}>
-              {benefit.text}
+      {/*
+        The live plan carries no benefit lines at all, so the divider and the
+        heading would frame an empty space. Both only appear when there is
+        something to list.
+      */}
+      {plan.benefits.length > 0 ? (
+        <>
+          <View style={{ height: 1, backgroundColor: 'rgba(255, 239, 219, 0.12)' }} />
+          <View style={{ gap: 14 }}>
+            <Text variant="overline" color="textOnInkFaint">
+              {t('register.topBenefits')}
             </Text>
+            {plan.benefits.map((benefit) => (
+              <View
+                key={benefit}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
+                <View
+                  style={{
+                    width: 24,
+                    height: 24,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 12,
+                    backgroundColor: theme.color.brand,
+                  }}>
+                  <Check size={14} color={theme.color.textOnBrand} strokeWidth={3} />
+                </View>
+                <Text variant="small" color="textOnInk" style={{ flex: 1, fontSize: 15 }}>
+                  {benefit}
+                </Text>
+              </View>
+            ))}
           </View>
-        ))}
-      </View>
+        </>
+      ) : null}
     </View>
   );
 }

@@ -26,8 +26,7 @@ import {
   useTheme,
   type IconTileTone,
 } from '@/design-system';
-import { useSessionStore } from '@/features/auth/session-store';
-import { MiniCard, useMe } from '@/features/membership';
+import { MiniCard, useCard, useMe } from '@/features/membership';
 import { env } from '@/lib/env';
 import { firstName } from '@/lib/format';
 
@@ -45,10 +44,10 @@ export default function HomeScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
-  const summary = useSessionStore((state) => state.member);
   const me = useMe();
+  const card = useCard();
 
-  const name = me.data?.fullName ?? summary?.fullName ?? '';
+  const name = me?.fullName ?? card.data?.memberFullName ?? '';
 
   const tiles: Tile[] = [
     {
@@ -105,8 +104,8 @@ export default function HomeScreen() {
       withTabBar
       refreshControl={
         <RefreshControl
-          refreshing={me.isRefetching}
-          onRefresh={() => void me.refetch()}
+          refreshing={card.isRefetching}
+          onRefresh={() => void card.refetch()}
           tintColor={theme.color.brand}
         />
       }>
@@ -149,12 +148,12 @@ export default function HomeScreen() {
       </View>
 
       <View style={{ marginTop: 22 }}>
-        {me.data ? (
-          <MiniCard member={me.data} onPress={() => router.push('/card')} />
-        ) : me.isError ? (
+        {card.data ? (
+          <MiniCard card={card.data} onPress={() => router.push('/card')} />
+        ) : card.isError ? (
           <ErrorState
             message={t('card.loadFailed')}
-            onRetry={() => void me.refetch()}
+            onRetry={() => void card.refetch()}
             retryLabel={t('common.retry')}
           />
         ) : (

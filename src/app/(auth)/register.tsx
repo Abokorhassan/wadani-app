@@ -24,10 +24,11 @@ import {
   type EducationLevel,
   type Gender,
 } from '@/features/membership';
-import type { PaymentMethodId } from '@/features/payments';
+import { isWalletMethod, useCardCheckout, type ChargeMethod } from '@/features/payments';
 import {
   AddressStep,
   draftDefaults,
+  formFieldFor,
   PaymentStep,
   PersonalStep,
   PlanStep,
@@ -35,7 +36,9 @@ import {
   STEP_COUNT,
   STEP_FIELDS,
   stepForField,
+  uploadMemberPhoto,
   useDraftStore,
+  PhotoUploadUnavailableError,
   type RegistrationForm,
 } from '@/features/registration';
 
@@ -50,7 +53,9 @@ export default function RegisterScreen() {
   const clearDraft = useDraftStore((state) => state.clear);
 
   const [step, setStep] = useState(draft?.step ?? 0);
+  const [uploading, setUploading] = useState(false);
   const register = useRegister();
+  const runCardCheckout = useCardCheckout();
   const plans = usePlans();
   const periods = usePeriods();
 
@@ -76,8 +81,11 @@ export default function RegisterScreen() {
     const valid = await form.trigger(STEP_FIELDS[step]);
     if (!valid) return;
 
-    // Leaving the plan step fills in what this plan and period cost (D5).
-    if (step === 2 && plan && period && !form.getValues('amount')) {
+    // Leaving the plan step sets what this plan and period cost (D5). It is
+    // recomputed rather than only filled when blank: the backend charges the
+    // amount as sent without checking it against the plan, so a figure left
+    // over from an earlier choice would bill the member the wrong sum.
+    if (step === 2 && plan && period) {
       form.setValue('amount', priceFor(plan, period).toFixed(2));
     }
     if (step < STEP_COUNT - 1) {
@@ -89,36 +97,74 @@ export default function RegisterScreen() {
 
   const submit = async () => {
     const values = form.getValues();
+    const method = values.method as ChargeMethod;
+
+    // The backend requires a reachable photo URL, and the app has nowhere to
+    // upload one yet (docs/api-gaps.md, question 3).
+    if (!values.photoUri) {
+      form.setError('photoUri', { message: t('register.photoRequired') });
+      setStep(0);
+      return;
+    }
+
+    let photoUrl: string;
+    try {
+      setUploading(true);
+      photoUrl = await uploadMemberPhoto(values.photoUri);
+    } catch (error) {
+      setStep(0);
+      form.setError('photoUri', {
+        message:
+          error instanceof PhotoUploadUnavailableError
+            ? t('register.photoUploadUnavailable')
+            : t('register.photoUploadFailed'),
+      });
+      return;
+    } finally {
+      setUploading(false);
+    }
+
     const payload: RegistrationPayload = {
       fullName: values.fullName.trim(),
       gender: values.gender as Gender,
       phone: values.phone.trim(),
       whatsapp: values.whatsapp?.trim() || undefined,
-      email: values.email.trim(),
-      birthYear: values.birthYear ? Number(values.birthYear) : undefined,
+      email: values.email?.trim() || undefined,
+      photoUrl,
       education: values.education as EducationLevel,
-      password: values.password,
-      photoUri: values.photoUri,
+      professionalWork: values.professionalWork.trim(),
+      birthYear: Number(values.birthYear),
+      membershipTypeId: values.planId,
+      membershipPeriodId: values.periodId,
       address: {
-        country: values.country.trim(),
+        line1: values.line1.trim(),
         city: values.city.trim(),
-        line: values.line?.trim() || undefined,
+        region: values.region.trim(),
+        country: values.country.trim(),
+        district: values.district?.trim() || undefined,
       },
-      planId: values.planId,
-      periodId: values.periodId,
-      payment: {
-        method: values.method as PaymentMethodId,
+      password: values.password,
+      charge: {
+        method,
         amountUsd: Number(values.amount.replace(/[^0-9.]/g, '')),
-        account: values.account.trim(),
-        reference: values.reference.trim(),
+        payerPhone: values.payerPhone?.trim() || undefined,
       },
-      acceptedTerms: true,
     };
 
     register.mutate(payload, {
-      onSuccess: () => {
-        clearDraft();
-        router.replace('/pending');
+      onSuccess: (result) => {
+        if (result.kind === 'registered') {
+          clearDraft();
+          router.replace('/home');
+          return;
+        }
+        // Nothing exists yet: the member is created when the card clears.
+        runCardCheckout(result.checkout)
+          .then(() => {
+            clearDraft();
+            router.replace('/home');
+          })
+          .catch(() => toast.show(t('register.failed'), 'danger'));
       },
       onError: (error) => {
         // Field errors from the backend land on their own field, and the
@@ -126,7 +172,8 @@ export default function RegisterScreen() {
         const details = isApiError(error) ? asApiError(error) : null;
         if (details?.kind === 'validation' && Object.keys(details.fieldErrors).length > 0) {
           const [field, message] = Object.entries(details.fieldErrors)[0];
-          form.setError(field as keyof RegistrationForm, { message });
+          const formField = formFieldFor(field);
+          if (formField) form.setError(formField, { message });
           setStep(stepForField(field));
           return;
         }
@@ -176,7 +223,7 @@ export default function RegisterScreen() {
             <Button
               label={step === STEP_COUNT - 1 ? t('register.submit') : t('common.next')}
               iconRight={step === STEP_COUNT - 1 ? undefined : ArrowRight}
-              loading={register.isPending}
+              loading={register.isPending || uploading}
               onPress={() => void onNext()}
               style={{ flex: 1 }}
             />
@@ -238,7 +285,13 @@ export default function RegisterScreen() {
             setValue={form.setValue}
           />
         ) : null}
-        {step === 3 ? <PaymentStep control={form.control} amountHint={amountHint} /> : null}
+        {step === 3 ? (
+          <PaymentStep
+            control={form.control}
+            amountHint={amountHint}
+            wallet={isWalletMethod(values.method as ChargeMethod)}
+          />
+        ) : null}
       </View>
     </Screen>
   );

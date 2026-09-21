@@ -5,19 +5,21 @@ import { Pressable, View } from 'react-native';
 
 import { Rosette, StatusPill, Text, useTheme } from '@/design-system';
 
-import type { Member } from '../types';
+import { isExpired } from '../status';
+import type { MemberCard } from '../types';
 
 const sealBlack = require('@/assets/brand/seal-black.png');
 
 export interface MiniCardProps {
-  member: Member;
+  card: MemberCard;
   onPress: () => void;
 }
 
 /** Compact membership card on Home; opens the full card. */
-export function MiniCard({ member, onPress }: MiniCardProps) {
+export function MiniCard({ card, onPress }: MiniCardProps) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const expired = isExpired(card);
 
   return (
     <Pressable
@@ -58,7 +60,7 @@ export function MiniCard({ member, onPress }: MiniCardProps) {
             </Text>
           </View>
         </View>
-        <StatusPill label={t(`status.${member.status}`)} tone="ink" dot />
+        <StatusPill label={expired ? t('status.expired') : t('status.active')} tone="ink" dot />
       </View>
 
       <View
@@ -69,17 +71,17 @@ export function MiniCard({ member, onPress }: MiniCardProps) {
           gap: 12,
         }}>
         <View style={{ flex: 1, alignItems: 'flex-start', gap: 6 }}>
-          <StatusPill label={member.plan.name} tone="onBrand" />
+          <StatusPill label={card.membershipType} tone="onBrand" />
           <Text
             variant="display"
             color="textOnBrand"
             numberOfLines={1}
             adjustsFontSizeToFit
             style={{ fontSize: 26, lineHeight: 30 }}>
-            {member.fullName}
+            {card.memberFullName}
           </Text>
           <Text variant="mono" color="textOnBrand" style={{ fontSize: 14, lineHeight: 18 }}>
-            {member.id}
+            {card.cardCode}
           </Text>
         </View>
         <View

@@ -1,23 +1,32 @@
-/** Domain model (build-plan §3.3). Backend shapes are mapped into these. */
+/**
+ * Domain model (build-plan §3.3), mapped from the backend shapes in
+ * api-contract/waddani-mobile-api.openapi.json.
+ */
 
-export type MembershipStatus = 'pending' | 'active' | 'rejected' | 'expired';
+/**
+ * The backend's own member lifecycle. There is no approval step: a member who
+ * pays is created already paid, with a card (build-plan D2, revised 2026-09-19).
+ */
+export type MemberStatus = 'registered' | 'paymentPending' | 'paid' | 'cardIssued';
 
 export type EducationLevel =
-  'none' | 'primary' | 'secondary' | 'diploma' | 'bachelor' | 'master' | 'phd';
+  | 'primary'
+  | 'secondary'
+  | 'diploma'
+  | 'bachelor'
+  | 'master'
+  | 'doctorate'
+  | 'other';
 
 export type Gender = 'male' | 'female';
-
-export interface PlanBenefit {
-  text: string;
-  included: boolean;
-}
 
 export interface Plan {
   id: string;
   name: string;
-  icon: string;
   priceUsd: number;
-  benefits: PlanBenefit[];
+  /** Tier rank the backend gives the plan; drives the card's rosette count. */
+  stars?: number;
+  benefits: string[];
 }
 
 export interface MembershipPeriod {
@@ -27,34 +36,58 @@ export interface MembershipPeriod {
 }
 
 export interface Address {
-  country: string;
+  line1: string;
   city: string;
-  line?: string;
+  region: string;
+  country: string;
+  district?: string;
 }
 
+/**
+ * The full member record. Only registration (and the card-payment confirm that
+ * finishes it) returns this — `GET /mobile/auth/me` gives the id alone, so on a
+ * device the member never registered from, this is what we cached, or nothing
+ * (docs/api-gaps.md, question 5).
+ */
 export interface Member {
   id: string;
   fullName: string;
   gender: Gender;
   phone: string;
   whatsapp?: string;
-  email: string;
-  birthYear?: number;
-  education: EducationLevel;
-  address: Address;
+  email?: string;
   photoUrl?: string;
-  status: MembershipStatus;
-  rejectionReason?: string;
-  plan: Pick<Plan, 'id' | 'name'>;
+  education: EducationLevel;
+  professionalWork: string;
+  birthYear: number;
+  status: MemberStatus;
+  address: Address;
+  membershipTypeId: string;
+  membershipPeriodId?: string;
   memberSince?: string;
   validUntil?: string;
-  /** Signed token rendered as the card's QR code (build-plan D14). */
-  qrPayload?: string;
+  /** False while the current period still has time left; the renew call 409s. */
+  isEligibleForPayment?: boolean;
 }
 
-/** The little we keep in the session, before `GET /me` has run. */
+/** Issued by the backend during registration; the member never edits it. */
+export interface MemberCard {
+  id: string;
+  memberId: string;
+  /** The QR value, e.g. "MC-2026-AB12CD". */
+  cardCode: string;
+  memberFullName: string;
+  photoUrl?: string;
+  membershipType: string;
+  stars?: number;
+  layout: 'horizontal' | 'vertical';
+  validUntil: string;
+  issuedAt: string;
+}
+
+/** Kept in the session so the app can open before anything is fetched. */
 export interface MemberSummary {
   id: string;
   fullName: string;
-  status: MembershipStatus;
+  status: MemberStatus;
 }

@@ -19,13 +19,13 @@ import type { RegistrationForm } from '../form';
 import { usePhotoPicker } from '../use-photo-picker';
 
 const EDUCATION_LEVELS: EducationLevel[] = [
-  'none',
   'primary',
   'secondary',
   'diploma',
   'bachelor',
   'master',
-  'phd',
+  'doctorate',
+  'other',
 ];
 
 export function PersonalStep({ control }: { control: Control<RegistrationForm> }) {
@@ -116,7 +116,8 @@ export function PersonalStep({ control }: { control: Control<RegistrationForm> }
         render={({ field, fieldState }) => (
           <TextField
             label={t('register.email')}
-            value={field.value}
+            optional
+            value={field.value ?? ''}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
             error={fieldState.error?.message}
@@ -134,8 +135,7 @@ export function PersonalStep({ control }: { control: Control<RegistrationForm> }
         render={({ field, fieldState }) => (
           <TextField
             label={t('register.birthYear')}
-            optional
-            value={field.value ?? ''}
+            value={field.value}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
             error={fieldState.error?.message}
@@ -160,6 +160,22 @@ export function PersonalStep({ control }: { control: Control<RegistrationForm> }
               value: level,
               label: t(`education.${level}`),
             }))}
+          />
+        )}
+      />
+
+      <Controller
+        control={control}
+        name="professionalWork"
+        render={({ field, fieldState }) => (
+          <TextField
+            label={t('register.work')}
+            value={field.value}
+            onChangeText={field.onChange}
+            onBlur={field.onBlur}
+            error={fieldState.error?.message}
+            placeholder={t('register.workPlaceholder')}
+            autoCapitalize="words"
           />
         )}
       />

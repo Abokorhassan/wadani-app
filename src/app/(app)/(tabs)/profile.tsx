@@ -14,41 +14,47 @@ import {
   useTheme,
 } from '@/design-system';
 import { useSessionStore } from '@/features/auth/session-store';
-import { MEMBER_STATUS_TONE, useMe } from '@/features/membership';
+import { isExpired, MEMBER_STATUS_TONE, useCard, useMe } from '@/features/membership';
 import { formatMonthYear } from '@/lib/format';
 
 export default function ProfileScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
-  const me = useMe();
+  const member = useMe();
+  const card = useCard();
   const signOut = useSessionStore((state) => state.signOut);
-  const member = me.data;
 
-  const rows = member
-    ? [
-        { label: t('profile.memberId'), value: member.id, mono: true },
-        { label: t('profile.tier'), value: member.plan.name },
-        { label: t('profile.phone'), value: member.phone },
-        { label: t('profile.education'), value: t(`education.${member.education}`) },
-        ...(member.memberSince
-          ? [{ label: t('profile.memberSince'), value: formatMonthYear(member.memberSince) }]
-          : []),
-      ]
-    : [];
+  // The backend has no profile endpoint, so the card fills the gaps for a
+  // member who signed in on another device (docs/api-gaps.md, question 5).
+  const name = member?.fullName ?? card.data?.memberFullName;
+  const photoUrl = member?.photoUrl ?? card.data?.photoUrl;
+  const status = member?.status;
+  const ready = Boolean(member ?? card.data);
+
+  const rows = [
+    ...(card.data ? [{ label: t('profile.cardCode'), value: card.data.cardCode, mono: true }] : []),
+    ...(card.data ? [{ label: t('profile.tier'), value: card.data.membershipType }] : []),
+    ...(member ? [{ label: t('profile.phone'), value: member.phone }] : []),
+    ...(member ? [{ label: t('profile.work'), value: member.professionalWork }] : []),
+    ...(member ? [{ label: t('profile.education'), value: t(`education.${member.education}`) }] : []),
+    ...(member?.memberSince
+      ? [{ label: t('profile.memberSince'), value: formatMonthYear(member.memberSince) }]
+      : []),
+  ];
 
   return (
     <Screen
       withTabBar
       refreshControl={
         <RefreshControl
-          refreshing={me.isRefetching}
-          onRefresh={() => void me.refetch()}
+          refreshing={card.isRefetching}
+          onRefresh={() => void card.refetch()}
           tintColor={theme.color.brand}
         />
       }>
       <ScreenHeader title={t('profile.title')} subtitle={t('profile.subtitle')} />
 
-      {member ? (
+      {ready ? (
         <>
           <View
             style={{
@@ -62,18 +68,24 @@ export default function ProfileScreen() {
               borderColor: theme.color.border,
               backgroundColor: theme.color.surface,
             }}>
-            <Avatar name={member.fullName} uri={member.photoUrl} size={96} radius={32} />
+            <Avatar name={name ?? ''} uri={photoUrl} size={96} radius={32} />
             <View style={{ alignItems: 'center', gap: 2 }}>
               <Text variant="headline" center>
-                {member.fullName}
+                {name}
               </Text>
               <Text variant="small" color="textMuted" center>
-                {member.email}
+                {member?.email ?? member?.phone ?? ''}
               </Text>
             </View>
             <StatusPill
-              label={t('profile.statusMember', { status: t(`status.${member.status}`) })}
-              tone={MEMBER_STATUS_TONE[member.status]}
+              label={t('profile.statusMember', {
+                status: status
+                  ? t(`status.${status}`)
+                  : card.data && isExpired(card.data)
+                    ? t('status.expired')
+                    : t('status.active'),
+              })}
+              tone={status ? MEMBER_STATUS_TONE[status] : 'success'}
               dot
               align="center"
             />
@@ -112,11 +124,11 @@ export default function ProfileScreen() {
             ))}
           </View>
         </>
-      ) : me.isError ? (
+      ) : card.isError ? (
         <View style={{ marginTop: 22 }}>
           <ErrorState
             message={t('profile.loadFailed')}
-            onRetry={() => void me.refetch()}
+            onRetry={() => void card.refetch()}
             retryLabel={t('common.retry')}
           />
         </View>

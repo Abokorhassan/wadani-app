@@ -23,25 +23,25 @@ export const faqFixtures: FaqItemDto[] = [
     id: 'faq-renew',
     question: 'How do I renew my membership?',
     answer:
-      'Your card shows the date your membership runs until. To renew, visit the Waddani office or message us on WhatsApp. Renewing inside the app comes with online payments.',
+      'Your card shows the date your membership runs until. Renewing inside the app is coming shortly; until then, visit the Waddani office or message us on WhatsApp.',
   },
   {
     id: 'faq-zaad',
-    question: 'How does Zaad payment work?',
+    question: 'How does paying with Zaad work?',
     answer:
-      'Send the payment with Zaad as usual, then enter the amount and the reference number from your confirmation message. The office checks it and your membership is approved once it is confirmed.',
+      'Choose Zaad / Waafi when you register, enter the wallet number to charge, and confirm the prompt on your phone. The payment goes through straight away and your card is issued as soon as it clears -- there is nothing to send in or wait for.',
   },
   {
     id: 'faq-family',
     question: 'Can I add family members to my account?',
     answer:
-      'Yes. Open Family from the home screen and add them. Each one is reviewed by the office and gets their own membership card.',
+      'Not yet. Adding family members from the app is coming; for now, bring them to the Waddani office or message us on WhatsApp.',
   },
   {
     id: 'faq-qr',
     question: "My QR code isn't scanning, what do I do?",
     answer:
-      'Turn your screen brightness up and hold the phone steady so the whole code is visible. If it still fails, show your member ID instead, or message us on WhatsApp.',
+      'Turn your screen brightness up and hold the phone steady so the whole code is visible. If it still fails, show the card number printed under the code instead, or message us on WhatsApp.',
   },
   {
     id: 'faq-help',

@@ -27,13 +27,13 @@ export const queryPersister = createSyncStoragePersister({
 });
 
 /**
- * Only the member's own record is kept on disk, so the membership card opens
- * without a connection (build-plan D15). Everything else refetches.
+ * Only the membership card is kept on disk, so it opens without a connection
+ * (build-plan D15). Everything else refetches.
  */
 export const persistOptions = {
   persister: queryPersister,
   maxAge: 30 * 24 * 60 * 60 * 1000,
   dehydrateOptions: {
-    shouldDehydrateQuery: ({ queryKey }: { queryKey: readonly unknown[] }) => queryKey[0] === 'me',
+    shouldDehydrateQuery: ({ queryKey }: { queryKey: readonly unknown[] }) => queryKey[0] === 'card',
   },
 };

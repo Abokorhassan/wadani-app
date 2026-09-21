@@ -3,20 +3,20 @@ import { Controller, type Control } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
-import { IconTile, Text, TextField, useTheme } from '@/design-system';
-import { PAYMENT_METHODS, type PaymentMethodId } from '@/features/payments';
+import { IconTile, PhoneField, Text, TextField, useTheme } from '@/design-system';
+import { CHARGE_METHODS, PAYMENT_METHODS } from '@/features/payments';
 
 import type { RegistrationForm } from '../form';
-
-const METHOD_IDS = Object.keys(PAYMENT_METHODS) as PaymentMethodId[];
 
 export interface PaymentStepProps {
   control: Control<RegistrationForm>;
   /** Shown under the amount: which plan and period it came from (build-plan D5). */
   amountHint?: string;
+  /** Wallet charges need a number to bill; a card payment does not. */
+  wallet: boolean;
 }
 
-export function PaymentStep({ control, amountHint }: PaymentStepProps) {
+export function PaymentStep({ control, amountHint, wallet }: PaymentStepProps) {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -31,7 +31,7 @@ export function PaymentStep({ control, amountHint }: PaymentStepProps) {
               {t('register.method')}
             </Text>
             <View style={{ gap: 10 }}>
-              {METHOD_IDS.map((id) => {
+              {CHARGE_METHODS.map((id) => {
                 const info = PAYMENT_METHODS[id];
                 const selected = id === field.value;
                 return (
@@ -99,35 +99,26 @@ export function PaymentStep({ control, amountHint }: PaymentStepProps) {
         )}
       />
 
-      <Controller
-        control={control}
-        name="account"
-        render={({ field, fieldState }) => (
-          <TextField
-            label={t('register.account')}
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            error={fieldState.error?.message}
-            placeholder={t('register.accountPlaceholder')}
-          />
-        )}
-      />
-
-      <Controller
-        control={control}
-        name="reference"
-        render={({ field, fieldState }) => (
-          <TextField
-            label={t('register.reference')}
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            error={fieldState.error?.message}
-            placeholder={t('register.referencePlaceholder')}
-          />
-        )}
-      />
+      {wallet ? (
+        <Controller
+          control={control}
+          name="payerPhone"
+          render={({ field, fieldState }) => (
+            <PhoneField
+              label={t('register.payerPhone')}
+              hint={t('register.payerPhoneHint')}
+              value={field.value ?? ''}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+            />
+          )}
+        />
+      ) : (
+        <Text variant="small" color="textMuted">
+          {t('register.cardNote')}
+        </Text>
+      )}
 
       <Controller
         control={control}

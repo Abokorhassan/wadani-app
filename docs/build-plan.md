@@ -232,34 +232,34 @@ Missing required fields: "Please fill in amount, account and reference."
 
 **Blocks** is the earliest phase that needs the answer. **Who** is the person or team who has to answer.
 
-| #   | Topic                  | What the HTML does                                                                                             | Proposal                                                                                                                                                                                      | Who             | Blocks |
-| --- | ---------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | ------ |
-| D1  | Password check         | Login ignores the password, which is stored in plain text                                                      | Backend verifies passwords. The app never stores a password, not even in the registration draft.                                                                                              | Backend         | P1     |
-| D2  | Login before approval  | Doesn't say                                                                                                    | Allow login and route by membership status: **pending** → S3; **rejected** → S3 with the reason and a WhatsApp link; **active** → Home; **expired** → Home with the card in an expired state. | You + Backend   | P1     |
-| D3  | Dropped fields         | Gender, WhatsApp, birth year, country, city, address, period and payment account are collected but never saved | Send every collected field                                                                                                                                                                    | Backend         | P1     |
-| D4  | Member photo           | Card and profile show a photo, but registration never asks for one                                             | Optional photo (camera or gallery) on Step 1, with initials as the fallback                                                                                                                   | You + Backend   | P1     |
-| D5  | Amount vs period       | Prefills the 1-year price even when 2 years is chosen                                                          | Prefill price × years and keep the field editable, or use a price quote from the backend if one exists                                                                                        | You + Backend   | P1     |
-| D6  | Step indicator         | Dots jump to any step without validation                                                                       | Only completed steps can be tapped                                                                                                                                                            | You             | P1     |
-| D7  | Uniqueness             | Only email is checked, on the device, at Step 1                                                                | Backend enforces unique email **and** phone. Server errors go back to the right Step 1 field, or are shown earlier if there's an availability-check endpoint.                                 | Backend         | P1     |
-| D8  | Email required         | Required                                                                                                       | Keep it required to match the HTML. Worth confirming, since many members may only have a phone or WhatsApp.                                                                                   | You / Party     | P1     |
-| D9  | Year of birth          | Optional, not validated                                                                                        | Optional. If filled in, it must be a 4-digit year that isn't in the future. Minimum age still to be decided.                                                                                  | Party           | P1     |
-| D10 | Forgot password        | Shows a "not implemented" alert                                                                                | If the backend has a reset flow: phone/email → OTP → new password. If not, the link opens WhatsApp support.                                                                                   | Backend         | P1     |
-| D11 | Consent                | No consent checkbox (prototype code suggests one existed)                                                      | Required "I agree to the membership terms & privacy policy" on Step 4, since party membership is sensitive personal data                                                                      | You / Party     | P1     |
-| D12 | Draft on exit          | The wizard resets every time it opens                                                                          | Keep the draft (without the password) if the app closes mid-registration. Tapping Back to Welcome asks "Discard registration?"                                                                | You             | P1     |
-| D13 | Language               | English only                                                                                                   | English and Somali at launch. i18n is set up in Phase 0 either way.                                                                                                                           | You / Party     | P0     |
-| D14 | QR contents            | A static image                                                                                                 | Backend issues a signed token, not just the member ID, so cards can't be forged. Who scans at events is out of scope for this app.                                                            | Backend         | P2     |
-| D15 | Offline card           | Doesn't say                                                                                                    | Cache the card and QR so they open without internet at venues                                                                                                                                 | You             | P2     |
-| D16 | Save / Print           | Calls the browser's print                                                                                      | **Save to Photos** and **Share**                                                                                                                                                              | You             | P2     |
-| D17 | Communications access  | The screen exists but nothing links to it                                                                      | Bell icon in the Home header                                                                                                                                                                  | You             | P2     |
-| D18 | Social handles         | f / X / Instagram · @WaddaniParty                                                                              | Confirm the real accounts                                                                                                                                                                     | Party           | P2     |
-| D19 | Invite link            | Uses the current web page URL                                                                                  | A store or landing-page link, to be confirmed                                                                                                                                                 | You / Party     | P2     |
-| D20 | Unfinished tiles       | –                                                                                                              | Hide a Home tile until its phase ships                                                                                                                                                        | You             | P2     |
-| D21 | FAQ copy               | Mentions a "Renew" button and instant Zaad verification, neither of which exists                               | Rewrite the FAQs for v1 (manual payments, no renewal). Load them from the API if an endpoint exists.                                                                                          | Party / Backend | P3     |
-| D22 | Contact vs Feedback    | The screen is titled "Contact & Feedback" with feedback styles, but has no form                                | No feedback form in v1. Title it "Contact & FAQs" and make contact rows tappable (call, email, map).                                                                                          | You             | P3     |
-| D23 | Contact details source | Hard-coded                                                                                                     | From an API config endpoint if one exists, otherwise app constants. Confirm the real values.                                                                                                  | Backend / Party | P3     |
-| D24 | Family member model    | Name and relation only; gets an ID; moves from Pending to Active                                               | v1 matches the HTML. Ask the backend: do dependents need birth year or gender, a payment, or their own card? (The FAQ says they each get one.)                                                | Backend / Party | P4     |
-| D25 | Donation handling      | Only shows an alert                                                                                            | Record a donation (method and amount, status Pending), then show a thank-you screen. Non-cash methods collect account and reference the same way as Step 4.                                   | Backend         | P4     |
-| D26 | Renewal & expiry       | Not covered                                                                                                    | The renewal flow ships with payment gateways (P6). Until then, an expired card shows "Contact the office to renew".                                                                           | You             | P6     |
+| #   | Topic                  | What the HTML does                                                                                             | Proposal                                                                                                                                                                                                                                                       | Who             | Blocks |
+| --- | ---------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | ------ |
+| D1  | Password check         | Login ignores the password, which is stored in plain text                                                      | Backend verifies passwords. The app never stores a password, not even in the registration draft.                                                                                                                                                               | Backend         | P1     |
+| D2  | Login before approval  | Doesn't say                                                                                                    | **Revised 2026-09-19:** the API has no approval step. Statuses are `REGISTERED / PAYMENT_PENDING / PAID / CARD_ISSUED`; the first two route to S3, now a "confirming your payment" screen, and the rest go to Home. Expiry comes from the card's `validUntil`. | Done            | P1     |
+| D3  | Dropped fields         | Gender, WhatsApp, birth year, country, city, address, period and payment account are collected but never saved | Send every collected field                                                                                                                                                                                                                                     | Backend         | P1     |
+| D4  | Member photo           | Card and profile show a photo, but registration never asks for one                                             | **Revised 2026-09-19:** the API requires `photoUrl`, so the photo is **required** on step 1. The app uploads it straight to the party's S3 bucket (`src/lib/s3.ts`) and sends the public URL; initials remain the fallback for members without one.            | Done            | P1     |
+| D5  | Amount vs period       | Prefills the 1-year price even when 2 years is chosen                                                          | Prefill price × years and keep the field editable, or use a price quote from the backend if one exists                                                                                                                                                         | You + Backend   | P1     |
+| D6  | Step indicator         | Dots jump to any step without validation                                                                       | Only completed steps can be tapped                                                                                                                                                                                                                             | You             | P1     |
+| D7  | Uniqueness             | Only email is checked, on the device, at Step 1                                                                | Backend enforces unique email **and** phone. Server errors go back to the right Step 1 field, or are shown earlier if there's an availability-check endpoint.                                                                                                  | Backend         | P1     |
+| D8  | Email required         | Required                                                                                                       | **Revised 2026-09-19:** the API treats **phone** as the identity and email as optional, so the app does too.                                                                                                                                                   | Done            | P1     |
+| D9  | Year of birth          | Optional, not validated                                                                                        | **Revised 2026-09-19:** the API requires it, so the app requires a 4-digit year between 1900 and this year. Minimum age still undecided.                                                                                                                       | Done            | P1     |
+| D10 | Forgot password        | Shows a "not implemented" alert                                                                                | If the backend has a reset flow: phone/email → OTP → new password. If not, the link opens WhatsApp support.                                                                                                                                                    | Backend         | P1     |
+| D11 | Consent                | No consent checkbox (prototype code suggests one existed)                                                      | Required "I agree to the membership terms & privacy policy" on Step 4, since party membership is sensitive personal data                                                                                                                                       | You / Party     | P1     |
+| D12 | Draft on exit          | The wizard resets every time it opens                                                                          | Keep the draft (without the password) if the app closes mid-registration. Tapping Back to Welcome asks "Discard registration?"                                                                                                                                 | You             | P1     |
+| D13 | Language               | English only                                                                                                   | English and Somali at launch. i18n is set up in Phase 0 either way.                                                                                                                                                                                            | You / Party     | P0     |
+| D14 | QR contents            | A static image                                                                                                 | Backend issues a signed token, not just the member ID, so cards can't be forged. Who scans at events is out of scope for this app.                                                                                                                             | Backend         | P2     |
+| D15 | Offline card           | Doesn't say                                                                                                    | Cache the card and QR so they open without internet at venues                                                                                                                                                                                                  | You             | P2     |
+| D16 | Save / Print           | Calls the browser's print                                                                                      | **Save to Photos** and **Share**                                                                                                                                                                                                                               | You             | P2     |
+| D17 | Communications access  | The screen exists but nothing links to it                                                                      | Bell icon in the Home header                                                                                                                                                                                                                                   | You             | P2     |
+| D18 | Social handles         | f / X / Instagram · @WaddaniParty                                                                              | Confirm the real accounts                                                                                                                                                                                                                                      | Party           | P2     |
+| D19 | Invite link            | Uses the current web page URL                                                                                  | A store or landing-page link, to be confirmed                                                                                                                                                                                                                  | You / Party     | P2     |
+| D20 | Unfinished tiles       | –                                                                                                              | Hide a Home tile until its phase ships                                                                                                                                                                                                                         | You             | P2     |
+| D21 | FAQ copy               | Mentions a "Renew" button and instant Zaad verification, neither of which exists                               | Rewrite the FAQs for v1 (manual payments, no renewal). Load them from the API if an endpoint exists.                                                                                                                                                           | Party / Backend | P3     |
+| D22 | Contact vs Feedback    | The screen is titled "Contact & Feedback" with feedback styles, but has no form                                | No feedback form in v1. Title it "Contact & FAQs" and make contact rows tappable (call, email, map).                                                                                                                                                           | You             | P3     |
+| D23 | Contact details source | Hard-coded                                                                                                     | From an API config endpoint if one exists, otherwise app constants. Confirm the real values.                                                                                                                                                                   | Backend / Party | P3     |
+| D24 | Family member model    | Name and relation only; gets an ID; moves from Pending to Active                                               | v1 matches the HTML. Ask the backend: do dependents need birth year or gender, a payment, or their own card? (The FAQ says they each get one.)                                                                                                                 | Backend / Party | P4     |
+| D25 | Donation handling      | Only shows an alert                                                                                            | **Revised 2026-09-19:** donations are **charged** through Sifalo (wallet number, or a card checkout), not recorded for the office. The thank-you screen confirms the charge.                                                                                   | Done            | P4     |
+| D26 | Renewal & expiry       | Not covered                                                                                                    | The renewal flow ships with payment gateways (P6). Until then, an expired card shows "Contact the office to renew".                                                                                                                                            | You             | P6     |
 
 ---
 
@@ -474,10 +474,10 @@ App launch
 
 ### 4.1 Principles
 
-- **The contract** is the Postman collection, committed to `api-contract/`. When the backend developer sends an update, replace the file; the git diff shows what changed.
+- **The contract** is the OpenAPI document, committed to `api-contract/waddani-mobile-api.openapi.json` (extracted from the backend's Swagger UI on 2026-09-19; `api-contract/README.md` has the re-fetch command). When the backend developer changes the API, replace the file; the git diff shows what changed.
 - **Validate at the boundary.** Every response is parsed with zod. A parse failure is a contract bug: in development it shows a loud error, and in production a generic error that gets reported.
 - **Mappers** isolate backend field names. If the backend renames a field, only one mapper changes.
-- **Ask for OpenAPI.** If the backend framework can export it, we generate types (`openapi-typescript`) instead of writing zod schemas by hand.
+- **Schemas are written by hand** from the OpenAPI document rather than generated, because the app's domain types differ from the wire shapes on purpose (uppercase enums, decimal strings, envelope objects).
 
 ### 4.2 HTTP client
 
@@ -506,30 +506,35 @@ type ApiError =
   - a comma-separated list of features (e.g. `family,donations`) mocks only those, so features can go live one at a time as endpoints land
 - Mock data comes from §1.4 and the collection's example responses. Mocks add latency and have a switch to force errors, so loading and error states get tested.
 
-### 4.4 Endpoints the app expects
+### 4.4 Endpoints the app uses
 
-Paths are placeholders. Fill in **Actual** from the Postman collection.
+Live paths, from the OpenAPI document. Wired up on 2026-09-19.
 
-| #   | Purpose                                                                   | Suggested                              | Actual | Used by         | Phase |
-| --- | ------------------------------------------------------------------------- | -------------------------------------- | ------ | --------------- | ----- |
-| 1   | Register member (with payment details, photo)                             | `POST /auth/register`                  |        | S2              | 1     |
-| 2   | Log in with phone or email                                                | `POST /auth/login`                     |        | S4              | 1     |
-| 3   | Log out                                                                   | `POST /auth/logout`                    |        | S13             | 1     |
-| 4   | Refresh token                                                             | `POST /auth/refresh`                   |        | client          | 1     |
-| 5   | Forgot / reset password (D10)                                             | `POST /auth/password/forgot`, `/reset` |        | S4              | 1     |
-| 6   | List plans                                                                | `GET /plans`                           |        | S2              | 1     |
-| 7   | List membership periods                                                   | `GET /membership-periods`              |        | S2              | 1     |
-| 8   | List payment methods (optional)                                           | `GET /payment-methods`                 |        | S2, S8          | 1     |
-| 9   | Current member: profile, status, tier, ID, since, valid until, QR payload | `GET /me`                              |        | S3, S5, S6, S13 | 1     |
-| 10  | Upload photo (if not part of register)                                    | `POST /me/photo`                       |        | S2              | 1     |
-| 11  | Payment history                                                           | `GET /me/payments`                     |        | S7              | 2     |
-| 12  | Communications                                                            | `GET /me/notifications`                |        | S12             | 2     |
-| 13  | News                                                                      | `GET /news`                            |        | S9              | 3     |
-| 14  | Events, including my RSVP state                                           | `GET /events`                          |        | S9              | 3     |
-| 15  | RSVP / cancel RSVP                                                        | `POST` / `DELETE /events/{id}/rsvp`    |        | S9              | 3     |
-| 16  | FAQs and contact info (optional)                                          | `GET /faqs`, `GET /contact`            |        | S11             | 3     |
-| 17  | List / add family members                                                 | `GET` / `POST /me/family`              |        | S10             | 4     |
-| 18  | Record donation                                                           | `POST /donations`                      |        | S8              | 4     |
+| Purpose                 | Endpoint                                      | Used by         | Notes                                                                                                |
+| ----------------------- | --------------------------------------------- | --------------- | ---------------------------------------------------------------------------------------------------- |
+| Register and pay        | `POST /mobile/auth/register`                  | S2              | `201` member + payment + card, or `202` card checkout                                                |
+| Log in                  | `POST /mobile/auth/login`                     | S4              | `{identifier, password}` → `{accessToken, memberId}`                                                 |
+| Log out                 | `POST /mobile/auth/logout`                    | S13             |                                                                                                      |
+| Forgot / reset password | `POST /mobile/auth/password/forgot`, `/reset` | S4              | Replaces the WhatsApp fallback in D10                                                                |
+| Own id                  | `GET /mobile/auth/me`                         | session         | Id only — no profile                                                                                 |
+| List plans              | `GET /mobile/plans`                           | S2              | `{plans}`; `price` is a decimal string, `benefits` plain strings                                     |
+| List periods            | `GET /mobile/membership-periods`              | S2              | `{membershipPeriods}`                                                                                |
+| Membership card         | `GET /mobile/members/me/card`                 | S3, S5, S6, S13 | Response shape confirmed 2026-09-19. The only source of name, photo, tier and validity after a login |
+| Payment history         | `GET /mobile/members/me/payments`             | S7              | `{payments}`; amounts are decimal strings                                                            |
+| Donate                  | `POST /mobile/members/me/donations`           | S8              | Charged through Sifalo, not recorded                                                                 |
+| Donation history        | `GET /mobile/members/me/donations`            | —               | Client call written; no screen yet                                                                   |
+| Renew                   | `POST /mobile/members/me/renew`               | —               | Client call written; Phase 6                                                                         |
+| Confirm a card payment  | `POST /mobile/payments/card/confirm`          | S2, S8          | After the Sifalo checkout returns with `sid`                                                         |
+| Card checkout status    | `GET /mobile/payments/card/checkouts/{id}`    | —               | Fallback if the return trip is lost                                                                  |
+| News                    | `GET /mobile/news`                            | S9              | `{news, total, page, pageSize}`; bodies are HTML                                                     |
+| Events                  | `GET /mobile/events`                          | S9              | `{events}`; `location`, not `venue`                                                                  |
+
+The member photo does not go through the API at all: the app signs an S3 `PUT`
+itself and sends the resulting URL as `photoUrl` (party decision, 2026-09-19 —
+see the warning in `src/lib/s3.ts`).
+
+No endpoint exists for: the full member profile, family members, RSVP,
+notifications, FAQs or contact details. See [api-gaps.md](api-gaps.md).
 
 ### 4.5 What to ask the backend developer for
 
@@ -540,53 +545,47 @@ With the collection, ask for:
 - [ ] Example responses for **error** cases, not just success
 - [ ] Date format (ISO 8601 UTC preferred) and money format (decimal string or cents)
 - [ ] Pagination format for news, events, payments and notifications
-- [ ] File upload format for the member photo
 - [ ] Membership status values: pending, active, rejected, expired (D2)
 - [ ] Staging base URL
 - [ ] OpenAPI export, if the framework supports it
 
-### 4.6 When the collection arrives
+### 4.6 Going live
 
-1. Commit it to `api-contract/`.
-2. Fill the **Actual** column in §4.4.
-3. Write zod schemas and mappers from the example responses.
-4. Send the backend developer a gap list: features with no endpoint, missing fields (D3, D24) and missing error formats.
-5. Move features from mock to live one at a time.
+The contract landed on 2026-09-19 and the data layer was rewritten onto it.
+What remains:
+
+1. Get a test member account and a staging URL, then verify each endpoint's real
+   response against its zod schema — the schemas are written from the document,
+   not from observed traffic.
+2. Flip features from mock to live one at a time with `EXPO_PUBLIC_API_MOCK`.
 
 ---
 
 ## 5. Payments seam
 
-- **v1:** all five methods are **manual**. The member pays outside the app, then records the method, amount, account and reference. The payment starts as **Pending** until staff confirm it in the admin panel.
-- **Later:** gateway methods (Zaad first, then eDahab) start a payment inside the app, then wait for or poll the confirmation.
+- **Revised 2026-09-19: there is no manual path.** Every payment goes through **Sifalo Pay** — `WAAFI` (which covers Zaad, EVC, eSahal, CashPlus and Jeeb), `EDAHAB`, `PREMIER_WALLET` and `CARD`. A wallet charge settles inside the register / donate call; a card charge returns `{checkoutId, checkoutUrl}`, the app opens it and then calls `POST /mobile/payments/card/confirm`. Cash, Dahabshiil and Premier Bank remain only as history recorded by staff.
+- The seam is now `ChargeRequest { method, amountUsd, payerPhone? }` plus the shared `chargeBody()` helper, used identically by register, renew and donate.
 
 ```ts
-type PaymentMethodId = 'cash' | 'zaad' | 'edahab' | 'dahabshiil' | 'premier_bank';
-type PaymentPurpose = 'membership' | 'donation' | 'renewal';
+type ChargeMethod = 'WAAFI' | 'EDAHAB' | 'PREMIER_WALLET' | 'CARD';
 
-interface PaymentIntent {
-  purpose: PaymentPurpose;
+interface ChargeRequest {
+  method: ChargeMethod;
   amountUsd: number;
-  memberId?: string;
+  /** The wallet to bill; may be someone paying on the member's behalf. Not used for CARD. */
+  payerPhone?: string;
 }
 
-type PaymentResult =
-  | { status: 'pending'; paymentId?: string } // manual, or gateway awaiting confirmation
-  | { status: 'completed'; paymentId: string }
-  | { status: 'failed'; reason: string };
-
-interface PaymentMethod {
-  id: PaymentMethodId;
-  kind: 'manual' | 'gateway';
-  Form: React.ComponentType<PaymentFormProps>; // manual: account + reference; gateway: phone to charge
-  submit(intent: PaymentIntent, input: unknown): Promise<PaymentResult>;
+/** Every card flow answers 202 with this instead of its normal result. */
+interface CardCheckout {
+  checkoutId: string;
+  checkoutUrl: string;
 }
 ```
 
-- `features/payments/methods/` holds the registry of methods.
-- Registration Step 4 and Donate render the selected method's `Form` and call `submit`. They never branch on which method it is.
-- **During registration**, manual details are sent with the register request. A gateway payment runs right after the account is created.
-- **Switching Zaad to a gateway** means adding `zaad.gateway.ts` and changing its registry entry. No screens change.
+- `features/payments/methods.ts` holds the four methods and their labels; history may contain staff-recorded methods, which `paymentMethodLabel()` covers.
+- `useCardCheckout()` opens the Sifalo page with `expo-web-browser` and confirms on return. The app passes `returnUrl: waddani://card-return`; if Sifalo refuses a custom scheme, fall back to the server's own return page and `GET /mobile/payments/card/checkouts/{id}`.
+- Registration Step 4 and Donate both render the same method list and a payer-phone field, and never branch on which wallet it is.
 
 ---
 
@@ -741,18 +740,18 @@ Decisions taken with the proposals: D14 (QR shows `qrPayload` from `GET /me`), D
 
 Needs D21–D23 and endpoints 13–16.
 
-- [x] News & Events tabs, with RSVP that updates instantly and rolls back on error
+- [x] News & Events tabs (RSVP **dropped** on 2026-09-19: the API has no endpoint and the party isn't supporting it for now)
 - [x] Contact rows that open call, email or maps; WhatsApp deep link; FAQs
 
 D21 taken: the FAQ answers were rewritten in `src/features/support/api.mock.ts` so they describe v1 (no in-app renewal; Zaad payments confirmed by staff, not instantly). **The party still reviews this copy.** D23 taken: contact details come from `GET /contact`, with the prototype's values as the mock — the party confirms the real ones. D22 taken: no feedback form; the screen is "Contact & FAQs".
 
-**Exit criteria:** an RSVP survives an app restart and shows on another device. _(Pending a live backend: the mock keeps RSVPs in memory for the session only.)_
+**Exit criteria:** ~~an RSVP survives an app restart~~ — withdrawn with the RSVP feature. News and events read from the API with their loading, empty and error states.
 
 ### Phase 4: Family & Donate (S8, S10)
 
 Needs D24–D25 and endpoints 17–18.
 
-- [x] Family list and add form (new members start as Pending)
+- [x] Family list and add form (new members start as Pending) — **parked on 2026-09-19**: the API has no family endpoints, so the screen shows "Coming soon" and the data layer waits in `src/features/family/`
 - [x] Donate: quick amounts, manual methods through the payments registry, thank-you screen
 
 D24 taken: a new family member is added with a name and relation only, comes back **pending** and has no member ID until the office approves them. Ask the backend whether dependents also need a birth year, gender or their own payment. D25 taken: a donation is recorded as **pending** for the office to confirm, and the thank-you screen says what happens next (cash is handed in at the office; other methods are confirmed when the payment arrives). **Open:** non-cash donations may need a reference number for the office to reconcile — the approved design has no field for it.
@@ -786,7 +785,7 @@ D24 taken: a new family member is added with a name and relation only, comes bac
 which turns the checklists above into assertions: the screens exist and are no
 longer placeholders, each feature's mock offers exactly what its live client
 does, the behaviour each phase promised holds (offline card persistence,
-optimistic RSVP, pending family members, pending donations), and every screen's
+pending family members, pending donations), and every screen's
 wording exists in the i18n bundle. Phases not yet built are listed as `todo`, so
 the outstanding work stays visible. It also runs as part of `npm test`.
 

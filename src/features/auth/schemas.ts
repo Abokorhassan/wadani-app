@@ -1,12 +1,22 @@
 import { z } from 'zod';
 
-import { memberDto } from '@/features/membership/schemas';
+import { memberDto, membershipCardDto } from '@/features/membership/schemas';
 
-/** Backend shapes; rewritten from the Postman collection when it lands (build-plan §4.6). */
-export const authResponse = z.object({
+/**
+ * Backend shapes, from api-contract/waddani-mobile-api.openapi.json.
+ *
+ * Deliberately loose: the document promises only these two fields, but a
+ * strict object would silently drop anything else the backend sends, and we
+ * would never find out. Extra keys survive so `login()` can log and use them.
+ */
+export const loginResponse = z.looseObject({
   accessToken: z.string(),
-  refreshToken: z.string().nullish(),
-  member: memberDto,
+  memberId: z.string(),
 });
 
-export type AuthResponse = z.infer<typeof authResponse>;
+export const registerResponse = z.object({
+  member: memberDto,
+  membershipCard: membershipCardDto.nullish(),
+});
+
+export type LoginResponse = z.infer<typeof loginResponse>;

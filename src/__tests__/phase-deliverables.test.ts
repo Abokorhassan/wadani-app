@@ -87,10 +87,21 @@ describe('Phase 0 — foundations', () => {
     expect(exports_('api/parse.ts', 'parseResponse')).toBe(true);
   });
 
-  it('persists only the member record, so the card opens offline', () => {
+  it('never sends features with no endpoints to the live API', () => {
+    // Going live means EXPO_PUBLIC_API_MOCK=none. These three have no
+    // endpoints, and `support` backs Login's "Forgot password?", so letting
+    // them follow that setting would 404 three screens (docs/api-gaps.md §2).
+    const { isMocked, FEATURES_WITHOUT_BACKEND } = require('../api/mode');
+    expect([...FEATURES_WITHOUT_BACKEND].sort()).toEqual(['family', 'notifications', 'support']);
+    for (const feature of FEATURES_WITHOUT_BACKEND) {
+      expect(isMocked(feature)).toBe(true);
+    }
+  });
+
+  it('persists only the membership card, so it opens offline', () => {
     const { persistOptions } = require('../api/query-client');
     const keep = persistOptions.dehydrateOptions.shouldDehydrateQuery;
-    expect(keep({ queryKey: ['me'] })).toBe(true);
+    expect(keep({ queryKey: ['card'] })).toBe(true);
     expect(keep({ queryKey: ['news'] })).toBe(false);
   });
 
@@ -135,42 +146,127 @@ describe('Phase 1 — onboarding', () => {
       identifier: memberFixture.email,
       password: DEMO_PASSWORD,
     });
-    expect(session.member.id).toBe(memberFixture.id);
+    expect(session.memberId).toBe(memberFixture.id);
     expect(session.accessToken).toBeTruthy();
   });
 
-  it('registers a member as pending, and rejects a duplicate email (D7)', async () => {
+  it('registers and pays in one call, and rejects a duplicate phone (D7)', async () => {
     const { authApiMock } = require('../features/auth/api.mock');
+    const { planFixtures, periodFixtures } = require('../features/membership/api.mock');
     const payload = {
       fullName: 'Amina Yusuf',
       gender: 'female',
-      phone: '+252 63 111 2222',
+      phone: `+25263111${String(Date.now()).slice(-4)}`,
       email: `amina${Date.now()}@example.com`,
+      photoUrl: 'https://wp-membership-bucket.s3.eu-north-1.amazonaws.com/a.jpg',
       education: 'bachelor',
-      password: 'secret123',
-      address: { country: 'Somaliland', city: 'Hargeisa' },
-      planId: 'silver',
-      periodId: '1y',
-      payment: { method: 'zaad', amountUsd: 50, account: '+252 63 111 2222', reference: 'TX-1' },
-      acceptedTerms: true,
+      professionalWork: 'Teacher',
+      birthYear: 1994,
+      membershipTypeId: planFixtures[1].id,
+      membershipPeriodId: periodFixtures[0].id,
+      address: {
+        line1: 'Jigjiga Yar',
+        city: 'Hargeisa',
+        region: 'Woqooyi Galbeed',
+        country: 'Somaliland',
+      },
+      password: 'secret12345',
+      charge: { method: 'WAAFI', amountUsd: 50, payerPhone: '+252631112222' },
     };
 
-    const session = await authApiMock.register(payload);
-    expect(session.member.status).toBe('pending');
+    // A wallet charge settles at once, so the card exists straight away.
+    const result = await authApiMock.register(payload);
+    expect(result.kind).toBe('registered');
+    expect(result.member.status).toBe('cardIssued');
+    expect(result.card.cardCode).toBeTruthy();
 
     await expect(authApiMock.register(payload)).rejects.toMatchObject({
-      error: { fieldErrors: { email: expect.any(String) } },
+      error: { fieldErrors: { phone: expect.any(String) } },
     });
   });
 
-  it('keeps members waiting for approval out of the app (D2)', () => {
+  it("shows a signed-in member's own card, not always the demo fixture", async () => {
+    const { authApiMock } = require('../features/auth/api.mock');
+    const { membershipApiMock, memberFixture } = require('../features/membership/api.mock');
+    const { planFixtures, periodFixtures } = require('../features/membership/api.mock');
+
+    const payload = {
+      fullName: 'Eng Ladif',
+      gender: 'male',
+      phone: `+25263422${String(Date.now()).slice(-4)}`,
+      education: 'bachelor',
+      professionalWork: 'Engineer',
+      birthYear: 1990,
+      photoUrl: 'https://wp-membership-bucket.s3.eu-north-1.amazonaws.com/b.jpg',
+      membershipTypeId: planFixtures[0].id,
+      membershipPeriodId: periodFixtures[0].id,
+      address: {
+        line1: 'Koodbuur',
+        city: 'Hargeisa',
+        region: 'Maroodi Jeex',
+        country: 'Somaliland',
+      },
+      password: '123456789',
+      charge: { method: 'WAAFI', amountUsd: 25, payerPhone: '+252634220000' },
+    };
+
+    const registered = await authApiMock.register(payload);
+    const card = await membershipApiMock.getCard();
+    expect(card.memberFullName).toBe('Eng Ladif');
+    expect(card.cardCode).toBe(registered.card.cardCode);
+    // The bug was: getCard() always answered with the demo fixture, whoever
+    // was actually signed in.
+    expect(card.memberFullName).not.toBe(memberFixture.fullName);
+
+    // Logging back in as the demo fixture has to show the fixture again, not
+    // whoever registered most recently (this was the actual bug: getCard()
+    // ignored who was signed in and always returned the fixture).
+    await authApiMock.login({ identifier: memberFixture.phone, password: 'waddani123' });
+    const demoCard = await membershipApiMock.getCard();
+    expect(demoCard.memberFullName).toBe(memberFixture.fullName);
+
+    // And logging back in as the member just created shows their card again.
+    await authApiMock.login({ identifier: payload.phone, password: payload.password });
+    const backToLadif = await membershipApiMock.getCard();
+    expect(backToLadif.memberFullName).toBe('Eng Ladif');
+  });
+
+  it('holds a card payment back until Sifalo confirms it', async () => {
+    const { authApiMock } = require('../features/auth/api.mock');
+    const { planFixtures, periodFixtures } = require('../features/membership/api.mock');
+
+    const result = await authApiMock.register({
+      fullName: 'Card Payer',
+      gender: 'male',
+      phone: `+25263999${String(Date.now()).slice(-4)}`,
+      photoUrl: 'https://wp-membership-bucket.s3.eu-north-1.amazonaws.com/b.jpg',
+      education: 'other',
+      professionalWork: 'Driver',
+      birthYear: 1990,
+      membershipTypeId: planFixtures[0].id,
+      membershipPeriodId: periodFixtures[0].id,
+      address: {
+        line1: 'Koodbuur',
+        city: 'Hargeisa',
+        region: 'Maroodi Jeex',
+        country: 'Somaliland',
+      },
+      password: 'secret12345',
+      charge: { method: 'CARD', amountUsd: 25 },
+    });
+
+    expect(result.kind).toBe('checkout');
+    expect(result.checkout.checkoutUrl).toContain('http');
+  });
+
+  it('keeps members without a settled payment out of the app (D2)', () => {
     const entry = source('app/index.tsx');
-    expect(entry).toContain("'pending'");
+    expect(entry).toContain("'paymentPending'");
     expect(entry).toContain('/pending');
     expect(source('app/_layout.tsx')).toContain('awaitingReview');
   });
 
-  it('validates each step on its own, including the optional birth year (D9)', () => {
+  it('validates each step on its own, against the backend contract (D9)', () => {
     const {
       personalSchema,
       addressSchema,
@@ -180,27 +276,59 @@ describe('Phase 1 — onboarding', () => {
     } = require('../features/registration/form');
 
     expect(STEP_FIELDS).toHaveLength(4);
-    expect(addressSchema.safeParse({ country: 'Somaliland', city: '' }).success).toBe(false);
-    // Birth year may be left out, but a stray value has to be a real year.
+    // The backend requires region as well as city and country.
+    expect(
+      addressSchema.safeParse({ line1: 'Jigjiga Yar', city: 'Hargeisa', country: 'Somaliland' })
+        .success
+    ).toBe(false);
+
     const base = {
       fullName: 'Amina Yusuf',
       gender: 'female',
       phone: '+252 63 111 2222',
       email: 'amina@example.com',
       education: 'bachelor',
-      password: 'secret123',
+      professionalWork: 'Teacher',
+      birthYear: '1998',
+      password: 'secret12345',
     };
     expect(personalSchema.safeParse(base).success).toBe(true);
+    // Birth year and work are required by the API, so they are required here.
+    expect(personalSchema.safeParse({ ...base, birthYear: '' }).success).toBe(false);
     expect(personalSchema.safeParse({ ...base, birthYear: '98' }).success).toBe(false);
-    expect(personalSchema.safeParse({ ...base, birthYear: '1998' }).success).toBe(true);
-    // A server-side email clash sends the wizard back to the first step (D7).
+    expect(personalSchema.safeParse({ ...base, professionalWork: '' }).success).toBe(false);
+    // Email is optional: the phone number is the identity.
+    expect(personalSchema.safeParse({ ...base, email: undefined }).success).toBe(true);
+    // The API's own minimum password length.
+    expect(personalSchema.safeParse({ ...base, password: 'secret1' }).success).toBe(false);
+    // A server-side clash sends the wizard back to the step holding the field (D7).
     expect(stepForField('email')).toBe(0);
-    expect(stepForField('reference')).toBe(3);
+    expect(stepForField('professionalWork')).toBe(0);
+    expect(stepForField('address.region')).toBe(1);
+    expect(stepForField('payerPhone')).toBe(3);
 
     // Consent is required before an account can be created (D11).
-    const payment = { method: 'zaad', amount: '50', account: '+252', reference: 'TX-1' };
+    const payment = { method: 'WAAFI', amount: '50', payerPhone: '+252631112222' };
     expect(paymentSchema.safeParse({ ...payment, acceptedTerms: false }).success).toBe(false);
     expect(paymentSchema.safeParse({ ...payment, acceptedTerms: true }).success).toBe(true);
+    // A wallet charge needs a number to bill; a card payment does not.
+    expect(
+      paymentSchema.safeParse({ method: 'WAAFI', amount: '50', acceptedTerms: true }).success
+    ).toBe(false);
+    expect(
+      paymentSchema.safeParse({ method: 'CARD', amount: '50', acceptedTerms: true }).success
+    ).toBe(true);
+  });
+
+  it('uploads the member photo to S3 before registering (2026-09-19)', () => {
+    // photoUrl is required by the API and must be a URL the backend can read,
+    // so the picked file goes to the party's bucket first.
+    const upload = source('features/registration/upload-photo.ts');
+    expect(upload).toContain('putObject');
+    expect(source('app/(auth)/register.tsx')).toContain('uploadMemberPhoto');
+    // The key lives in config, never in the source.
+    expect(source('lib/s3.ts')).not.toMatch(/AKIA[0-9A-Z]{16}/);
+    expect(source('lib/env.ts')).toContain('EXPO_PUBLIC_AWS_ACCESS_KEY_ID');
   });
 
   it('never writes the password into the saved draft (D12)', () => {
@@ -214,6 +342,37 @@ describe('Phase 1 — onboarding', () => {
     expect(draft).toMatchObject({ fullName: 'Amina', step: 1 });
     expect(JSON.stringify(draft)).not.toContain('secret123');
     useDraftStore.getState().clear();
+    expect(useDraftStore.getState().draft).toBeNull();
+  });
+
+  it('drops an unfinished registration after a day, and one with no timestamp', () => {
+    // The draft holds a person's details on a possibly shared phone.
+    const {
+      useDraftStore,
+      readDraft,
+      DRAFT_TTL_MS,
+    } = require('../features/registration/draft-store');
+    const { emptyRegistration } = require('../features/registration/form');
+
+    useDraftStore.getState().save({ ...emptyRegistration, fullName: 'Amina' }, 1);
+    expect(readDraft()).toMatchObject({ fullName: 'Amina' });
+
+    // Still there just inside the window, gone just outside it, and deleted.
+    expect(readDraft(Date.now() + DRAFT_TTL_MS - 60_000)).not.toBeNull();
+    expect(readDraft(Date.now() + DRAFT_TTL_MS + 60_000)).toBeNull();
+    expect(readDraft()).toBeNull();
+    useDraftStore.getState().clear();
+  });
+
+  it('clears a half-finished registration when someone signs out', async () => {
+    const { useSessionStore } = require('../features/auth/session-store');
+    const { useDraftStore } = require('../features/registration/draft-store');
+    const { emptyRegistration } = require('../features/registration/form');
+
+    useDraftStore.getState().save({ ...emptyRegistration, fullName: 'Someone Else' }, 2);
+    expect(useDraftStore.getState().draft).not.toBeNull();
+
+    await useSessionStore.getState().signOut();
     expect(useDraftStore.getState().draft).toBeNull();
   });
 
@@ -258,12 +417,15 @@ describe('Phase 2 — membership core', () => {
     apiSurfacesMatch('notifications', 'notificationsApi', 'notificationsApiMock');
   });
 
-  it('groups payment history by year and knows every payment method', () => {
+  it('groups payment history by year and labels back-office methods too', () => {
     const { groupByYear, toPayment } = require('../features/payments/mappers');
     const { paymentFixtures } = require('../features/payments/api.mock');
-    const { PAYMENT_METHODS } = require('../features/payments/methods');
+    const { CHARGE_METHODS, paymentMethodLabel } = require('../features/payments/methods');
     expect(groupByYear(paymentFixtures.map(toPayment))[0].year).toBe(2026);
-    expect(Object.keys(PAYMENT_METHODS)).toHaveLength(5);
+    // Every charge goes through Sifalo: four methods, and no cash (2026-09-19).
+    expect(CHARGE_METHODS).toEqual(['WAAFI', 'EDAHAB', 'PREMIER_WALLET', 'CARD']);
+    // History can still hold a method staff recorded by hand.
+    expect(paymentMethodLabel('CASH')).toBe('Cash');
   });
 
   it('has the wording for every Phase 2 screen', () => {
@@ -276,6 +438,7 @@ describe('Phase 2 — membership core', () => {
       'payments.title',
       'payments.emptyTitle',
       'profile.memberSince',
+      'profile.cardCode',
       'communications.title',
     ]) {
       expect(hasText(key)).toBe(true);
@@ -296,12 +459,9 @@ describe('Phase 3 — engagement', () => {
     apiSurfacesMatch('support', 'supportApi', 'supportApiMock');
   });
 
-  it('updates an RSVP straight away and puts it back when the call fails', () => {
-    const hooks = source('features/news-events/hooks.ts');
-    expect(hooks).toContain('onMutate');
-    expect(hooks).toContain('setQueryData');
-    expect(hooks).toContain('onError');
-    expect(hooks).toContain('context.previous');
+  it('does not offer RSVP: the API has no endpoint for it (party decision, 2026-09-19)', () => {
+    expect(source('features/news-events/types.ts')).not.toContain('isGoing');
+    expect(source('app/(app)/news-events.tsx')).not.toContain('rsvp');
   });
 
   it('opens the phone, mail, maps and WhatsApp', () => {
@@ -324,33 +484,32 @@ describe('Phase 3 — engagement', () => {
   });
 
   it('has the wording for every Phase 3 screen', () => {
-    for (const key of [
-      'news.title',
-      'news.rsvp',
-      'news.going',
-      'contact.title',
-      'contact.whatsappTitle',
-      'contact.hours',
-    ]) {
+    for (const key of ['news.title', 'contact.title', 'contact.whatsappTitle', 'contact.hours']) {
       expect(hasText(key)).toBe(true);
     }
   });
 });
 
 describe('Phase 4 — family & donate', () => {
-  it('has the family and donate screens, no longer placeholders', () => {
-    expect(exists('app/(app)/family.tsx')).toBe(true);
+  it('has the donate screen, no longer a placeholder', () => {
     expect(exists('app/(app)/donate.tsx')).toBe(true);
-    expect(source('app/(app)/family.tsx')).not.toContain('comingSoon');
     expect(source('app/(app)/donate.tsx')).not.toContain('comingSoon');
   });
 
-  it('serves family and donations from live or mock alike', () => {
+  it('shows Family as coming soon: the API has no family endpoints (party decision, 2026-09-19)', () => {
+    expect(exists('app/(app)/family.tsx')).toBe(true);
+    expect(source('app/(app)/family.tsx')).toContain('comingSoon');
+  });
+
+  it('keeps the family data layer ready, mock matching live, for whenever the backend adds it', () => {
     apiSurfacesMatch('family', 'familyApi', 'familyApiMock');
+  });
+
+  it('serves donations from live or mock alike', () => {
     apiSurfacesMatch('donations', 'donationsApi', 'donationsApiMock');
   });
 
-  it('adds a family member as pending, with no member ID yet (D24)', async () => {
+  it('adds a family member as pending, with no member ID yet (D24) — data layer, not yet wired to a screen', async () => {
     const { familyApiMock } = require('../features/family/api.mock');
     const added = await familyApiMock.addFamilyMember({
       fullName: 'Hodan Shibbin',
@@ -372,10 +531,19 @@ describe('Phase 4 — family & donate', () => {
     expect(RELATIONS).toEqual(['spouse', 'child', 'parent', 'sibling']);
   });
 
-  it('records a donation as pending for the office to confirm (D25)', async () => {
+  it('charges a donation through Sifalo rather than recording it (2026-09-19)', async () => {
     const { donationsApiMock } = require('../features/donations/api.mock');
-    const donation = await donationsApiMock.createDonation({ amountUsd: 25, method: 'zaad' });
-    expect(donation).toMatchObject({ amountUsd: 25, method: 'zaad', status: 'pending' });
+    const result = await donationsApiMock.createDonation({
+      amountUsd: 25,
+      method: 'WAAFI',
+      payerPhone: '+252631112222',
+    });
+    expect(result.kind).toBe('donated');
+    expect(result.donation).toMatchObject({ amountUsd: 25, method: 'WAAFI' });
+    expect(result.donation.reference).toBeTruthy();
+
+    const card = await donationsApiMock.createDonation({ amountUsd: 25, method: 'CARD' });
+    expect(card.kind).toBe('checkout');
   });
 
   it('accepts the quick amounts and rejects nonsense ones', () => {

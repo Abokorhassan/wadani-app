@@ -8,22 +8,23 @@ import Svg, { Line } from 'react-native-svg';
 import { Avatar, Rosette, StatusPill, Text, useTheme } from '@/design-system';
 import { formatMonthYear } from '@/lib/format';
 
-import { MEMBER_STATUS_TONE, SOCIAL_HANDLE } from '../status';
-import type { Member } from '../types';
+import { isExpired, SOCIAL_HANDLE } from '../status';
+import type { MemberCard } from '../types';
 import { FacebookIcon, InstagramIcon, XIcon } from './social-icons';
 
 const sealBlack = require('@/assets/brand/seal-black.png');
 
 export interface MembershipCardProps {
-  member: Member;
+  card: MemberCard;
   /** The inner card surface, captured for Save / Share. */
   ref?: Ref<View>;
 }
 
 /** The full ticket-style membership card shown at check-in. */
-export function MembershipCard({ member, ref }: MembershipCardProps) {
+export function MembershipCard({ card, ref }: MembershipCardProps) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const expired = isExpired(card);
 
   return (
     <View style={[{ borderRadius: 30 }, theme.shadow.ticket]}>
@@ -72,8 +73,8 @@ export function MembershipCard({ member, ref }: MembershipCardProps) {
         </View>
 
         <Avatar
-          name={member.fullName}
-          uri={member.photoUrl}
+          name={card.memberFullName}
+          uri={card.photoUrl}
           size={108}
           radius={30}
           style={{
@@ -88,17 +89,17 @@ export function MembershipCard({ member, ref }: MembershipCardProps) {
         {/* Identity */}
         <View style={{ paddingTop: 70, paddingHorizontal: 22 }}>
           <Text variant="display" numberOfLines={2}>
-            {member.fullName}
+            {card.memberFullName}
           </Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
-            <StatusPill label={t('card.tierMember', { tier: member.plan.name })} tone="ink" />
+            <StatusPill label={t('card.tierMember', { tier: card.membershipType })} tone="ink" />
             <StatusPill
-              label={t(`status.${member.status}`)}
-              tone={MEMBER_STATUS_TONE[member.status]}
+              label={expired ? t('status.expired') : t('status.active')}
+              tone={expired ? 'danger' : 'success'}
               dot
             />
           </View>
-          {member.status === 'expired' ? (
+          {expired ? (
             <Text
               variant="caption"
               color="danger"
@@ -112,16 +113,16 @@ export function MembershipCard({ member, ref }: MembershipCardProps) {
                 {t('card.memberId')}
               </Text>
               <Text variant="mono" style={{ fontSize: 17, lineHeight: 22 }}>
-                {member.id}
+                {card.cardCode}
               </Text>
             </View>
-            {member.validUntil ? (
+            {card.validUntil ? (
               <View style={{ flex: 1, gap: 4 }}>
                 <Text variant="overline" color="textMuted">
                   {t('card.validUntil')}
                 </Text>
                 <Text variant="bodyStrong" style={{ fontSize: 17, lineHeight: 22 }}>
-                  {formatMonthYear(member.validUntil)}
+                  {formatMonthYear(card.validUntil)}
                 </Text>
               </View>
             ) : null}
@@ -181,7 +182,7 @@ export function MembershipCard({ member, ref }: MembershipCardProps) {
               backgroundColor: '#FFFFFF',
             }}>
             <QRCode
-              value={member.qrPayload ?? member.id}
+              value={card.cardCode}
               size={168}
               color={theme.color.text}
               backgroundColor="#FFFFFF"

@@ -33,9 +33,25 @@ const mockedFeatures: ReadonlySet<string> =
             .filter(Boolean)
         );
 
+/**
+ * Features the backend has no endpoints for at all (docs/api-gaps.md §2).
+ * They stay on their stand-in data whatever the setting says, because going
+ * live for them means 404s: `support` alone backs the Contact screen, the
+ * pending screen's contact button and the "Forgot password?" fallback on
+ * Login. Take a feature out of this list when its endpoints land.
+ */
+const WITHOUT_BACKEND: ReadonlySet<FeatureKey> = new Set([
+  'family',
+  'notifications',
+  'support',
+]);
+
 export function isMocked(feature: FeatureKey): boolean {
-  return mockedFeatures.has(feature);
+  return WITHOUT_BACKEND.has(feature) || mockedFeatures.has(feature);
 }
+
+/** Features that would go live if the setting allowed it. Used by the phase check. */
+export const FEATURES_WITHOUT_BACKEND = WITHOUT_BACKEND;
 
 /** Picks the mock or live implementation of a feature's API module. */
 export function pickApi<T>(feature: FeatureKey, live: T, mock: T): T {
