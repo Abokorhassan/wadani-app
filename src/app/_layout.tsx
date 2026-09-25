@@ -18,9 +18,11 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { DevApiLogViewer } from '@/api/components/dev-api-log-viewer';
 import { persistOptions, queryClient } from '@/api/query-client';
 import { lightTheme, ThemeProvider, ToastProvider } from '@/design-system';
 import { useSessionStore } from '@/features/auth/session-store';
+import { CardCheckoutProvider } from '@/features/payments';
 import '@/i18n';
 
 void SplashScreen.preventAutoHideAsync();
@@ -89,24 +91,28 @@ export default function RootLayout() {
         <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
           <ThemeProvider value={lightTheme}>
             <ToastProvider>
-              <StatusBar style="dark" />
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: lightTheme.color.background },
-                }}>
-                <Stack.Screen name="index" />
-                <Stack.Screen name="(auth)" />
-                <Stack.Screen name="(app)" />
-                <Stack.Screen
-                  name="gallery"
-                  options={{
-                    headerShown: true,
-                    presentation: 'modal',
-                    title: 'Component gallery',
-                  }}
-                />
-              </Stack>
+              {/* __DEV__ is false in a release build, so this never renders there. */}
+              {__DEV__ ? <DevApiLogViewer /> : null}
+              <CardCheckoutProvider>
+                <StatusBar style="dark" />
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: lightTheme.color.background },
+                  }}>
+                  <Stack.Screen name="index" />
+                  <Stack.Screen name="(auth)" />
+                  <Stack.Screen name="(app)" />
+                  <Stack.Screen
+                    name="gallery"
+                    options={{
+                      headerShown: true,
+                      presentation: 'modal',
+                      title: 'Component gallery',
+                    }}
+                  />
+                </Stack>
+              </CardCheckoutProvider>
             </ToastProvider>
           </ThemeProvider>
         </PersistQueryClientProvider>

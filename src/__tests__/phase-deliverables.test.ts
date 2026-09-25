@@ -256,7 +256,19 @@ describe('Phase 1 — onboarding', () => {
     });
 
     expect(result.kind).toBe('checkout');
-    expect(result.checkout.checkoutUrl).toContain('http');
+    expect(result.checkout.checkoutId).toBeTruthy();
+    // The mock checkout is a stand-in page the in-app browser renders itself.
+    expect(result.checkout.checkoutUrl).toMatch(/^mock:\/\//);
+  });
+
+  it('runs the Sifalo checkout inside the app and returns through its own return URL', () => {
+    // Sifalo ends on a web page; an external browser would strand the member there.
+    const sheet = source('features/payments/components/card-checkout.tsx');
+    expect(sheet).toContain('onShouldStartLoadWithRequest');
+    expect(sheet).toContain('readCardReturn');
+    expect(source('app/_layout.tsx')).toContain('CardCheckoutProvider');
+    // A card registration only exists once paid, so the member is signed in afterwards.
+    expect(source('app/(auth)/register.tsx')).toContain('finishCardRegistration');
   });
 
   it('keeps members without a settled payment out of the app (D2)', () => {
@@ -291,8 +303,13 @@ describe('Phase 1 — onboarding', () => {
       professionalWork: 'Teacher',
       birthYear: '1998',
       password: 'secret12345',
+      photoUri: 'file:///photo.jpg',
     };
     expect(personalSchema.safeParse(base).success).toBe(true);
+    // The photo is required on this step: the API rejects a registration
+    // without one, and finding that out on the last step was the bug.
+    expect(personalSchema.safeParse({ ...base, photoUri: undefined }).success).toBe(false);
+    expect(personalSchema.safeParse({ ...base, photoUri: '' }).success).toBe(false);
     // Birth year and work are required by the API, so they are required here.
     expect(personalSchema.safeParse({ ...base, birthYear: '' }).success).toBe(false);
     expect(personalSchema.safeParse({ ...base, birthYear: '98' }).success).toBe(false);
@@ -329,6 +346,83 @@ describe('Phase 1 — onboarding', () => {
     // The key lives in config, never in the source.
     expect(source('lib/s3.ts')).not.toMatch(/AKIA[0-9A-Z]{16}/);
     expect(source('lib/env.ts')).toContain('EXPO_PUBLIC_AWS_ACCESS_KEY_ID');
+  });
+
+  it('asks for the address in the order the party chose', () => {
+    // Street, district, region, country (2026-09-20). City is required by the
+    // API but was not in that list, so it sits between district and region.
+    const screen = source('features/registration/components/address-step.tsx');
+    const fields = [...screen.matchAll(/name="(\w+)"/g)].map((match) => match[1]);
+    expect(fields).toEqual(['line1', 'district', 'city', 'region', 'country']);
+  });
+
+  it('refuses an amount or phone number that would be charged wrongly', () => {
+    const { paymentSchema, personalSchema } = require('../features/registration/form');
+    const pay = { method: 'WAAFI', payerPhone: '63 234 5678', acceptedTerms: true };
+
+    // These were all accepted before: "10.999" was charged as $11.00, "1e3" as $13,
+    // "abc10" as $10 and "0.001" as $0.00.
+    for (const amount of ['10.999', '1e3', 'abc10', '0.001', '0', '-5', '']) {
+      expect(paymentSchema.safeParse({ ...pay, amount }).success).toBe(false);
+    }
+    for (const amount of ['10', '10.5', '10.50', '$10']) {
+      expect(paymentSchema.safeParse({ ...pay, amount }).success).toBe(true);
+    }
+
+    // The wallet that gets charged has to be a real number, not just non-empty.
+    for (const payerPhone of ['1', '123', 'abc', '63 234']) {
+      expect(paymentSchema.safeParse({ ...pay, amount: '10', payerPhone }).success).toBe(false);
+    }
+    // A card payment needs no wallet at all.
+    expect(
+      paymentSchema.safeParse({ method: 'CARD', amount: '10', acceptedTerms: true }).success
+    ).toBe(true);
+
+    // The member's own phone is their identity, so it is held to the same rule.
+    const person = {
+      fullName: 'Amina Yusuf',
+      gender: 'female',
+      email: '',
+      education: 'bachelor',
+      professionalWork: 'Teacher',
+      birthYear: '1998',
+      password: 'secret12345',
+      photoUri: 'file:///p.jpg',
+    };
+    expect(personalSchema.safeParse({ ...person, phone: '63 234 5678' }).success).toBe(true);
+    expect(personalSchema.safeParse({ ...person, phone: '12345' }).success).toBe(false);
+    expect(
+      personalSchema.safeParse({ ...person, phone: '63 234 5678', whatsapp: 'nope' }).success
+    ).toBe(false);
+  });
+
+  it('explains a failed submit on the payment step, without moving the member', () => {
+    // D7 revised 2026-09-23: a server error used to send the wizard back to the
+    // failing field's step. A declined payment carries no field at all, so that
+    // dropped the member on step 1 with nothing shown.
+    const screen = source('app/(auth)/register.tsx');
+    const payment = source('features/registration/components/payment-step.tsx');
+
+    // Every failure path sets the banner rather than jumping.
+    expect(screen).toContain('setSubmitError');
+    expect(screen).toContain("details?.kind === 'declined'");
+    const onError = screen.slice(screen.indexOf('onError: (error)'));
+    expect(onError.slice(0, onError.indexOf('    });'))).not.toContain('setStep(');
+
+    // And the payment step shows it.
+    expect(payment).toContain('submitError');
+    expect(payment).toContain('accessibilityRole="alert"');
+    expect(hasText('register.couldNotFinish')).toBe(true);
+    expect(hasText('register.fixOnStep')).toBe(true);
+  });
+
+  it('validates the whole form on submit, not just the current step', () => {
+    // StepIndicator's tabs jump straight to any step with no validation
+    // (onStepPress={goTo}), so a field shortened on an earlier step without
+    // pressing Next was never re-checked and reached the live API as a 400.
+    const screen = source('app/(auth)/register.tsx');
+    const submit = screen.slice(screen.indexOf('const submit = async'));
+    expect(submit.slice(0, submit.indexOf('const payload'))).toContain('form.trigger()');
   });
 
   it('never writes the password into the saved draft (D12)', () => {

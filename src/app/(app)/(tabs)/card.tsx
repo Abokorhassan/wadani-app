@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { RefreshControl, View } from 'react-native';
 
 import { Button, ErrorState, Screen, ScreenHeader, Skeleton, useTheme } from '@/design-system';
-import { MembershipCard, useCard, useCardActions } from '@/features/membership';
+import { MembershipCard, useCard, useCardActions, usePlanBadge } from '@/features/membership';
 
 export default function CardScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const card = useCard();
+  const badgeUrl = usePlanBadge(card.data?.membershipType);
   const cardRef = useRef<View>(null);
   const { save, share, busy } = useCardActions(cardRef);
 
@@ -27,7 +28,7 @@ export default function CardScreen() {
 
       <View style={{ marginTop: 22 }}>
         {card.data ? (
-          <MembershipCard ref={cardRef} card={card.data} />
+          <MembershipCard ref={cardRef} card={card.data} badgeUrl={badgeUrl} />
         ) : card.isError ? (
           <ErrorState
             message={t('card.loadFailed')}

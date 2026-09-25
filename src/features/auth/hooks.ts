@@ -3,10 +3,12 @@ import { useMutation } from '@tanstack/react-query';
 import { pickApi } from '@/api/mode';
 import { queryClient } from '@/api/query-client';
 import { membershipKeys } from '@/features/membership/hooks';
+import { toMember, toMemberCard } from '@/features/membership/mappers';
 import type { Member, MemberCard } from '@/features/membership/types';
 
 import { authApi } from './api';
 import { authApiMock } from './api.mock';
+import { registerResponse } from './schemas';
 import { useSessionStore } from './session-store';
 import type { Credentials, RegistrationPayload, RegistrationResult } from './types';
 
@@ -57,5 +59,33 @@ export function useRegister() {
 export function usePasswordReset() {
   return useMutation({
     mutationFn: (identifier: string) => api.requestPasswordReset(identifier),
+  });
+}
+
+/**
+ * Signs a member in after a card registration.
+ *
+ * A card registration creates nothing until the payment is confirmed, and the
+ * confirm response carries the new member and card but no token. So this logs in
+ * with the credentials just used, and keeps the member and card from the confirm
+ * response when they are there, so Profile and the card open straight away.
+ */
+export function useFinishCardRegistration() {
+  return useMutation({
+    mutationFn: async (params: {
+      credentials: Credentials;
+      confirmed?: Record<string, unknown>;
+    }) => {
+      const session = await api.login(params.credentials);
+      const parsed = registerResponse.safeParse(params.confirmed ?? {});
+      await adoptSession({
+        ...session,
+        member: parsed.success ? toMember(parsed.data.member) : undefined,
+        card:
+          parsed.success && parsed.data.membershipCard
+            ? toMemberCard(parsed.data.membershipCard)
+            : undefined,
+      });
+    },
   });
 }

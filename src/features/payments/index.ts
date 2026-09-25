@@ -14,9 +14,14 @@ export type {
   CardCheckout,
   ChargeMethod,
   ChargeRequest,
+  CheckoutOutcome,
+  CheckoutStatus,
   Payment,
   PaymentMethod,
   PaymentStatus,
 } from './types';
-export { cardReturnUrl } from './return-url';
-export { useCardCheckout } from './use-card-checkout';
+export { cardReturnUrl, isCardReturn, readCardReturn } from './card-return';
+export { CardCheckoutProvider, useCardCheckout } from './components/card-checkout';
+export { settleCheckout } from './settle-checkout';
+export { PaymentMethodPicker } from './components/payment-method-picker';
+export { PAYMENT_LOGOS } from './logos';

@@ -40,11 +40,7 @@ const mockedFeatures: ReadonlySet<string> =
  * pending screen's contact button and the "Forgot password?" fallback on
  * Login. Take a feature out of this list when its endpoints land.
  */
-const WITHOUT_BACKEND: ReadonlySet<FeatureKey> = new Set([
-  'family',
-  'notifications',
-  'support',
-]);
+const WITHOUT_BACKEND: ReadonlySet<FeatureKey> = new Set(['family', 'notifications', 'support']);
 
 export function isMocked(feature: FeatureKey): boolean {
   return WITHOUT_BACKEND.has(feature) || mockedFeatures.has(feature);

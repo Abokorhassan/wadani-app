@@ -6,13 +6,7 @@ export type ChargeMethod = 'WAAFI' | 'EDAHAB' | 'PREMIER_WALLET' | 'CARD';
 
 /** History can also hold methods recorded by staff in the back office. */
 export type PaymentMethod =
-  | ChargeMethod
-  | 'ONLINE'
-  | 'CASH'
-  | 'ZAAD'
-  | 'DARASALAAM'
-  | 'DAHABSHIIL'
-  | 'PREMIER_BANK';
+  ChargeMethod | 'ONLINE' | 'CASH' | 'ZAAD' | 'DARASALAAM' | 'DAHABSHIIL' | 'PREMIER_BANK';
 
 export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'unknown';
 
@@ -42,3 +36,22 @@ export interface CardCheckout {
   checkoutId: string;
   checkoutUrl: string;
 }
+
+/** The server's view of a card checkout (GET /mobile/payments/card/checkouts/{id}). */
+export type CheckoutStatus =
+  'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED_AFTER_PAYMENT' | 'UNKNOWN';
+
+/**
+ * How a card checkout ended, as far as the member is concerned.
+ *
+ * - `completed`: the backend has the money and has done the work. `result` is
+ *   the confirm response (member and card, or donation) when the app confirmed it.
+ * - `cancelled`: the member left before paying, as far as the server knows.
+ * - `failed`: `declined` means Sifalo refused the charge; `conflict` means money
+ *   may have been taken but the work could not be finished (e.g. the phone was
+ *   registered meanwhile), which needs the office; `error` is anything else.
+ */
+export type CheckoutOutcome =
+  | { status: 'completed'; result?: Record<string, unknown> }
+  | { status: 'cancelled' }
+  | { status: 'failed'; reason: 'declined' | 'conflict' | 'error' };

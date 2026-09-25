@@ -2,12 +2,16 @@
 
 `waddani-mobile-api.openapi.json` is the OpenAPI 3.0.3 spec for the
 **Waddani Mobile Auth API**, extracted from the Swagger UI at
-https://api.wp-membership-system.com/docs/ on 2026-09-19.
+https://api.wp-membership-system.com/docs/ on 2026-09-19, and re-fetched on 2026-09-21
+(plans gained `iconUrl` and `priceMax`; guest donations and an OTP-based password reset were added).
+
+The docs page sits behind HTTP basic auth (the credentials come from the backend
+developer and are deliberately not stored here), so the command needs `-u user:pass`.
 
 Re-fetch it when the backend changes, so the diff shows what moved:
 
 ```bash
-curl -s https://api.wp-membership-system.com/docs/swagger-ui-init.js \
+curl -s -u "$DOCS_USER:$DOCS_PASS" https://api.wp-membership-system.com/docs/swagger-ui-init.js \
   | python3 -c "import sys,json,re; s=sys.stdin.read(); i=s.index('\"swaggerDoc\"'); i=s.index('{', i+12); d=0; j=i
 while True:
     c=s[j]

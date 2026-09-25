@@ -37,7 +37,9 @@ export function PersonalStep({ control }: { control: Control<RegistrationForm> }
       <Controller
         control={control}
         name="photoUri"
-        render={({ field }) => <PhotoRow uri={field.value} onPick={field.onChange} />}
+        render={({ field, fieldState }) => (
+          <PhotoRow uri={field.value} onPick={field.onChange} error={fieldState.error?.message} />
+        )}
       />
 
       <Controller
@@ -198,55 +200,72 @@ export function PersonalStep({ control }: { control: Control<RegistrationForm> }
   );
 }
 
-function PhotoRow({ uri, onPick }: { uri?: string; onPick: (uri: string) => void }) {
+function PhotoRow({
+  uri,
+  onPick,
+  error,
+}: {
+  uri?: string;
+  onPick: (uri: string) => void;
+  error?: string;
+}) {
   const theme = useTheme();
   const { t } = useTranslation();
   const pick = usePhotoPicker(onPick);
 
   return (
-    <Pressable
-      onPress={() => void pick()}
-      accessibilityRole="button"
-      accessibilityLabel={t('register.addPhoto')}
-      style={({ pressed }) => ({
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.spacing.lg,
-        padding: 14,
-        borderRadius: theme.radius.card,
-        borderWidth: 1,
-        borderColor: theme.color.border,
-        backgroundColor: pressed ? theme.color.surfaceSunken : theme.color.surface,
-      })}>
-      {uri ? (
-        <Image
-          source={{ uri }}
-          style={{ width: 68, height: 68, borderRadius: 34 }}
-          contentFit="cover"
-        />
-      ) : (
-        <View
-          style={{
-            width: 68,
-            height: 68,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 34,
-            borderWidth: 1.5,
-            borderStyle: 'dashed',
-            borderColor: theme.color.borderStrong,
-            backgroundColor: theme.color.surfaceSunken,
-          }}>
-          <Camera size={24} color={theme.color.textSecondary} />
+    <View style={{ gap: theme.spacing.sm }}>
+      <Pressable
+        onPress={() => void pick()}
+        accessibilityRole="button"
+        accessibilityLabel={t('register.addPhoto')}
+        style={({ pressed }) => ({
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: theme.spacing.lg,
+          padding: 14,
+          borderRadius: theme.radius.card,
+          borderWidth: error ? 2 : 1,
+          borderColor: error ? theme.color.danger : theme.color.border,
+          backgroundColor: pressed ? theme.color.surfaceSunken : theme.color.surface,
+        })}>
+        {uri ? (
+          <Image
+            source={{ uri }}
+            style={{ width: 68, height: 68, borderRadius: 34 }}
+            contentFit="cover"
+          />
+        ) : (
+          <View
+            style={{
+              width: 68,
+              height: 68,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 34,
+              borderWidth: 1.5,
+              borderStyle: 'dashed',
+              borderColor: theme.color.borderStrong,
+              backgroundColor: theme.color.surfaceSunken,
+            }}>
+            <Camera size={24} color={theme.color.textSecondary} />
+          </View>
+        )}
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text variant="bodyStrong">
+            {uri ? t('register.changePhoto') : t('register.addPhoto')}
+          </Text>
+          <Text variant="caption" color="textMuted">
+            {t('register.photoHint')}
+          </Text>
         </View>
-      )}
-      <View style={{ flex: 1, gap: 2 }}>
-        <Text variant="bodyStrong">{uri ? t('register.changePhoto') : t('register.addPhoto')}</Text>
-        <Text variant="caption" color="textMuted">
-          {t('register.photoHint')}
+        <Plus size={22} color={theme.color.actionDeep} />
+      </Pressable>
+      {error ? (
+        <Text variant="caption" color="danger" style={{ fontFamily: theme.fonts.text600 }}>
+          {error}
         </Text>
-      </View>
-      <Plus size={22} color={theme.color.actionDeep} />
-    </Pressable>
+      ) : null}
+    </View>
   );
 }

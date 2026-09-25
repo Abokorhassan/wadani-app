@@ -7,6 +7,13 @@ export type ApiError =
   | { kind: 'network' }
   | { kind: 'unauthorized' }
   | { kind: 'validation'; fieldErrors: Record<string, string>; message?: string }
+  /**
+   * The request was fine but the payment was refused (422): Sifalo declined the
+   * charge, the wallet has no route, the PIN was wrong, and so on. Separate from
+   * `validation`, because nothing on the form is wrong and `message` is written
+   * for the member to read.
+   */
+  | { kind: 'declined'; message?: string; code?: string }
   | { kind: 'not_found' }
   | { kind: 'server'; status: number; message?: string };
 
@@ -37,6 +44,8 @@ export function describeError(error: ApiError): string {
       return 'Your session has expired. Please log in again.';
     case 'validation':
       return error.message ?? 'Please check the details you entered.';
+    case 'declined':
+      return error.message ?? 'The payment was declined. Please try another method.';
     case 'not_found':
       return 'We could not find what you were looking for.';
     case 'server':
@@ -45,9 +54,14 @@ export function describeError(error: ApiError): string {
 }
 
 /**
- * Maps a backend error body to field errors. The API's own shape is
- * `{ error: { message, details, traceId } }` (api-contract/, schema Error);
- * `details` is free-form, so the common conventions are tried around it.
+ * Maps a backend error body to field errors.
+ *
+ * The API's own shape is `{ error: { message, details, traceId } }`
+ * (api-contract/, schema Error). `details` is **not** a map of field errors --
+ * a declined payment sends `details: { code: 'TRANSACTION_FAILED' }` -- so
+ * reading it as one invented a field called "code" and sent the wizard to the
+ * step for an unknown field with nothing shown. Only the conventional
+ * field-error keys are read; `details` is surfaced as `code` instead.
  */
 export function parseValidationBody(body: unknown): {
   fieldErrors: Record<string, string>;
@@ -65,7 +79,7 @@ export function parseValidationBody(body: unknown): {
 
     if (typeof record.message === 'string') message = record.message;
 
-    const errors = record.details ?? record.errors ?? record.fieldErrors ?? record.fields;
+    const errors = record.errors ?? record.fieldErrors ?? record.fields;
     if (errors && typeof errors === 'object') {
       for (const [field, value] of Object.entries(errors as Record<string, unknown>)) {
         if (typeof value === 'string') fieldErrors[field] = value;
@@ -76,4 +90,25 @@ export function parseValidationBody(body: unknown): {
   }
 
   return { fieldErrors, message };
+}
+
+/** The server's own wording, when this kind of error carries one. */
+export function serverMessage(error: ApiError): string | undefined {
+  return 'message' in error ? error.message : undefined;
+}
+
+/** The machine-readable code beside a message, e.g. `TRANSACTION_FAILED`. */
+export function errorCode(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object') return undefined;
+  const outer = body as Record<string, unknown>;
+  const record =
+    outer.error && typeof outer.error === 'object'
+      ? (outer.error as Record<string, unknown>)
+      : outer;
+  const details = record.details;
+  if (details && typeof details === 'object') {
+    const code = (details as Record<string, unknown>).code;
+    if (typeof code === 'string') return code;
+  }
+  return undefined;
 }

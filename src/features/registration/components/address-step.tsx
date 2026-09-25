@@ -28,11 +28,12 @@ export function AddressStep({ control }: { control: Control<RegistrationForm> })
       />
       <Controller
         control={control}
-        name="country"
+        name="district"
         render={({ field, fieldState }) => (
           <TextField
-            label={t('register.country')}
-            value={field.value}
+            label={t('register.district')}
+            optional
+            value={field.value ?? ''}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
             error={fieldState.error?.message}
@@ -72,12 +73,11 @@ export function AddressStep({ control }: { control: Control<RegistrationForm> })
       />
       <Controller
         control={control}
-        name="district"
+        name="country"
         render={({ field, fieldState }) => (
           <TextField
-            label={t('register.district')}
-            optional
-            value={field.value ?? ''}
+            label={t('register.country')}
+            value={field.value}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
             error={fieldState.error?.message}

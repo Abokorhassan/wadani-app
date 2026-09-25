@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { Check, Crown, IdCard, Star, type LucideIcon } from 'lucide-react-native';
 import { useEffect } from 'react';
 import { Controller, type Control, type UseFormSetValue } from 'react-hook-form';
@@ -6,7 +7,7 @@ import { Pressable, View } from 'react-native';
 
 import { ErrorState, Rosette, SegmentedTabs, Skeleton, Text, useTheme } from '@/design-system';
 import {
-  priceFor,
+  isRangePlan,
   usePeriods,
   usePlans,
   type MembershipPeriod,
@@ -54,7 +55,6 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
   }, [periodId, periods.data, setValue]);
 
   const plan = plans.data?.find((candidate) => candidate.id === planId);
-  const period = periods.data?.find((candidate) => candidate.id === periodId);
 
   return (
     <View style={{ gap: theme.spacing.gutter }}>
@@ -75,16 +75,26 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
           <Controller
             control={control}
             name="planId"
-            render={({ field }) => (
-              <SegmentedTabs
-                value={field.value}
-                onChange={field.onChange}
-                items={plans.data.map((option) => ({
-                  key: option.id,
-                  label: option.name,
-                  icon: PLAN_ICONS[planIconRank(option.stars)],
-                }))}
-              />
+            render={({ field, fieldState }) => (
+              <View style={{ gap: theme.spacing.sm }}>
+                <SegmentedTabs
+                  value={field.value}
+                  onChange={field.onChange}
+                  items={plans.data.map((option) => ({
+                    key: option.id,
+                    label: option.name,
+                    icon: PLAN_ICONS[planIconRank(option.stars)],
+                  }))}
+                />
+                {fieldState.error ? (
+                  <Text
+                    variant="caption"
+                    color="danger"
+                    style={{ fontFamily: theme.fonts.text600 }}>
+                    {fieldState.error.message}
+                  </Text>
+                ) : null}
+              </View>
             )}
           />
         )}
@@ -119,7 +129,6 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
                     <PeriodOption
                       key={option.id}
                       period={option}
-                      plan={plan}
                       selected={option.id === field.value}
                       onSelect={() => field.onChange(option.id)}
                     />
@@ -139,7 +148,7 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
         )}
       </View>
 
-      {plan && period ? (
+      {plan && !isRangePlan(plan) ? (
         <View
           style={{
             flexDirection: 'row',
@@ -155,7 +164,7 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
             {t('register.total')}
           </Text>
           <Text variant="display" style={{ fontSize: 26, lineHeight: 30 }}>
-            {formatUsd(priceFor(plan, period))}
+            {formatUsd(plan.priceUsd)}
           </Text>
         </View>
       ) : null}
@@ -186,28 +195,42 @@ function PlanCard({ plan }: { plan: Plan }) {
       </View>
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
-        <View
-          style={{
-            width: 40,
-            height: 40,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: theme.radius.pill,
-            backgroundColor: theme.color.brand,
-          }}>
-          <Icon size={20} color={theme.color.textOnBrand} />
-        </View>
-        <Text variant="display" color="textOnInk">
+        {plan.iconUrl ? (
+          // The badge is a shaped, transparent image, so it is shown whole rather
+          // than cropped to a circle. It is what members of this plan carry.
+          <Image
+            source={{ uri: plan.iconUrl }}
+            style={{ width: 56, height: 56 }}
+            contentFit="contain"
+            accessibilityLabel={t('register.planBadge', { plan: plan.name })}
+          />
+        ) : (
+          // No icon uploaded for this plan: our own placeholder, as the API asks.
+          <View
+            style={{
+              width: 40,
+              height: 40,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: theme.radius.pill,
+              backgroundColor: theme.color.brand,
+            }}>
+            <Icon size={20} color={theme.color.textOnBrand} />
+          </View>
+        )}
+        <Text variant="display" color="textOnInk" style={{ flex: 1 }}>
           {plan.name}
         </Text>
       </View>
 
       <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
         <Text variant="amount" color="brand" style={{ fontSize: 54, lineHeight: 56 }}>
-          ${plan.priceUsd}
+          {plan.priceMaxUsd !== undefined
+            ? `$${plan.priceUsd}–$${plan.priceMaxUsd}`
+            : `$${plan.priceUsd}`}
         </Text>
         <Text variant="bodyMedium" color="textOnInkSoft">
-          {t('register.perYear')}
+          {plan.priceMaxUsd !== undefined ? t('register.youChoose') : t('register.perYear')}
         </Text>
       </View>
 
@@ -252,12 +275,10 @@ function PlanCard({ plan }: { plan: Plan }) {
 
 function PeriodOption({
   period,
-  plan,
   selected,
   onSelect,
 }: {
   period: MembershipPeriod;
-  plan?: Plan;
   selected: boolean;
   onSelect: () => void;
 }) {
@@ -281,17 +302,7 @@ function PeriodOption({
         borderColor: selected ? theme.color.action : theme.color.borderStrong,
         backgroundColor: selected ? theme.color.actionTint : theme.color.surface,
       }}>
-      <View style={{ gap: 2 }}>
-        <Text variant="bodyStrong">{period.label}</Text>
-        {plan ? (
-          <Text
-            variant="small"
-            color={selected ? 'actionDeep' : 'textMuted'}
-            style={{ fontFamily: theme.fonts.text600 }}>
-            {formatUsd(priceFor(plan, period))}
-          </Text>
-        ) : null}
-      </View>
+      <Text variant="bodyStrong">{period.label}</Text>
       <View
         style={{
           width: 24,

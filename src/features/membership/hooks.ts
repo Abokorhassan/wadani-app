@@ -1,10 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { pickApi } from '@/api/mode';
+import { queryClient } from '@/api/query-client';
 import { useSessionStore } from '@/features/auth/session-store';
 
 import { membershipApi } from './api';
 import { membershipApiMock } from './api.mock';
+import { badgeForPlanName } from './mappers';
+import type { Plan } from './types';
 
 const api = pickApi('membership', membershipApi, membershipApiMock);
 
@@ -48,4 +51,18 @@ export function useCard() {
     queryFn: () => api.getCard(),
     enabled: signedIn,
   });
+}
+
+/** The plan badge for a card, or undefined while plans load or when none matches. */
+export function usePlanBadge(planName: string | undefined): string | undefined {
+  const plans = usePlans();
+  return badgeForPlanName(plans.data ?? [], planName);
+}
+
+/**
+ * A plan already loaded into the cache, for code that cannot use a hook, such as
+ * a form resolver that runs on every validation.
+ */
+export function getCachedPlan(planId: string): Plan | undefined {
+  return queryClient.getQueryData<Plan[]>(membershipKeys.plans)?.find((plan) => plan.id === planId);
 }

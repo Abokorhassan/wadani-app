@@ -3,8 +3,8 @@ import { Controller, type Control } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
-import { IconTile, PhoneField, Text, TextField, useTheme } from '@/design-system';
-import { CHARGE_METHODS, PAYMENT_METHODS } from '@/features/payments';
+import { PhoneField, Text, TextField, useTheme } from '@/design-system';
+import { PaymentMethodPicker } from '@/features/payments';
 
 import type { RegistrationForm } from '../form';
 
@@ -14,70 +14,53 @@ export interface PaymentStepProps {
   amountHint?: string;
   /** Wallet charges need a number to bill; a card payment does not. */
   wallet: boolean;
+  /**
+   * Why the last attempt failed, in the backend's own words. Shown here and
+   * kept on screen: the member is on the last step, and moving them elsewhere
+   * to read it loses the explanation (build-plan D7, revised 2026-09-23).
+   */
+  submitError?: string | null;
 }
 
-export function PaymentStep({ control, amountHint, wallet }: PaymentStepProps) {
+export function PaymentStep({ control, amountHint, wallet, submitError }: PaymentStepProps) {
   const theme = useTheme();
   const { t } = useTranslation();
 
   return (
     <View style={{ gap: theme.spacing.xl }}>
+      {submitError ? (
+        <View
+          accessibilityRole="alert"
+          style={{
+            gap: 4,
+            padding: 16,
+            borderRadius: theme.radius.card,
+            borderWidth: 1,
+            borderColor: theme.color.danger,
+            backgroundColor: theme.color.dangerTint,
+          }}>
+          <Text variant="smallStrong" color="danger">
+            {t('register.couldNotFinish')}
+          </Text>
+          <Text variant="small" color="text" style={{ lineHeight: 21 }}>
+            {submitError}
+          </Text>
+        </View>
+      ) : null}
+
       <Controller
         control={control}
         name="method"
-        render={({ field }) => (
+        render={({ field, fieldState }) => (
           <View style={{ gap: 10 }}>
             <Text variant="label" color="textSecondary">
               {t('register.method')}
             </Text>
-            <View style={{ gap: 10 }}>
-              {CHARGE_METHODS.map((id) => {
-                const info = PAYMENT_METHODS[id];
-                const selected = id === field.value;
-                return (
-                  <Pressable
-                    key={id}
-                    onPress={() => field.onChange(id)}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected }}
-                    accessibilityLabel={info.label}
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 14,
-                      padding: 12,
-                      paddingRight: 14,
-                      borderRadius: theme.radius.button,
-                      borderWidth: selected ? 2 : 1.5,
-                      borderColor: selected ? theme.color.action : theme.color.border,
-                      backgroundColor: theme.color.surface,
-                    }}>
-                    <IconTile icon={info.icon} tone={info.tone} />
-                    <View style={{ flex: 1, gap: 1 }}>
-                      <Text variant="bodyStrong">{info.label}</Text>
-                      <Text variant="caption" color="textMuted">
-                        {t(`register.methodHints.${id}`)}
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        width: 24,
-                        height: 24,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderRadius: 12,
-                        borderWidth: selected ? 0 : 2,
-                        borderColor: theme.color.borderStrong,
-                        backgroundColor: selected ? theme.color.action : 'transparent',
-                      }}>
-                      {selected ? (
-                        <Check size={14} color={theme.color.textOnAction} strokeWidth={3} />
-                      ) : null}
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </View>
+            <PaymentMethodPicker
+              value={field.value}
+              onChange={field.onChange}
+              error={fieldState.error?.message}
+            />
           </View>
         )}
       />

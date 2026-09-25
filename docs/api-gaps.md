@@ -50,12 +50,17 @@ longer ask for an amount paid, an account or a reference.
 
 **Card payments need a checkout round-trip.** `POST /auth/register` (and
 donate, and renew) answer `202` with `{checkoutId, checkoutUrl}` for
-`method: CARD`. The app has to open that URL, then call
-`POST /mobile/payments/card/confirm` with `{checkoutId, sid}` when the member
-comes back, and can poll `GET /mobile/payments/card/checkouts/{id}`. **Done:**
-`useCardCheckout` opens the page with `expo-web-browser` and confirms on return,
-passing `returnUrl: waddani://card-return` so Sifalo comes back into the app.
-Whether Sifalo accepts a custom scheme as a return URL is untested.
+`method: CARD`. **Done (2026-09-22):** the app sends
+`returnUrl: https://wp-membership-system.com/pay/return` and opens the Sifalo page
+in an **in-app browser** (react-native-webview), not an external one, since an
+external browser would leave the member stranded on that web page. The in-app
+browser stops the moment it heads for the return URL, reads `sid` and
+`checkout_id`, and the app calls `POST /mobile/payments/card/confirm` itself, so
+the return page never loads. If the member closes the page instead, the app asks
+`GET /mobile/payments/card/checkouts/{id}`, because they may have paid before
+closing. After a card registration the app signs the member in with the phone
+and password just used, and keeps the member and card from the confirm response.
+Tested on Android against a mock checkout page; the real Sifalo page is untested.
 
 **There is no "waiting for approval" step.** Registration returns `201` with the
 member, the payment _and_ the issued membership card. Member status is
@@ -131,6 +136,22 @@ A sweep of every screen for things the API cannot actually do.
   endpoint. Either drop it from v1 or rewrite it around payments and events.
 - **Renewal** has an endpoint and a client method, but no UI (Phase 6).
 
+## 3.2 Spec changes picked up on 2026-09-21
+
+The backend developer changed the API after the first read. The saved spec in
+`api-contract/` is refreshed; what moved, and what the app does about it:
+
+- **Plans gained `iconUrl` and `priceMax`.** `iconUrl` is the plan's badge, shown
+  on the plan card and on the member's card. `priceMax` makes a plan
+  range-priced (the live plan is $10 to $50): the member chooses an amount in
+  that range, and **the backend does not enforce it**, so the app does. Before,
+  the schema silently dropped both fields.
+- **Password reset is now a 6-digit OTP** emailed via SES (`identifier` + `otp` +
+  `newPassword`), replacing the token. Not built yet; Login still opens WhatsApp.
+- **Guest donations exist** (`POST /mobile/donations`: `fullName`, `phone`,
+  amount, method), so someone with no membership can donate. Not built; the
+  donate screen is members-only.
+
 ## 4. Questions for the backend developer
 
 Answered by the party on 2026-09-19:
@@ -165,3 +186,26 @@ Still open:
 7. **Field errors** — could validation failures return which field failed (e.g. `details: {email: "..."}`), so the form can mark it?
 8. **Test account** — the credentials we were given (`waddani` / `waddani@252`) are not a member login; `POST /auth/login` rejects them. Can we have a real test member, and is there a staging server separate from production?
 9. **`isEligibleForPayment` / `isNewMember`** — what drives these, and should the app act on them?
+10. **Badge on the card** — `GET /mobile/members/me/card` returns the plan's name
+    but not its icon, so the app matches the two by name and shows a badge only
+    when exactly one plan has that name. Could the card include the plan's
+    `iconUrl` (or the plan id)? A renamed or duplicated plan would otherwise lose
+    its badge.
+11. **Badge size** — the live badge is a 3000×3000 PNG (3 MB) shown at about 56 px.
+    Members on mobile data download all of it. Could staff upload around
+    256×256 (a few KB), or could the API resize on upload?
+12. **Does the membership period change the price?** The evidence says no: a period
+    is only `{id, label, months}` with no price anywhere in the spec, and the
+    prototype prefills the plan's price whatever period is chosen. So the app
+    treats the period as duration only (2026-09-21), and for a range-priced plan the
+    member picks any amount in the range. **Unconfirmed, and the party has said it does not know yet** (2026-09-21), so this
+    is open. It decides what people are charged. If longer periods should cost more, the API
+    needs a rule for it, ideally a price per period, because the backend does not
+    check the amount it is sent.
+13. **What phone format does the backend expect, and does it normalise?** The app
+    used to send a phone exactly as typed ("63 234 5678", no country code), because
+    the "+252" in the field is only a label. It now always sends the international
+    form ("+252632345678"), matching the spec's example, for the member's phone, their
+    WhatsApp, the wallet being charged, and the login identifier. If the backend
+    stores or matches phones another way, duplicate detection (`409`) and login would
+    disagree with the app.

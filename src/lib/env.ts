@@ -26,6 +26,13 @@ export const env = {
     accessKeyId: process.env.EXPO_PUBLIC_AWS_ACCESS_KEY_ID ?? '',
     secretAccessKey: process.env.EXPO_PUBLIC_AWS_SECRET_ACCESS_KEY ?? '',
   },
+  /**
+   * Where Sifalo sends the member after a card checkout. The app never lets this
+   * page load: the checkout runs in an in-app browser that stops at this address
+   * and confirms the payment itself (src/features/payments/card-return.ts).
+   */
+  cardReturnUrl:
+    process.env.EXPO_PUBLIC_CARD_RETURN_URL || 'https://wp-membership-system.com/pay/return',
   appVersion: Constants.expoConfig?.version ?? '0.0.0',
   isDev: __DEV__,
 } as const;

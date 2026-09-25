@@ -36,7 +36,9 @@ export default function ProfileScreen() {
     ...(card.data ? [{ label: t('profile.tier'), value: card.data.membershipType }] : []),
     ...(member ? [{ label: t('profile.phone'), value: member.phone }] : []),
     ...(member ? [{ label: t('profile.work'), value: member.professionalWork }] : []),
-    ...(member ? [{ label: t('profile.education'), value: t(`education.${member.education}`) }] : []),
+    ...(member
+      ? [{ label: t('profile.education'), value: t(`education.${member.education}`) }]
+      : []),
     ...(member?.memberSince
       ? [{ label: t('profile.memberSince'), value: formatMonthYear(member.memberSince) }]
       : []),

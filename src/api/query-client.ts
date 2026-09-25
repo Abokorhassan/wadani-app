@@ -34,6 +34,7 @@ export const persistOptions = {
   persister: queryPersister,
   maxAge: 30 * 24 * 60 * 60 * 1000,
   dehydrateOptions: {
-    shouldDehydrateQuery: ({ queryKey }: { queryKey: readonly unknown[] }) => queryKey[0] === 'card',
+    shouldDehydrateQuery: ({ queryKey }: { queryKey: readonly unknown[] }) =>
+      queryKey[0] === 'card',
   },
 };

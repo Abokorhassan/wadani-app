@@ -1,4 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, ArrowRight } from 'lucide-react-native';
 import { useRef, useState } from 'react';
@@ -6,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Alert, View } from 'react-native';
 
-import { asApiError, isApiError } from '@/api/errors';
+import { asApiError, isApiError, serverMessage } from '@/api/errors';
 import {
   Button,
   IconButton,
@@ -16,9 +15,10 @@ import {
   useTheme,
   useToast,
 } from '@/design-system';
-import { useRegister, type RegistrationPayload } from '@/features/auth';
+import { useFinishCardRegistration, useRegister, type RegistrationPayload } from '@/features/auth';
 import {
-  priceFor,
+  defaultAmount,
+  isRangePlan,
   usePeriods,
   usePlans,
   type EducationLevel,
@@ -27,20 +27,27 @@ import {
 import { isWalletMethod, useCardCheckout, type ChargeMethod } from '@/features/payments';
 import {
   AddressStep,
+  describeFormErrors,
   draftDefaults,
+  emptyRegistration,
   formFieldFor,
   PaymentStep,
   PersonalStep,
   PlanStep,
-  registrationSchema,
+  registrationResolver,
   STEP_COUNT,
   STEP_FIELDS,
+  STEP_NAME_KEYS,
   stepForField,
   uploadMemberPhoto,
   useDraftStore,
   PhotoUploadUnavailableError,
   type RegistrationForm,
 } from '@/features/registration';
+import { devPrefill } from '@/features/registration/dev-prefill';
+import { formatUsd } from '@/lib/format';
+import { parseMoney } from '@/lib/money';
+import { toInternationalPhone } from '@/lib/phone';
 
 export default function RegisterScreen() {
   const theme = useTheme();
@@ -54,14 +61,20 @@ export default function RegisterScreen() {
 
   const [step, setStep] = useState(draft?.step ?? 0);
   const [uploading, setUploading] = useState(false);
+  // Why the last submit failed. Kept on the payment step rather than moving the
+  // member back to the field's own step (build-plan D7, revised 2026-09-23).
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const register = useRegister();
+  const finishCardRegistration = useFinishCardRegistration();
   const runCardCheckout = useCardCheckout();
   const plans = usePlans();
   const periods = usePeriods();
 
   const form = useForm<RegistrationForm>({
-    defaultValues: draftDefaults(draft),
-    resolver: zodResolver(registrationSchema),
+    // A dev build with no saved draft opens prefilled, so repeated live-mode
+    // testing doesn't mean retyping the whole form each time (dev-prefill.ts).
+    defaultValues: draft ? draftDefaults(draft) : __DEV__ ? devPrefill() : emptyRegistration,
+    resolver: registrationResolver,
     mode: 'onBlur',
   });
 
@@ -77,16 +90,40 @@ export default function RegisterScreen() {
     setStep(next);
   };
 
-  const onNext = async () => {
-    const valid = await form.trigger(STEP_FIELDS[step]);
-    if (!valid) return;
+  /**
+   * Checks one step: its own fields, plus what only this screen can know because
+   * it depends on server data. Everything is reported together, so a member sees
+   * every problem at once instead of fixing them one tap at a time.
+   */
+  const validateStep = async (index: number): Promise<boolean> => {
+    let ok = await form.trigger(STEP_FIELDS[index]);
 
-    // Leaving the plan step sets what this plan and period cost (D5). It is
-    // recomputed rather than only filled when blank: the backend charges the
-    // amount as sent without checking it against the plan, so a figure left
-    // over from an earlier choice would bill the member the wrong sum.
-    if (step === 2 && plan && period) {
-      form.setValue('amount', priceFor(plan, period).toFixed(2));
+    // A plan or period saved in a draft, or not loaded yet, may not exist on the
+    // server, and registering with an unknown id is rejected outright.
+    if (index === 2) {
+      if (!plan) {
+        form.setError('planId', { message: t('register.planUnavailable') });
+        ok = false;
+      }
+      if (!period) {
+        form.setError('periodId', { message: t('register.periodUnavailable') });
+        ok = false;
+      }
+    }
+
+    // The field that failed can be scrolled out of sight, so say so here too.
+    if (!ok) toast.show(t('register.fixErrors'), 'danger');
+    return ok;
+  };
+
+  const onNext = async () => {
+    if (!(await validateStep(step))) return;
+
+    // Leaving the plan step sets the amount from the plan (D5). It is reset rather
+    // than only filled when blank: the backend charges the amount as sent, so a
+    // figure left from an earlier plan would bill the member the wrong sum.
+    if (step === 2 && plan) {
+      form.setValue('amount', defaultAmount(plan).toFixed(2));
     }
     if (step < STEP_COUNT - 1) {
       goTo(step + 1);
@@ -96,29 +133,36 @@ export default function RegisterScreen() {
   };
 
   const submit = async () => {
-    const values = form.getValues();
-    const method = values.method as ChargeMethod;
+    setSubmitError(null);
 
-    // The backend requires a reachable photo URL, and the app has nowhere to
-    // upload one yet (docs/api-gaps.md, question 3).
-    if (!values.photoUri) {
-      form.setError('photoUri', { message: t('register.photoRequired') });
-      setStep(0);
+    // Next validates one step at a time, but the step tabs (StepIndicator) can
+    // jump straight to Payment with no validation at all, so submit has to
+    // check the whole form regardless of how the member got here -- otherwise
+    // a field edited on an earlier step and never revisited sails through.
+    if (!(await form.trigger())) {
+      setSubmitError(describeFormErrors(form.formState.errors, step, t));
       return;
     }
+
+    const values = form.getValues();
+    const method = values.method as ChargeMethod;
+    const amountUsd = parseMoney(values.amount);
+    if (amountUsd === null) return; // validateStep has already refused this
 
     let photoUrl: string;
     try {
       setUploading(true);
       photoUrl = await uploadMemberPhoto(values.photoUri);
     } catch (error) {
-      setStep(0);
-      form.setError('photoUri', {
-        message:
-          error instanceof PhotoUploadUnavailableError
-            ? t('register.photoUploadUnavailable')
-            : t('register.photoUploadFailed'),
-      });
+      const message =
+        error instanceof PhotoUploadUnavailableError
+          ? t('register.photoUploadUnavailable')
+          : t('register.photoUploadFailed');
+      // Flagged on the photo itself for when they go back, and said plainly here.
+      form.setError('photoUri', { message });
+      setSubmitError(
+        `${message} ${t('register.fixOnStep', { step: t('register.steps.personal') })}`
+      );
       return;
     } finally {
       setUploading(false);
@@ -127,8 +171,10 @@ export default function RegisterScreen() {
     const payload: RegistrationPayload = {
       fullName: values.fullName.trim(),
       gender: values.gender as Gender,
-      phone: values.phone.trim(),
-      whatsapp: values.whatsapp?.trim() || undefined,
+      phone: toInternationalPhone(values.phone) ?? values.phone.trim(),
+      whatsapp: values.whatsapp
+        ? (toInternationalPhone(values.whatsapp) ?? values.whatsapp.trim())
+        : undefined,
       email: values.email?.trim() || undefined,
       photoUrl,
       education: values.education as EducationLevel,
@@ -146,7 +192,7 @@ export default function RegisterScreen() {
       password: values.password,
       charge: {
         method,
-        amountUsd: Number(values.amount.replace(/[^0-9.]/g, '')),
+        amountUsd,
         payerPhone: values.payerPhone?.trim() || undefined,
       },
     };
@@ -158,26 +204,67 @@ export default function RegisterScreen() {
           router.replace('/home');
           return;
         }
-        // Nothing exists yet: the member is created when the card clears.
-        runCardCheckout(result.checkout)
-          .then(() => {
-            clearDraft();
-            router.replace('/home');
-          })
-          .catch(() => toast.show(t('register.failed'), 'danger'));
+        // Nothing exists yet: the member is created when the card payment is confirmed.
+        void runCardCheckout(result.checkout).then((outcome) => {
+          // Same rule as a refused charge: explain it where they are.
+          if (outcome.status === 'cancelled') {
+            setSubmitError(t('checkout.cancelled'));
+            return;
+          }
+          if (outcome.status === 'failed') {
+            setSubmitError(t(`checkout.${outcome.reason}`));
+            return;
+          }
+          // Paid: the member now exists, so the draft goes whatever happens next.
+          clearDraft();
+          finishCardRegistration.mutate(
+            {
+              credentials: { identifier: payload.phone, password: payload.password },
+              confirmed: outcome.result,
+            },
+            {
+              onSuccess: () => router.replace('/home'),
+              // The account exists and is paid for; only the automatic sign-in failed.
+              onError: () => {
+                toast.show(t('checkout.paidSignIn'), 'success');
+                router.replace('/login');
+              },
+            }
+          );
+        });
       },
       onError: (error) => {
-        // Field errors from the backend land on their own field, and the
-        // wizard jumps back to the step holding it (build-plan D7).
         const details = isApiError(error) ? asApiError(error) : null;
+
+        // The payment was refused, not the form: the gateway's own wording names
+        // the real problem, such as a wallet the chosen method cannot reach.
+        if (details?.kind === 'declined') {
+          setSubmitError(serverMessage(details) ?? t('register.declined'));
+          return;
+        }
+
+        // A field error is flagged on its own field, so it is visible if the
+        // member goes back, but they are not moved there: the explanation
+        // belongs where they pressed the button (D7, revised 2026-09-23).
         if (details?.kind === 'validation' && Object.keys(details.fieldErrors).length > 0) {
           const [field, message] = Object.entries(details.fieldErrors)[0];
           const formField = formFieldFor(field);
-          if (formField) form.setError(formField, { message });
-          setStep(stepForField(field));
+          const text = serverMessage(details) ?? message;
+          if (formField) {
+            form.setError(formField, { message });
+            const stepIndex = stepForField(field);
+            setSubmitError(
+              stepIndex === step
+                ? text
+                : `${text} ${t('register.fixOnStep', { step: t(STEP_NAME_KEYS[stepIndex]) })}`
+            );
+            return;
+          }
+          setSubmitError(text);
           return;
         }
-        toast.show(t('register.failed'), 'danger');
+
+        setSubmitError((details && serverMessage(details)) ?? t('register.failed'));
       },
     });
   };
@@ -201,9 +288,14 @@ export default function RegisterScreen() {
   };
 
   const amountHint =
-    plan && period
-      ? t('register.amountHint', { plan: plan.name, period: period.label })
-      : undefined;
+    plan && isRangePlan(plan)
+      ? t('register.amountRange', {
+          min: formatUsd(plan.priceUsd),
+          max: formatUsd(plan.priceMaxUsd ?? plan.priceUsd),
+        })
+      : plan
+        ? t('register.amountHint', { plan: plan.name })
+        : undefined;
 
   return (
     <Screen
@@ -223,7 +315,7 @@ export default function RegisterScreen() {
             <Button
               label={step === STEP_COUNT - 1 ? t('register.submit') : t('common.next')}
               iconRight={step === STEP_COUNT - 1 ? undefined : ArrowRight}
-              loading={register.isPending || uploading}
+              loading={register.isPending || uploading || finishCardRegistration.isPending}
               onPress={() => void onNext()}
               style={{ flex: 1 }}
             />
@@ -290,6 +382,7 @@ export default function RegisterScreen() {
             control={form.control}
             amountHint={amountHint}
             wallet={isWalletMethod(values.method as ChargeMethod)}
+            submitError={submitError}
           />
         ) : null}
       </View>

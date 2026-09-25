@@ -10,20 +10,19 @@
 export type MemberStatus = 'registered' | 'paymentPending' | 'paid' | 'cardIssued';
 
 export type EducationLevel =
-  | 'primary'
-  | 'secondary'
-  | 'diploma'
-  | 'bachelor'
-  | 'master'
-  | 'doctorate'
-  | 'other';
+  'primary' | 'secondary' | 'diploma' | 'bachelor' | 'master' | 'doctorate' | 'other';
 
 export type Gender = 'male' | 'female';
 
 export interface Plan {
   id: string;
   name: string;
+  /** The fixed price, or the lowest amount accepted for a range-priced plan. */
   priceUsd: number;
+  /** Highest amount accepted; present only for a range-priced plan. */
+  priceMaxUsd?: number;
+  /** The badge everyone who pays for this plan carries. Absent when none was uploaded. */
+  iconUrl?: string;
   /** Tier rank the backend gives the plan; drives the card's rosette count. */
   stars?: number;
   benefits: string[];

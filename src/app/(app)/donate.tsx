@@ -1,9 +1,10 @@
 import { useRouter } from 'expo-router';
-import { Check, Heart } from 'lucide-react-native';
+import { Heart } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
+import { asApiError, isApiError, serverMessage } from '@/api/errors';
 import {
   Button,
   PhoneField,
@@ -23,12 +24,12 @@ import {
 import {
   isWalletMethod,
   PAYMENT_METHODS,
+  PaymentMethodPicker,
   useCardCheckout,
   type ChargeMethod,
 } from '@/features/payments';
 import { formatUsd } from '@/lib/format';
-
-const METHOD_IDS = Object.keys(PAYMENT_METHODS) as ChargeMethod[];
+import { toInternationalPhone } from '@/lib/phone';
 
 export default function DonateScreen() {
   const theme = useTheme();
@@ -54,9 +55,15 @@ export default function DonateScreen() {
       setError(t('donate.invalidAmount'));
       return;
     }
-    if (isWalletMethod(method) && !payerPhone.trim()) {
-      setPhoneError(t('donate.payerPhoneRequired'));
-      return;
+    if (isWalletMethod(method)) {
+      if (!payerPhone.trim()) {
+        setPhoneError(t('donate.payerPhoneRequired'));
+        return;
+      }
+      if (toInternationalPhone(payerPhone) === null) {
+        setPhoneError(t('donate.payerPhoneInvalid'));
+        return;
+      }
     }
     setError(undefined);
     setPhoneError(undefined);
@@ -69,18 +76,29 @@ export default function DonateScreen() {
             setDone(result.donation);
             return;
           }
-          // A card donation is only real once Sifalo sends the member back.
-          runCardCheckout(result.checkout)
-            .then(() => setDone({
+          // A card donation is only recorded once the payment is confirmed.
+          void runCardCheckout(result.checkout).then((outcome) => {
+            if (outcome.status === 'cancelled') {
+              toast.show(t('checkout.cancelled'), 'danger');
+              return;
+            }
+            if (outcome.status === 'failed') {
+              toast.show(t(`checkout.${outcome.reason}`), 'danger');
+              return;
+            }
+            setDone({
               id: result.checkout.checkoutId,
               amountUsd,
               currency: 'USD',
               method,
               donatedAt: new Date().toISOString(),
-            }))
-            .catch(() => toast.show(t('donate.failed'), 'danger'));
+            });
+          });
         },
-        onError: () => toast.show(t('donate.failed'), 'danger'),
+        onError: (error) => {
+          const details = isApiError(error) ? asApiError(error) : null;
+          toast.show((details && serverMessage(details)) ?? t('donate.failed'), 'danger');
+        },
       }
     );
   };
@@ -144,49 +162,7 @@ export default function DonateScreen() {
           <Text variant="label" color="textSecondary">
             {t('donate.method')}
           </Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-            {METHOD_IDS.map((id) => {
-              const info = PAYMENT_METHODS[id];
-              const selected = id === method;
-              const Icon = info.icon;
-              return (
-                <Pressable
-                  key={id}
-                  onPress={() => setMethod(id)}
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected }}
-                  accessibilityLabel={info.label}
-                  style={{
-                    flexBasis: '47%',
-                    flexGrow: 1,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 10,
-                    height: theme.controlHeight.field,
-                    paddingHorizontal: 14,
-                    borderRadius: theme.radius.lg,
-                    borderWidth: selected ? 2 : 1.5,
-                    borderColor: selected ? theme.color.action : theme.color.border,
-                    backgroundColor: selected ? theme.color.actionTint : theme.color.surface,
-                  }}>
-                  <Icon
-                    size={20}
-                    color={selected ? theme.color.actionDeep : theme.color.textSecondary}
-                  />
-                  <Text
-                    variant="smallStrong"
-                    color={selected ? 'actionDeep' : 'text'}
-                    style={{ flex: 1 }}
-                    numberOfLines={1}>
-                    {info.label}
-                  </Text>
-                  {selected ? (
-                    <Check size={18} color={theme.color.actionDeep} strokeWidth={2.6} />
-                  ) : null}
-                </Pressable>
-              );
-            })}
-          </View>
+          <PaymentMethodPicker value={method} onChange={setMethod} />
         </View>
 
         {isWalletMethod(method) ? (

@@ -16,12 +16,14 @@ const sealBlack = require('@/assets/brand/seal-black.png');
 
 export interface MembershipCardProps {
   card: MemberCard;
+  /** The plan's badge, when the backend has one for it. */
+  badgeUrl?: string;
   /** The inner card surface, captured for Save / Share. */
   ref?: Ref<View>;
 }
 
 /** The full ticket-style membership card shown at check-in. */
-export function MembershipCard({ card, ref }: MembershipCardProps) {
+export function MembershipCard({ card, badgeUrl, ref }: MembershipCardProps) {
   const theme = useTheme();
   const { t } = useTranslation();
   const expired = isExpired(card);
@@ -91,7 +93,22 @@ export function MembershipCard({ card, ref }: MembershipCardProps) {
           <Text variant="display" numberOfLines={2}>
             {card.memberFullName}
           </Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: 6,
+              marginTop: 10,
+            }}>
+            {badgeUrl ? (
+              <Image
+                source={{ uri: badgeUrl }}
+                style={{ width: 34, height: 34 }}
+                contentFit="contain"
+                accessibilityLabel={t('register.planBadge', { plan: card.membershipType })}
+              />
+            ) : null}
             <StatusPill label={t('card.tierMember', { tier: card.membershipType })} tone="ink" />
             <StatusPill
               label={expired ? t('status.expired') : t('status.active')}

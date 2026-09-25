@@ -33,5 +33,8 @@ export const paymentFixtures: PaymentDto[] = [
 export const paymentsApiMock: PaymentsApi = {
   getPayments: () => mockRespond(paymentFixtures.map(toPayment)),
   renew: () => mockRespond({ payment: paymentFixtures[0] }, 800),
-  confirmCard: () => mockRespond({ purpose: 'REGISTER' }, 800),
+  confirmCard: () => mockRespond({ purpose: 'REGISTER' } as Record<string, unknown>, 800),
+  // Asked only when the member closed the checkout without paying, so a mock
+  // payment that never happened stays unpaid.
+  getCheckoutStatus: () => mockRespond('PENDING' as const, 300),
 };

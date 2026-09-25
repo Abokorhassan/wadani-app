@@ -2,12 +2,7 @@ import { mockRespond } from '@/api/mock/latency';
 
 import type { MembershipApi } from './api';
 import { toMemberCard, toMembershipPeriod, toPlan } from './mappers';
-import type {
-  MemberDto,
-  MembershipCardDto,
-  MembershipPeriodDto,
-  PlanDto,
-} from './schemas';
+import type { MemberDto, MembershipCardDto, MembershipPeriodDto, PlanDto } from './schemas';
 
 /** Fixtures mirror the live payloads field for field (api-contract/). */
 export const memberFixture: MemberDto = {
@@ -54,6 +49,10 @@ export const planFixtures: PlanDto[] = [
     id: '11111111-1111-1111-1111-111111111111',
     name: 'Standard',
     price: '25.00',
+    priceMax: null,
+    // The badge the live plan carries today, so the mock exercises a real image.
+    iconUrl:
+      'https://wp-membership-bucket.s3.eu-north-1.amazonaws.com/b183b576-34df-4775-b3fc-4735a15cb132.png',
     stars: 1,
     benefits: [
       'Digital membership card & QR check-in',
@@ -75,7 +74,10 @@ export const planFixtures: PlanDto[] = [
   {
     id: '55555555-5555-5555-5555-555555555555',
     name: 'Gold',
+    // Range-priced: the member picks an amount inside it, and the app must keep it there.
     price: '100.00',
+    priceMax: '250.00',
+    iconUrl: null,
     stars: 3,
     benefits: [
       'Everything in Silver',

@@ -9,7 +9,7 @@ import {
 } from '@/features/membership/api.mock';
 import { toEducationDto, toGenderDto, toMember, toMemberCard } from '@/features/membership/mappers';
 import type { MemberDto } from '@/features/membership/schemas';
-import { normalizePhone } from '@/lib/format';
+import { samePhone } from '@/lib/phone';
 
 import type { AuthApi } from './api';
 import type { RegistrationPayload } from './types';
@@ -28,7 +28,7 @@ const matches = (account: Account, identifier: string) => {
   const value = identifier.trim().toLowerCase();
   return (
     (account.member.email ?? '').toLowerCase() === value ||
-    normalizePhone(account.member.phone) === normalizePhone(value)
+    samePhone(account.member.phone, identifier)
   );
 };
 
@@ -58,25 +58,12 @@ export const authApiMock: AuthApi = {
     await mockRespond(null, 900);
 
     // The backend enforces this too; the mock mirrors it so the UI can be tested.
-    const taken = accounts.find(
-      (account) => normalizePhone(account.member.phone) === normalizePhone(payload.phone)
-    );
+    const taken = accounts.find((account) => samePhone(account.member.phone, payload.phone));
     if (taken) {
       throw new ApiRequestError({
         kind: 'validation',
         fieldErrors: { phone: 'A member with this phone number already exists.' },
       });
-    }
-
-    // A card payment creates nothing until the checkout comes back (§4).
-    if (payload.charge.method === 'CARD') {
-      return {
-        kind: 'checkout' as const,
-        checkout: {
-          checkoutId: '77777777-7777-7777-7777-777777777777',
-          checkoutUrl: 'https://checkout.sifalopay.com/mock-session',
-        },
-      };
     }
 
     const plan = planFixtures.find((candidate) => candidate.id === payload.membershipTypeId);
@@ -113,6 +100,19 @@ export const authApiMock: AuthApi = {
     // So a later login, or a refetch, keeps showing this member, not the fixture.
     registerMockCard(member.id, cardDto);
     setActiveMockMember(member.id);
+
+    /*
+     * A card payment answers with a checkout instead. The real backend creates
+     * the member only once the payment is confirmed; the mock creates it now so
+     * the login after the (mock) checkout has an account to find.
+     */
+    if (payload.charge.method === 'CARD') {
+      const checkoutId = `mock-checkout-${Date.now()}`;
+      return {
+        kind: 'checkout' as const,
+        checkout: { checkoutId, checkoutUrl: `mock://sifalo-checkout?checkout_id=${checkoutId}` },
+      };
+    }
 
     return {
       kind: 'registered' as const,

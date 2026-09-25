@@ -23,3 +23,11 @@ export const cardCheckoutResponse = z.object({
 });
 
 export type PaymentDto = z.infer<typeof paymentDto>;
+
+/** GET /mobile/payments/card/checkouts/{id}: nothing identifying, just the state. */
+export const checkoutStatusResponse = z.object({
+  checkout: z.looseObject({ id: z.string().nullish(), status: z.string() }),
+});
+
+/** Kept loose: its shape depends on `purpose` (REGISTER, RENEW or DONATE). */
+export const confirmResponse = z.looseObject({ purpose: z.string().nullish() });

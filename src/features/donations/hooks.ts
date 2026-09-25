@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { pickApi } from '@/api/mode';
-import { paymentsKeys } from '@/features/payments';
+// Data-layer to data-layer, so no screen code is pulled in (AGENTS.md).
+import { paymentsKeys } from '@/features/payments/hooks';
 
 import { donationsApi } from './api';
 import { donationsApiMock } from './api.mock';

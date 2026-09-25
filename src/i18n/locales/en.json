@@ -209,7 +209,8 @@
     "another": "Donate again",
     "payerPhone": "Wallet number to charge",
     "payerPhoneHint": "It can be someone else paying for you.",
-    "payerPhoneRequired": "Please enter the wallet number to charge."
+    "payerPhoneRequired": "Please enter the wallet number to charge.",
+    "payerPhoneInvalid": "Enter a valid wallet number, e.g. 63 234 5678."
   },
   "register": {
     "title": "Create your account",
@@ -253,13 +254,13 @@
     "periodsFailed": "We couldn't load the periods.",
     "method": "Payment method",
     "methodHints": {
-      "WAAFI": "Zaad, EVC, eSahal, CashPlus or Jeeb",
-      "EDAHAB": "Dahabshiil mobile money",
-      "PREMIER_WALLET": "Premier Bank wallet",
-      "CARD": "Visa or Mastercard"
+      "WAAFI": "Zaad · EVC · eSahal",
+      "EDAHAB": "Dahabshiil",
+      "PREMIER_WALLET": "Premier Bank",
+      "CARD": "Visa · Mastercard"
     },
     "amount": "Amount (USD)",
-    "amountHint": "From your plan · {{plan}}, {{period}}",
+    "amountHint": "From your plan · {{plan}}",
     "consent": "I agree to the <terms>membership terms</terms> and <privacy>privacy policy</privacy>.",
     "consentLabel": "I agree to the membership terms and privacy policy",
     "submit": "Create account & get card",
@@ -269,7 +270,6 @@
     "discardMessage": "Your details will not be saved.",
     "discardConfirm": "Discard",
     "keepEditing": "Keep editing",
-    "photoRequired": "A photo is required to create your membership card.",
     "work": "Work / profession",
     "workPlaceholder": "e.g. Teacher",
     "region": "Region",
@@ -279,7 +279,19 @@
     "payerPhoneHint": "It can be someone else paying for you.",
     "cardNote": "You'll be taken to a secure checkout page to pay by card.",
     "photoUploadUnavailable": "Photo upload isn't set up in this build. Please contact the office.",
-    "photoUploadFailed": "We couldn't upload your photo. Please try again."
+    "photoUploadFailed": "We couldn't upload your photo. Please try again.",
+    "fixErrors": "Please fix the highlighted fields to continue.",
+    "planBadge": "{{plan}} badge",
+    "youChoose": "you choose",
+    "amountRange": "Choose an amount between {{min}} and {{max}}.",
+    "planUnavailable": "That plan isn't available. Please choose a plan again.",
+    "periodUnavailable": "That period isn't available. Please choose a period again.",
+    "amountTooLow": "This plan costs at least {{min}}.",
+    "amountTooHigh": "The most this plan accepts is {{max}}.",
+    "methodSelected": "{{method}}, selected",
+    "declined": "The payment was declined. Please check the wallet number and method, then try again.",
+    "couldNotFinish": "We couldn't finish your registration",
+    "fixOnStep": "Go back to the {{step}} step to change it."
   },
   "pending": {
     "title": "We're confirming your payment",
@@ -291,5 +303,17 @@
     "stepApprovedNote": "It appears in the app as soon as it is ready.",
     "contactUs": "Chat on WhatsApp",
     "backToStart": "Back to start"
+  },
+  "checkout": {
+    "title": "Secure card payment",
+    "testMode": "Test mode · nothing is charged",
+    "close": "Close payment",
+    "confirming": "Confirming your payment…",
+    "dontClose": "This takes a few seconds. Please don't close the app.",
+    "cancelled": "Payment not completed. If money left your account, please contact the office.",
+    "declined": "The card payment didn't go through, so nothing was charged. Please try again or use another method.",
+    "conflict": "Your payment was received but we couldn't finish. Please contact the office so we can sort it out.",
+    "error": "We couldn't confirm your payment. If money left your account, please contact the office.",
+    "paidSignIn": "Payment received and your account is ready. Please log in to see your card."
   }
 }

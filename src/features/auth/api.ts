@@ -3,6 +3,7 @@ import { parseResponse } from '@/api/parse';
 import { toEducationDto, toGenderDto, toMember, toMemberCard } from '@/features/membership/mappers';
 import { asCardCheckout, chargeBody } from '@/features/payments/api';
 import { decodeJwtClaims } from '@/lib/jwt';
+import { toInternationalPhone } from '@/lib/phone';
 
 import { loginResponse, registerResponse } from './schemas';
 import type { AuthSession, Credentials, RegistrationPayload, RegistrationResult } from './types';
@@ -28,9 +29,18 @@ function registerBody(payload: RegistrationPayload): Record<string, unknown> {
 
 export const authApi = {
   async login(credentials: Credentials): Promise<AuthSession> {
+    // Registration stores the phone in international form, so a phone typed the
+    // way people write it ("63 234 5678") has to be turned into that to match.
+    // An email, or anything that is not a phone, goes through untouched.
+    const identifier = credentials.identifier.trim();
     const data = await request('/mobile/auth/login', {
       method: 'POST',
-      body: credentials,
+      body: {
+        ...credentials,
+        identifier: identifier.includes('@')
+          ? identifier
+          : (toInternationalPhone(identifier) ?? identifier),
+      },
       authenticated: false,
     });
     const parsed = parseResponse(loginResponse, data, 'POST /mobile/auth/login');

@@ -13,7 +13,12 @@ export const decimalString = z.string();
 export const planDto = z.object({
   id: z.string(),
   name: z.string(),
+  /** The fixed price, or the lowest amount accepted when `priceMax` is set. */
   price: decimalString,
+  /** Set for a range-priced plan: the highest amount accepted. null = fixed price. */
+  priceMax: optional(decimalString),
+  /** The plan's badge, ready to load. null when staff uploaded none. */
+  iconUrl: optional(z.string()),
   benefits: z.array(z.string()).default([]),
   stars: optional(z.number().int()),
 });

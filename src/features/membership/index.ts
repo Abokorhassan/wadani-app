@@ -1,9 +1,22 @@
 export { MembershipCard } from './components/membership-card';
 export { MiniCard } from './components/mini-card';
 export { cardFixture, memberFixture, periodFixtures, planFixtures } from './api.mock';
-export { membershipKeys, useCard, useMe, usePeriods, usePlans } from './hooks';
 export {
-  priceFor,
+  getCachedPlan,
+  membershipKeys,
+  useCard,
+  useMe,
+  usePeriods,
+  usePlanBadge,
+  usePlans,
+} from './hooks';
+export {
+  amountProblem,
+  type AmountProblem,
+  amountWithinPlan,
+  badgeForPlanName,
+  isRangePlan,
+  defaultAmount,
   toAmountString,
   toEducationDto,
   toGenderDto,

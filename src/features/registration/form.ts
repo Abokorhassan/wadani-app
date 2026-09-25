@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+import { parseMoney } from '@/lib/money';
+import { toInternationalPhone } from '@/lib/phone';
+
 const currentYear = new Date().getFullYear();
 
 const optionalText = z
@@ -16,8 +19,18 @@ const optionalText = z
 export const personalSchema = z.object({
   fullName: z.string().trim().min(1, 'Please enter your full name.'),
   gender: z.enum(['male', 'female'], { message: 'Please choose an option.' }),
-  phone: z.string().trim().min(6, 'Please enter your phone number.'),
-  whatsapp: optionalText,
+  phone: z
+    .string()
+    .trim()
+    .min(1, 'Please enter your phone number.')
+    .refine(
+      (value) => toInternationalPhone(value) !== null,
+      'Enter a valid phone number, e.g. 63 234 5678.'
+    ),
+  whatsapp: optionalText.refine(
+    (value) => value === undefined || toInternationalPhone(value) !== null,
+    'Enter a valid phone number, e.g. 63 234 5678.'
+  ),
   // The backend treats phone as the identity; email is extra.
   email: z
     .string()
@@ -43,15 +56,21 @@ export const personalSchema = z.object({
   professionalWork: z.string().trim().min(1, 'Please enter your work or profession.'),
   // The backend's own minimum.
   password: z.string().min(8, 'Password must be at least 8 characters.'),
-  photoUri: z.string().optional(),
+  // The backend rejects a registration without a photoUrl, so it is required
+  // here, on the step where it is chosen, not discovered on the last one.
+  photoUri: z
+    .string({ message: 'Please add a photo for your membership card.' })
+    .min(1, 'Please add a photo for your membership card.'),
 });
 
+// Listed in the order the screen shows them, so the wizard's error jump and the
+// form agree: street, district, city, region, country.
 export const addressSchema = z.object({
   line1: z.string().trim().min(1, 'Please enter your street or neighbourhood.'),
+  district: optionalText,
   city: z.string().trim().min(1, 'Please enter your city.'),
   region: z.string().trim().min(1, 'Please enter your region.'),
   country: z.string().trim().min(1, 'Please enter your country.'),
-  district: optionalText,
 });
 
 export const planSchema = z.object({
@@ -59,31 +78,54 @@ export const planSchema = z.object({
   periodId: z.string().min(1, 'Please choose a membership period.'),
 });
 
+/**
+ * The problem with the wallet number, if any. A wallet is charged directly, so
+ * it needs a real number; a card does not.
+ */
+export function walletPhoneMessage(values: {
+  method?: string;
+  payerPhone?: string;
+}): string | undefined {
+  if (values.method === 'CARD') return undefined;
+  if (!values.payerPhone?.trim()) return 'Please enter the wallet number to charge.';
+  if (toInternationalPhone(values.payerPhone) === null) {
+    return 'Enter a valid wallet number, e.g. 63 234 5678.';
+  }
+  return undefined;
+}
+
+function checkWalletPhone(
+  values: { method: string; payerPhone?: string },
+  ctx: z.core.$RefinementCtx
+) {
+  const message = walletPhoneMessage(values);
+  if (message) ctx.addIssue({ code: 'custom', path: ['payerPhone'], message });
+}
+
 export const paymentSchema = z
   .object({
     method: z.enum(['WAAFI', 'EDAHAB', 'PREMIER_WALLET', 'CARD']),
+    // The API charges exactly this string, so it is read strictly (src/lib/money.ts).
     amount: z
       .string()
       .trim()
-      .refine((value) => Number(value.replace(/[^0-9.]/g, '')) > 0, 'Please enter an amount.'),
+      .min(1, 'Please enter an amount.')
+      .refine(
+        (value) => parseMoney(value) !== null,
+        'Enter an amount like 10 or 10.50, with at most two decimals.'
+      ),
     /** The wallet to charge; it may belong to someone paying on your behalf. */
     payerPhone: optionalText,
     // Political membership is sensitive data, so consent is explicit (build-plan D11).
     acceptedTerms: z.literal(true, { message: 'Please accept the terms to continue.' }),
   })
-  .refine((values) => values.method === 'CARD' || Boolean(values.payerPhone), {
-    path: ['payerPhone'],
-    message: 'Please enter the wallet number to charge.',
-  });
+  .superRefine(checkWalletPhone);
 
 export const registrationSchema = personalSchema
   .extend(addressSchema.shape)
   .extend(planSchema.shape)
   .extend(paymentSchema.shape)
-  .refine((values) => values.method === 'CARD' || Boolean(values.payerPhone), {
-    path: ['payerPhone'],
-    message: 'Please enter the wallet number to charge.',
-  });
+  .superRefine(checkWalletPhone);
 
 export type RegistrationForm = z.input<typeof registrationSchema>;
 
@@ -134,7 +176,7 @@ export const emptyRegistration: RegistrationForm = {
   education: undefined as unknown as RegistrationForm['education'],
   professionalWork: '',
   password: '',
-  photoUri: undefined,
+  photoUri: '',
   line1: '',
   city: '',
   region: '',

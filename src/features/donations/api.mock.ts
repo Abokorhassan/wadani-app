@@ -11,7 +11,7 @@ export const donationsApiMock: DonationsApi = {
           kind: 'checkout' as const,
           checkout: {
             checkoutId: '88888888-8888-8888-8888-888888888888',
-            checkoutUrl: 'https://checkout.sifalopay.com/mock-donation',
+            checkoutUrl: 'mock://sifalo-checkout?checkout_id=88888888-8888-8888-8888-888888888888',
           },
         },
         500
