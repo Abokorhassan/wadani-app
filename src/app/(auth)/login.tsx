@@ -17,6 +17,7 @@ import {
   useToast,
 } from '@/design-system';
 import { useLogin } from '@/features/auth';
+import { LanguageSwitch } from '@/features/settings';
 import { openWhatsApp, useContactInfo } from '@/features/support';
 
 const sealColor = require('@/assets/brand/seal-color.png');
@@ -64,12 +65,19 @@ export default function LoginScreen() {
 
   return (
     <Screen>
-      <View style={{ paddingTop: theme.spacing.md }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingTop: theme.spacing.md,
+        }}>
         <IconButton
           icon={ChevronLeft}
           accessibilityLabel={t('common.back')}
           onPress={() => router.back()}
         />
+        <LanguageSwitch />
       </View>
 
       <View style={{ marginTop: 26 }}>

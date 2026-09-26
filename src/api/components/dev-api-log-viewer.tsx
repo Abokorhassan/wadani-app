@@ -34,7 +34,8 @@ export function DevApiLogViewer() {
         style={{
           position: 'absolute',
           right: 14,
-          top: insets.top + 8,
+          // Bottom-right, above the tab bar: screens keep the top corners for their own controls.
+          bottom: Math.max(insets.bottom, 12) + 88,
           zIndex: 50,
           flexDirection: 'row',
           alignItems: 'center',

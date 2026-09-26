@@ -32,7 +32,7 @@ export function AddressStep({ control }: { control: Control<RegistrationForm> })
         render={({ field, fieldState }) => (
           <TextField
             label={t('register.district')}
-            optional
+            optional={t('common.optional')}
             value={field.value ?? ''}
             onChangeText={field.onChange}
             onBlur={field.onBlur}

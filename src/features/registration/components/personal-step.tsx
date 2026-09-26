@@ -103,7 +103,7 @@ export function PersonalStep({ control }: { control: Control<RegistrationForm> }
         render={({ field, fieldState }) => (
           <PhoneField
             label={t('register.whatsapp')}
-            optional
+            optional={t('common.optional')}
             value={field.value ?? ''}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
@@ -118,7 +118,7 @@ export function PersonalStep({ control }: { control: Control<RegistrationForm> }
         render={({ field, fieldState }) => (
           <TextField
             label={t('register.email')}
-            optional
+            optional={t('common.optional')}
             value={field.value ?? ''}
             onChangeText={field.onChange}
             onBlur={field.onBlur}

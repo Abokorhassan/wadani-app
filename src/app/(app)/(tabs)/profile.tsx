@@ -1,4 +1,4 @@
-import { LogOut } from 'lucide-react-native';
+import { Languages, LogOut } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, View } from 'react-native';
 
@@ -6,6 +6,7 @@ import {
   Avatar,
   Button,
   ErrorState,
+  IconTile,
   Screen,
   ScreenHeader,
   Skeleton,
@@ -15,6 +16,7 @@ import {
 } from '@/design-system';
 import { useSessionStore } from '@/features/auth/session-store';
 import { isExpired, MEMBER_STATUS_TONE, useCard, useMe } from '@/features/membership';
+import { LanguageSwitch } from '@/features/settings';
 import { formatMonthYear } from '@/lib/format';
 
 export default function ProfileScreen() {
@@ -140,6 +142,30 @@ export default function ProfileScreen() {
           <Skeleton height={280} radius={theme.radius.card} />
         </View>
       )}
+
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 14,
+          marginTop: 14,
+          paddingVertical: 14,
+          paddingLeft: 16,
+          paddingRight: 12,
+          borderRadius: theme.radius.card,
+          borderWidth: 1,
+          borderColor: theme.color.border,
+          backgroundColor: theme.color.surface,
+        }}>
+        <IconTile icon={Languages} tone="brand" size={40} />
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text variant="bodyStrong">{t('profile.language')}</Text>
+          <Text variant="caption" color="textMuted">
+            {t('profile.languageHint')}
+          </Text>
+        </View>
+        <LanguageSwitch icon={false} />
+      </View>
 
       <View style={{ marginTop: 18 }}>
         <Button

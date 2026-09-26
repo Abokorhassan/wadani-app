@@ -4,7 +4,8 @@
 The official files are 2677x2676 transparent PNGs holding the seal (falcon in a
 laurel ring) above the "XISBIGA WADDANI / SOMALILAND NATIONAL PARTY" wordmark,
 surrounded by a lot of empty space. This script trims that space, splits the
-seal from the full lockup, and writes the exports the app and the stores need.
+seal and the wordmark from the full lockup, and writes the exports the app and
+the stores need.
 
 Usage:  python3 scripts/build-brand-assets.py      (needs Pillow)
 """
@@ -28,8 +29,13 @@ def trim(image: Image.Image) -> Image.Image:
     return image.crop(box)
 
 
-def split_seal_and_wordmark(image: Image.Image) -> tuple[Image.Image, Image.Image]:
-    """Split at the widest fully transparent horizontal band."""
+def split_seal_and_wordmark(
+    image: Image.Image,
+) -> tuple[Image.Image, Image.Image, Image.Image]:
+    """Split at the widest fully transparent horizontal band.
+
+    Returns the seal, the full lockup and the wordmark on its own.
+    """
     alpha = image.split()[3]
     width, height = image.size
     rows = [max(alpha.crop((0, y, width, y + 1)).getdata()) for y in range(height)]
@@ -50,7 +56,11 @@ def split_seal_and_wordmark(image: Image.Image) -> tuple[Image.Image, Image.Imag
         raise SystemExit("Could not find the gap between the seal and the wordmark")
     gap = max(inner, key=lambda g: g[1] - g[0])
     cut = (gap[0] + gap[1]) // 2
-    return trim(image.crop((0, 0, width, cut))), trim(image)
+    return (
+        trim(image.crop((0, 0, width, cut))),
+        trim(image),
+        trim(image.crop((0, cut, width, height))),
+    )
 
 
 def place(mark: Image.Image, canvas: int, scale: float, background=None) -> Image.Image:
@@ -73,11 +83,12 @@ def main() -> None:
 
     for name, filename in SOURCES.items():
         source = Image.open(BRAND / filename).convert("RGBA")
-        seal, lockup = split_seal_and_wordmark(source)
+        seal, lockup, wordmark = split_seal_and_wordmark(source)
         seals[name] = seal
         seal.save(BRAND / f"seal-{name}.png")
         lockup.save(BRAND / f"lockup-{name}.png")
-        print(f"{filename}: seal {seal.size}, lockup {lockup.size}")
+        wordmark.save(BRAND / f"wordmark-{name}.png")
+        print(f"{filename}: seal {seal.size}, lockup {lockup.size}, wordmark {wordmark.size}")
 
     # App icon: white seal on the brand orange, generous bleed for rounded corners.
     place(seals["white"], 1024, 0.68, BRAND_ORANGE).save(BRAND / "icon.png")

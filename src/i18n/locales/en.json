@@ -12,7 +12,8 @@
     "save": "Save",
     "logIn": "Log in",
     "logOut": "Log out",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "optional": "Optional"
   },
   "welcome": {
     "title": "Welcome",
@@ -41,7 +42,7 @@
   },
   "tabs": {
     "home": "Home",
-    "card": "Card",
+    "news": "News",
     "payments": "Payments",
     "profile": "Profile"
   },
@@ -72,9 +73,10 @@
     "title": "My Card",
     "subtitle": "Show this at check-in.",
     "membershipCard": "Membership card",
-    "memberId": "Member ID",
-    "validUntil": "Valid until",
-    "tierMember": "{{tier}} member",
+    "nameLabel": "Name",
+    "roleLabel": "Role",
+    "roleMember": "Member",
+    "numberLabel": "No.",
     "scan": "Scan at check-in",
     "openCard": "Open membership card",
     "save": "Save",
@@ -83,7 +85,6 @@
     "saveFailed": "Couldn't save the card. Please try again.",
     "photosDenied": "Allow photo access to save your card.",
     "shareTitle": "My Waddani membership card",
-    "expiredNote": "Your membership has expired. Contact the office to renew.",
     "loadFailed": "We couldn't load your card."
   },
   "payments": {
@@ -105,7 +106,9 @@
     "statusMember": "{{status}} member",
     "loadFailed": "We couldn't load your profile.",
     "cardCode": "Card number",
-    "work": "Work"
+    "work": "Work",
+    "language": "Language",
+    "languageHint": "Choose the app's language"
   },
   "communications": {
     "title": "Communications",

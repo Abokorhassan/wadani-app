@@ -19,7 +19,8 @@ export interface SelectFieldProps<T extends string = string> {
   placeholder?: string;
   error?: string;
   hint?: string;
-  optional?: boolean;
+  /** Marker beside the label for a field that can be left empty, e.g. "Optional". */
+  optional?: string;
   disabled?: boolean;
   testID?: string;
 }
@@ -50,7 +51,7 @@ export function SelectField<T extends string = string>({
         </Text>
         {optional ? (
           <Text variant="captionStrong" color="textMuted">
-            Optional
+            {optional}
           </Text>
         ) : null}
       </View>

@@ -1,18 +1,24 @@
 import { Image } from 'expo-image';
-import type { Ref } from 'react';
+import { Globe } from 'lucide-react-native';
+import type { ComponentType, Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import Svg, { Line } from 'react-native-svg';
 
-import { Avatar, Rosette, StatusPill, Text, useTheme } from '@/design-system';
-import { formatMonthYear } from '@/lib/format';
+import { Avatar, StatusPill, Text, useTheme } from '@/design-system';
 
 import { isExpired, SOCIAL_HANDLE } from '../status';
 import type { MemberCard } from '../types';
-import { FacebookIcon, InstagramIcon, XIcon } from './social-icons';
+import { FacebookIcon, TikTokIcon, XIcon } from './social-icons';
 
-const sealBlack = require('@/assets/brand/seal-black.png');
+const sealColor = require('@/assets/brand/seal-color.png');
+const wordmarkBlack = require('@/assets/brand/wordmark-black.png');
+
+/** Orange ring around the photo; its top half rises above the orange panel. */
+const PHOTO = 150;
+const RING = PHOTO + 22;
+const FOOTER_HEIGHT = 56;
+const BADGE = 84;
 
 export interface MembershipCardProps {
   card: MemberCard;
@@ -22,7 +28,7 @@ export interface MembershipCardProps {
   ref?: Ref<View>;
 }
 
-/** The full ticket-style membership card shown at check-in. */
+/** The full membership card shown at check-in, after the party's printed card. */
 export function MembershipCard({ card, badgeUrl, ref }: MembershipCardProps) {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -40,205 +46,222 @@ export function MembershipCard({ card, badgeUrl, ref }: MembershipCardProps) {
           borderColor: theme.color.ticketBorder,
           backgroundColor: theme.color.surface,
         }}>
-        {/* Orange band */}
+        {/* Seal and wordmark */}
         <View
+          accessible
+          accessibilityRole="header"
+          accessibilityLabel={`${t('common.partyName')}, ${t('common.partyTagline')}`}
           style={{
-            height: 188,
-            overflow: 'hidden',
-            padding: 22,
-            backgroundColor: theme.color.brand,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 14,
+            paddingTop: 26,
+            paddingHorizontal: 22,
           }}>
-          <View style={{ position: 'absolute', right: -150, top: -170 }}>
-            <Rosette size={420} color={theme.color.text} opacity={0.14} layers={5} waves={16} />
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <Image
-              source={sealBlack}
-              style={{ width: 46, height: 46 }}
-              accessibilityLabel={t('common.partyName')}
-            />
-            <View style={{ gap: 2 }}>
-              <Text variant="brand" color="textOnBrand" style={{ fontSize: 17, lineHeight: 20 }}>
-                {t('common.partyNameCaps')}
-              </Text>
-              <Text variant="captionStrong" color="textOnBrandSoft">
-                {t('common.partyTagline')}
-              </Text>
-            </View>
-          </View>
-          <Text
-            variant="overline"
-            color="textOnBrand"
-            style={{ position: 'absolute', right: 22, bottom: 18 }}>
-            {t('card.membershipCard')}
-          </Text>
+          <Image source={sealColor} style={{ width: 66, height: 66 }} />
+          <Image
+            source={wordmarkBlack}
+            style={{ width: 168, aspectRatio: 834 / 278 }}
+            contentFit="contain"
+          />
         </View>
 
-        <Avatar
-          name={card.memberFullName}
-          uri={card.photoUrl}
-          size={108}
-          radius={30}
-          style={{
-            position: 'absolute',
-            left: 22,
-            top: 132,
-            borderWidth: 5,
-            borderColor: theme.color.surface,
-          }}
-        />
+        {/* Orange panel, with the photo riding on its top edge */}
+        <View style={{ marginTop: 26, alignItems: 'center', paddingHorizontal: 22 }}>
+          <View
+            style={{
+              position: 'absolute',
+              top: RING * 0.45,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              borderTopLeftRadius: 40,
+              borderTopRightRadius: 40,
+              backgroundColor: theme.color.brand,
+            }}
+          />
+          <View
+            style={{
+              width: RING,
+              height: RING,
+              borderRadius: RING / 2,
+              padding: 7,
+              backgroundColor: theme.color.brand,
+            }}>
+            <View
+              style={{
+                flex: 1,
+                padding: 4,
+                borderRadius: RING / 2,
+                backgroundColor: theme.color.surface,
+              }}>
+              <Avatar name={card.memberFullName} uri={card.photoUrl} size={PHOTO} />
+            </View>
+          </View>
 
-        {/* Identity */}
-        <View style={{ paddingTop: 70, paddingHorizontal: 22 }}>
-          <Text variant="display" numberOfLines={2}>
+          <Text
+            variant="headline"
+            color="textOnBrand"
+            center
+            style={{
+              marginTop: 18,
+              fontFamily: theme.fonts.display800,
+              fontSize: 25,
+              lineHeight: 30,
+              letterSpacing: 0,
+              textTransform: 'uppercase',
+            }}>
+            {t('card.membershipCard')}
+          </Text>
+
+          <Text variant="heading" color="textOnBrand" center style={{ marginTop: 6 }}>
+            <Text
+              variant="heading"
+              color="textOnBrandSoft"
+              style={{ fontFamily: theme.fonts.text600 }}>
+              {`${t('card.nameLabel')}: `}
+            </Text>
             {card.memberFullName}
           </Text>
+
           <View
             style={{
               flexDirection: 'row',
               flexWrap: 'wrap',
+              justifyContent: 'center',
               alignItems: 'center',
-              gap: 6,
-              marginTop: 10,
+              gap: 8,
+              marginTop: 14,
             }}>
-            {badgeUrl ? (
-              <Image
-                source={{ uri: badgeUrl }}
-                style={{ width: 34, height: 34 }}
-                contentFit="contain"
-                accessibilityLabel={t('register.planBadge', { plan: card.membershipType })}
-              />
-            ) : null}
-            <StatusPill label={t('card.tierMember', { tier: card.membershipType })} tone="ink" />
-            <StatusPill
-              label={expired ? t('status.expired') : t('status.active')}
-              tone={expired ? 'danger' : 'success'}
-              dot
-            />
-          </View>
-          {expired ? (
-            <Text
-              variant="caption"
-              color="danger"
-              style={{ marginTop: 10, fontFamily: theme.fonts.text600 }}>
-              {t('card.expiredNote')}
-            </Text>
-          ) : null}
-          <View style={{ flexDirection: 'row', gap: 12, marginTop: 22 }}>
-            <View style={{ flex: 1, gap: 4 }}>
-              <Text variant="overline" color="textMuted">
-                {t('card.memberId')}
-              </Text>
-              <Text variant="mono" style={{ fontSize: 17, lineHeight: 22 }}>
-                {card.cardCode}
+            <View
+              style={{
+                paddingHorizontal: 22,
+                paddingVertical: 6,
+                borderRadius: 4,
+                backgroundColor: theme.color.surface,
+              }}>
+              <Text variant="bodyStrong" style={{ fontSize: 18, lineHeight: 24 }}>
+                {`${t('card.roleLabel')}: ${t('card.roleMember')}`}
               </Text>
             </View>
-            {card.validUntil ? (
-              <View style={{ flex: 1, gap: 4 }}>
-                <Text variant="overline" color="textMuted">
-                  {t('card.validUntil')}
-                </Text>
-                <Text variant="bodyStrong" style={{ fontSize: 17, lineHeight: 22 }}>
-                  {formatMonthYear(card.validUntil)}
-                </Text>
-              </View>
-            ) : null}
+            {expired ? <StatusPill label={t('status.expired')} tone="danger" dot /> : null}
           </View>
-        </View>
 
-        {/* Tear line */}
-        <View style={{ height: 26, marginTop: 22, justifyContent: 'center' }}>
-          <Svg height={2} style={{ marginHorizontal: 22 }}>
-            <Line
-              x1="0"
-              y1="1"
-              x2="100%"
-              y2="1"
-              stroke={theme.color.ticketBorder}
-              strokeWidth={2}
-              strokeDasharray="6 5"
-            />
-          </Svg>
-          <View
-            style={[
-              notch,
-              {
-                left: -14,
-                backgroundColor: theme.color.background,
-                borderColor: theme.color.ticketBorder,
-              },
-            ]}
-          />
-          <View
-            style={[
-              notch,
-              {
-                right: -14,
-                backgroundColor: theme.color.background,
-                borderColor: theme.color.ticketBorder,
-              },
-            ]}
-          />
-        </View>
-
-        {/* QR */}
-        <View
-          style={{
-            alignItems: 'center',
-            gap: 12,
-            paddingTop: 16,
-            paddingHorizontal: 22,
-            paddingBottom: 22,
-          }}>
           <View
             style={{
-              padding: 12,
-              borderRadius: 20,
-              borderWidth: 1,
-              borderColor: theme.color.ticketBorder,
+              marginTop: 18,
+              padding: 10,
+              borderRadius: 6,
               backgroundColor: '#FFFFFF',
             }}>
             <QRCode
               value={card.cardCode}
-              size={168}
+              size={132}
               color={theme.color.text}
               backgroundColor="#FFFFFF"
             />
           </View>
-          <Text variant="caption" color="textMuted" style={{ fontFamily: theme.fonts.text600 }}>
-            {t('card.scan')}
+
+          <Text
+            variant="heading"
+            color="textOnBrand"
+            center
+            style={{ marginTop: 14, marginBottom: 50 }}>
+            <Text
+              variant="heading"
+              color="textOnBrandSoft"
+              style={{ fontFamily: theme.fonts.text600 }}>
+              {`${t('card.numberLabel')}: `}
+            </Text>
+            <Text variant="mono" color="textOnBrand" style={{ fontSize: 18, lineHeight: 24 }}>
+              {card.cardCode}
+            </Text>
           </Text>
         </View>
 
         {/* Socials */}
         <View
           style={{
+            height: FOOTER_HEIGHT,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 12,
-            paddingVertical: 14,
-            borderTopWidth: 1,
-            borderTopColor: theme.color.ticketBorder,
-            backgroundColor: theme.color.ticketFooter,
+            gap: 5,
+            paddingLeft: 16,
+            // Keep the row clear of the badge sitting over the right corner.
+            paddingRight: BADGE + 22,
           }}>
-          <FacebookIcon color={theme.color.textSecondary} />
-          <XIcon color={theme.color.textSecondary} />
-          <InstagramIcon color={theme.color.textSecondary} />
-          <Text variant="caption" color="textSecondary" style={{ fontFamily: theme.fonts.text700 }}>
+          <SocialTile Icon={GlobeIcon} />
+          <SocialTile Icon={FacebookIcon} />
+          <SocialTile Icon={TikTokIcon} />
+          <SocialTile Icon={XIcon} />
+          <Text
+            variant="captionStrong"
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.75}
+            style={{ flexShrink: 1, marginLeft: 3, fontSize: 13, textTransform: 'uppercase' }}>
             {SOCIAL_HANDLE}
           </Text>
+        </View>
+
+        {/* Plan badge, pinned across the panel's bottom edge */}
+        <View
+          accessibilityRole="image"
+          accessibilityLabel={t('register.planBadge', { plan: card.membershipType })}
+          style={{
+            position: 'absolute',
+            right: 16,
+            bottom: FOOTER_HEIGHT - BADGE / 2,
+            width: BADGE,
+            height: BADGE,
+            borderRadius: BADGE / 2,
+            padding: 6,
+            backgroundColor: theme.color.surface,
+          }}>
+          {badgeUrl ? (
+            <Image source={{ uri: badgeUrl }} style={{ flex: 1 }} contentFit="contain" />
+          ) : (
+            <View
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: BADGE / 2,
+                backgroundColor: theme.color.accentTint,
+              }}>
+              <Text
+                variant="headline"
+                style={{ color: theme.color.accentDeep, fontFamily: theme.fonts.display800 }}>
+                {card.membershipType.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+          )}
         </View>
       </View>
     </View>
   );
 }
 
-const notch = {
-  position: 'absolute',
-  top: 0,
-  width: 26,
-  height: 26,
-  borderRadius: 13,
-  borderWidth: 1,
-} as const;
+function GlobeIcon({ size, color }: { size?: number; color: string }) {
+  return <Globe size={size} color={color} strokeWidth={1.8} />;
+}
+
+/** Ink glyph on an orange tile: white would fail contrast on orange. */
+function SocialTile({ Icon }: { Icon: ComponentType<{ size?: number; color: string }> }) {
+  const theme = useTheme();
+  return (
+    <View
+      style={{
+        width: 22,
+        height: 22,
+        borderRadius: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: theme.color.brand,
+      }}>
+      <Icon size={14} color={theme.color.textOnBrand} />
+    </View>
+  );
+}

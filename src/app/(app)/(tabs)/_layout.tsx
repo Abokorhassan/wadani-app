@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { House, IdCard, Receipt, User } from 'lucide-react-native';
+import { House, Newspaper, Receipt, User } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 
 import { FloatingTabBar, useTheme } from '@/design-system';
@@ -25,11 +25,11 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="card"
+        name="news-events"
         options={{
-          title: t('tabs.card'),
+          title: t('tabs.news'),
           tabBarIcon: ({ color, size, focused }) => (
-            <IdCard size={size} color={color} strokeWidth={focused ? 2.2 : 2} />
+            <Newspaper size={size} color={color} strokeWidth={focused ? 2.2 : 2} />
           ),
         }}
       />

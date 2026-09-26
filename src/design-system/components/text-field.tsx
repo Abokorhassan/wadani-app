@@ -16,7 +16,8 @@ export interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   label: string;
   error?: string;
   hint?: string;
-  optional?: boolean;
+  /** Marker beside the label for a field that can be left empty, e.g. "Optional". */
+  optional?: string;
   /** Static text shown before the input, e.g. a dialling code. */
   prefix?: string;
   /** Element at the end of the input, e.g. a show-password toggle. */
@@ -57,7 +58,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
         </Text>
         {optional ? (
           <Text variant="captionStrong" color="textMuted">
-            Optional
+            {optional}
           </Text>
         ) : null}
       </View>

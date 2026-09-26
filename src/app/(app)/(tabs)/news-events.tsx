@@ -32,6 +32,7 @@ export default function NewsEventsScreen() {
 
   return (
     <Screen
+      withTabBar
       refreshControl={
         <RefreshControl
           refreshing={active.isRefetching}
@@ -39,7 +40,7 @@ export default function NewsEventsScreen() {
           tintColor={theme.color.brand}
         />
       }>
-      <ScreenHeader back title={t('news.title')} subtitle={t('news.subtitle')} />
+      <ScreenHeader title={t('news.title')} subtitle={t('news.subtitle')} />
 
       <View style={{ marginTop: theme.spacing.gutter }}>
         <SegmentedTabs

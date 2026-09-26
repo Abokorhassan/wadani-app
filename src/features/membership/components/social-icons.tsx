@@ -1,4 +1,4 @@
-import Svg, { Line, Path, Rect } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
 /**
  * Social network marks for the card footer. Lucide dropped brand icons, so
@@ -43,7 +43,7 @@ export function XIcon({ size = 18, color }: SocialIconProps) {
   );
 }
 
-export function InstagramIcon({ size = 18, color }: SocialIconProps) {
+export function TikTokIcon({ size = 18, color }: SocialIconProps) {
   return (
     <Svg
       width={size}
@@ -54,9 +54,8 @@ export function InstagramIcon({ size = 18, color }: SocialIconProps) {
       strokeWidth={1.8}
       strokeLinecap="round"
       strokeLinejoin="round">
-      <Rect width={20} height={20} x={2} y={2} rx={5} ry={5} />
-      <Path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-      <Line x1={17.5} x2={17.51} y1={6.5} y2={6.5} />
+      <Path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5" />
+      <Path d="M14 3a5 5 0 0 0 5 5" />
     </Svg>
   );
 }

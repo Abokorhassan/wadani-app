@@ -16,7 +16,6 @@ export default function CardScreen() {
 
   return (
     <Screen
-      withTabBar
       refreshControl={
         <RefreshControl
           refreshing={card.isRefetching}
@@ -24,7 +23,7 @@ export default function CardScreen() {
           tintColor={theme.color.brand}
         />
       }>
-      <ScreenHeader title={t('card.title')} subtitle={t('card.subtitle')} />
+      <ScreenHeader back title={t('card.title')} subtitle={t('card.subtitle')} />
 
       <View style={{ marginTop: 22 }}>
         {card.data ? (
@@ -36,7 +35,7 @@ export default function CardScreen() {
             retryLabel={t('common.retry')}
           />
         ) : (
-          <Skeleton height={680} radius={30} />
+          <Skeleton height={740} radius={30} />
         )}
       </View>
 

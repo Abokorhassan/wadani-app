@@ -6,6 +6,7 @@ import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Rosette, Text, useTheme } from '@/design-system';
+import { LanguageSwitch } from '@/features/settings';
 
 const lockup = require('@/assets/brand/lockup-color.png');
 
@@ -19,6 +20,16 @@ export default function WelcomeScreen() {
     <View style={{ flex: 1, backgroundColor: theme.color.brand }}>
       <View style={{ position: 'absolute', left: -85, top: -32 }}>
         <Rosette size={560} color={theme.color.text} opacity={0.08} layers={5} waves={16} />
+      </View>
+
+      <View
+        style={{
+          position: 'absolute',
+          zIndex: 1,
+          top: insets.top + theme.spacing.md,
+          right: theme.spacing.gutter,
+        }}>
+        <LanguageSwitch tone="brand" />
       </View>
 
       <View

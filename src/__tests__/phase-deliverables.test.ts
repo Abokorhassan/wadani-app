@@ -120,6 +120,34 @@ describe('Phase 0 — foundations', () => {
     expect(exists('i18n/locales/en.json')).toBe(true);
     expect(exists('i18n/locales/so.json')).toBe(true);
   });
+
+  it('translates every English string into Somali, keeping placeholders and tags', () => {
+    const so = require('../i18n/locales/so.json');
+    const flatten = (node: object, prefix = ''): Record<string, string> =>
+      Object.entries(node).reduce<Record<string, string>>((all, [key, value]) => {
+        const path = prefix ? `${prefix}.${key}` : key;
+        return typeof value === 'string'
+          ? { ...all, [path]: value }
+          : { ...all, ...flatten(value, path) };
+      }, {});
+    const tokens = (text: string) => (text.match(/{{\w+}}|<\/?\w+>/g) ?? []).sort();
+
+    const english = flatten(en);
+    const somali = flatten(so);
+    expect(Object.keys(somali).sort()).toEqual(Object.keys(english).sort());
+    for (const [key, text] of Object.entries(english)) {
+      expect([key, tokens(somali[key])]).toEqual([key, tokens(text)]);
+    }
+  });
+
+  it('lets members switch between English and Somali', () => {
+    expect(exports_('features/settings/components/language-switch.tsx', 'LanguageSwitch')).toBe(
+      true
+    );
+    expect(source('app/(auth)/welcome.tsx')).toContain('<LanguageSwitch');
+    expect(source('app/(auth)/login.tsx')).toContain('<LanguageSwitch');
+    expect(source('app/(app)/(tabs)/profile.tsx')).toContain('<LanguageSwitch');
+  });
 });
 
 describe('Phase 1 — onboarding', () => {
@@ -486,10 +514,11 @@ describe('Phase 1 — onboarding', () => {
 });
 
 describe('Phase 2 — membership core', () => {
-  it('has the four tab screens plus communications', () => {
-    for (const route of ['home', 'card', 'payments', 'profile']) {
+  it('has the four tab screens plus the card and communications', () => {
+    for (const route of ['home', 'news-events', 'payments', 'profile']) {
       expect(exists(`app/(app)/(tabs)/${route}.tsx`)).toBe(true);
     }
+    expect(exists('app/(app)/card.tsx')).toBe(true);
     expect(exists('app/(app)/communications.tsx')).toBe(true);
   });
 
@@ -542,9 +571,9 @@ describe('Phase 2 — membership core', () => {
 
 describe('Phase 3 — engagement', () => {
   it('has the news & events and contact screens, no longer placeholders', () => {
-    expect(exists('app/(app)/news-events.tsx')).toBe(true);
+    expect(exists('app/(app)/(tabs)/news-events.tsx')).toBe(true);
     expect(exists('app/(app)/contact.tsx')).toBe(true);
-    expect(source('app/(app)/news-events.tsx')).not.toContain('comingSoon');
+    expect(source('app/(app)/(tabs)/news-events.tsx')).not.toContain('comingSoon');
     expect(source('app/(app)/contact.tsx')).not.toContain('comingSoon');
   });
 
@@ -555,7 +584,7 @@ describe('Phase 3 — engagement', () => {
 
   it('does not offer RSVP: the API has no endpoint for it (party decision, 2026-09-19)', () => {
     expect(source('features/news-events/types.ts')).not.toContain('isGoing');
-    expect(source('app/(app)/news-events.tsx')).not.toContain('rsvp');
+    expect(source('app/(app)/(tabs)/news-events.tsx')).not.toContain('rsvp');
   });
 
   it('opens the phone, mail, maps and WhatsApp', () => {
