@@ -12,6 +12,36 @@ export const STEP_NAME_KEYS = [
 ] as const;
 
 /**
+ * A human-readable label for a field, used when its own validation error has
+ * no message (some zod/resolver combinations produce a bare error). Without
+ * this the whole error would collapse to the generic "fix the highlighted
+ * fields" text, hiding which field is actually at fault.
+ */
+const FIELD_LABELS: Partial<Record<keyof RegistrationForm, string>> = {
+  fullName: 'Full name',
+  gender: 'Gender',
+  phone: 'Phone number',
+  whatsapp: 'WhatsApp number',
+  email: 'Email',
+  birthYear: 'Year of birth',
+  education: 'Educational level',
+  professionalWork: 'Work or profession',
+  password: 'Password',
+  photoUri: 'Photo',
+  line1: 'Street or neighbourhood',
+  city: 'City',
+  region: 'Region',
+  country: 'Country',
+  district: 'District',
+  planId: 'Membership plan',
+  periodId: 'Membership period',
+  method: 'Payment method',
+  amount: 'Amount',
+  payerPhone: 'Wallet number',
+  acceptedTerms: 'Terms and conditions',
+};
+
+/**
  * Every field the form is currently unhappy with, as the member would read
  * it: each message on its own line, grouped under the step it belongs to
  * when that is not the step they are looking at. Used instead of showing
@@ -24,8 +54,11 @@ export function describeFormErrors(
 ): string {
   const byStep = new Map<number, string[]>();
   for (const [field, error] of Object.entries(errors)) {
-    const message = (error as { message?: string } | undefined)?.message;
-    if (!message) continue;
+    // Fall back to a plain "<Field> needs attention" so a message-less error
+    // still points at its field instead of vanishing into the generic text.
+    const label = FIELD_LABELS[field as keyof RegistrationForm] ?? field;
+    const message =
+      (error as { message?: string } | undefined)?.message || `${label} needs attention.`;
     const stepIndex = stepForField(field);
     byStep.set(stepIndex, [...(byStep.get(stepIndex) ?? []), message]);
   }

@@ -91,6 +91,14 @@ export function walletPhoneMessage(values: {
   if (toInternationalPhone(values.payerPhone) === null) {
     return 'Enter a valid wallet number, e.g. 63 234 5678.';
   }
+  // Strip country code to get local digits for prefix check.
+  const local = values.payerPhone.replace(/[^\d]/g, '').replace(/^252/, '');
+  if (values.method === 'WAAFI' && !local.startsWith('63')) {
+    return 'Waafi numbers start with 63. Please check the number.';
+  }
+  if (values.method === 'EDAHAB' && !local.startsWith('65')) {
+    return 'eDahab numbers start with 65. Please check the number.';
+  }
   return undefined;
 }
 

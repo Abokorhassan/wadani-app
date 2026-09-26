@@ -3,9 +3,9 @@ import { Check, Crown, IdCard, Star, type LucideIcon } from 'lucide-react-native
 import { useEffect } from 'react';
 import { Controller, type Control, type UseFormSetValue } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Pressable, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
-import { ErrorState, Rosette, SegmentedTabs, Skeleton, Text, useTheme } from '@/design-system';
+import { ErrorState, Rosette, Skeleton, Text, useTheme } from '@/design-system';
 import {
   isRangePlan,
   usePeriods,
@@ -77,15 +77,20 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
             name="planId"
             render={({ field, fieldState }) => (
               <View style={{ gap: theme.spacing.sm }}>
-                <SegmentedTabs
-                  value={field.value}
-                  onChange={field.onChange}
-                  items={plans.data.map((option) => ({
-                    key: option.id,
-                    label: option.name,
-                    icon: PLAN_ICONS[planIconRank(option.stars)],
-                  }))}
-                />
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ gap: theme.spacing.sm, paddingRight: theme.spacing.sm }}>
+                  {plans.data.map((option) => (
+                    <PlanChip
+                      key={option.id}
+                      label={option.name}
+                      icon={PLAN_ICONS[planIconRank(option.stars)]}
+                      selected={option.id === field.value}
+                      onSelect={() => field.onChange(option.id)}
+                    />
+                  ))}
+                </ScrollView>
                 {fieldState.error ? (
                   <Text
                     variant="caption"
@@ -124,7 +129,7 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
             name="periodId"
             render={({ field, fieldState }) => (
               <View style={{ gap: theme.spacing.sm }}>
-                <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md }}>
                   {periods.data.map((option) => (
                     <PeriodOption
                       key={option.id}
@@ -169,6 +174,50 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
         </View>
       ) : null}
     </View>
+  );
+}
+
+function PlanChip({
+  label,
+  icon: Icon,
+  selected,
+  onSelect,
+}: {
+  label: string;
+  icon: LucideIcon;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const theme = useTheme();
+
+  return (
+    <Pressable
+      onPress={onSelect}
+      accessibilityRole="radio"
+      accessibilityState={{ selected }}
+      accessibilityLabel={label}
+      style={[
+        {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: theme.spacing.sm,
+          paddingHorizontal: 16,
+          height: theme.controlHeight.chip,
+          borderRadius: theme.radius.pill,
+          borderWidth: selected ? 2 : 1.5,
+          borderColor: selected ? theme.color.action : theme.color.borderStrong,
+          backgroundColor: selected ? theme.color.actionTint : theme.color.surface,
+        },
+        selected ? theme.shadow.raised : null,
+      ]}>
+      <Icon size={18} color={selected ? theme.color.action : theme.color.textMuted} />
+      <Text
+        variant={selected ? 'smallStrong' : 'label'}
+        color={selected ? 'text' : 'textMuted'}
+        style={{ fontSize: 15 }}>
+        {label}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -291,31 +340,36 @@ function PeriodOption({
       accessibilityState={{ selected }}
       accessibilityLabel={period.label}
       style={{
-        flex: 1,
+        flexGrow: 1,
+        flexBasis: '30%',
+        minWidth: 96,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 10,
-        padding: 16,
-        borderRadius: theme.radius.card,
+        justifyContent: 'center',
+        gap: theme.spacing.sm,
+        paddingVertical: 14,
+        paddingHorizontal: 12,
+        borderRadius: theme.radius.pill,
         borderWidth: selected ? 2 : 1.5,
         borderColor: selected ? theme.color.action : theme.color.borderStrong,
         backgroundColor: selected ? theme.color.actionTint : theme.color.surface,
       }}>
-      <Text variant="bodyStrong">{period.label}</Text>
-      <View
-        style={{
-          width: 24,
-          height: 24,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: 12,
-          borderWidth: selected ? 0 : 2,
-          borderColor: theme.color.borderStrong,
-          backgroundColor: selected ? theme.color.action : 'transparent',
-        }}>
-        {selected ? <Check size={14} color={theme.color.textOnAction} strokeWidth={3} /> : null}
-      </View>
+      {selected ? (
+        <View
+          style={{
+            width: 20,
+            height: 20,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 10,
+            backgroundColor: theme.color.action,
+          }}>
+          <Check size={13} color={theme.color.textOnAction} strokeWidth={3} />
+        </View>
+      ) : null}
+      <Text variant="bodyStrong" color={selected ? 'text' : 'textSecondary'}>
+        {period.label}
+      </Text>
     </Pressable>
   );
 }

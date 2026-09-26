@@ -4,6 +4,10 @@ import { useDevApiLog } from './dev-log';
 import { ApiRequestError, errorCode, parseValidationBody } from './errors';
 
 const TIMEOUT_MS = 15_000;
+// Wallet payments (USSD/push) hold the connection open until the customer approves on
+// their phone -- Sifalo waits up to 120s. Registration uses this longer timeout so the
+// app doesn't abandon the request before Sifalo comes back.
+const PAYMENT_TIMEOUT_MS = 130_000;
 
 type TokenProvider = () => string | null;
 type UnauthorizedHandler = () => void;
@@ -73,7 +77,11 @@ export async function request(path: string, options: RequestOptions = {}): Promi
   // sent, and exactly what came back, status and body, success or failure.
   // dev-log.ts holds the same thing for the in-app viewer (App info > API log),
   // so a person testing the app can see it without reading device logs.
-  const loggedRequest = isFormData ? '(form data)' : body !== undefined ? redacted(body) : undefined;
+  const loggedRequest = isFormData
+    ? '(form data)'
+    : body !== undefined
+      ? redacted(body)
+      : undefined;
   let logId: string | undefined;
   if (__DEV__) {
     console.log(`[api] → ${method} ${url}`, loggedRequest ?? '');
@@ -81,7 +89,15 @@ export async function request(path: string, options: RequestOptions = {}): Promi
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const isPaymentCall =
+    path.includes('/auth/register') ||
+    path.includes('/renew') ||
+    path.includes('/donations') ||
+    path.includes('/payments/card/confirm');
+  const timeout = setTimeout(
+    () => controller.abort(),
+    isPaymentCall ? PAYMENT_TIMEOUT_MS : TIMEOUT_MS
+  );
   signal?.addEventListener('abort', () => controller.abort());
 
   let response: Response;
@@ -112,7 +128,8 @@ export async function request(path: string, options: RequestOptions = {}): Promi
 
   if (__DEV__) {
     console.log(`[api] ← ${response.status} ${method} ${url}`, json ?? '(empty body)');
-    if (logId) useDevApiLog.getState().finish(logId, { status: response.status, responseBody: json });
+    if (logId)
+      useDevApiLog.getState().finish(logId, { status: response.status, responseBody: json });
   }
 
   if (response.ok) return json;
@@ -134,13 +151,14 @@ export async function request(path: string, options: RequestOptions = {}): Promi
     throw new ApiRequestError({ kind: 'declined', message, code: errorCode(json) }, message);
   }
 
+  // Everything else (409 conflict, 500, 503…). The API nests its wording under
+  // `{ error: { message } }`, so read it that way — otherwise a duplicate phone
+  // or an unreachable gateway would collapse to a generic "something went wrong".
+  const { message: serverMsg } = parseValidationBody(json);
   throw new ApiRequestError({
     kind: 'server',
     status: response.status,
-    message:
-      typeof json === 'object' && json && 'message' in json
-        ? String((json as { message: unknown }).message)
-        : undefined,
+    message: serverMsg,
   });
 }
 
