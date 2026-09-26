@@ -184,7 +184,7 @@ Still open:
 5. **Notifications** — can the app list the WhatsApp/email messages that were sent?
 6. ~~**Payment methods**~~ — answered: every payment goes through Sifalo. The app offers WAAFI (which covers Zaad), EDAHAB, PREMIER_WALLET and CARD only; the other methods are treated as staff-recorded history. Still worth confirming: does Sifalo's WAAFI channel accept Telesom Zaad numbers, or only Hormuud?
 7. **Field errors** — could validation failures return which field failed (e.g. `details: {email: "..."}`), so the form can mark it?
-8. **Test account** — the credentials we were given (`waddani` / `waddani@252`) are not a member login; `POST /auth/login` rejects them. Can we have a real test member, and is there a staging server separate from production?
+8. **Test account** — the Swagger docs login we were given is not a member login; `POST /auth/login` rejects them. Can we have a real test member, and is there a staging server separate from production?
 9. **`isEligibleForPayment` / `isNewMember`** — what drives these, and should the app act on them?
 10. **Badge on the card** — `GET /mobile/members/me/card` returns the plan's name
     but not its icon, so the app matches the two by name and shows a badge only
@@ -209,3 +209,10 @@ Still open:
     WhatsApp, the wallet being charged, and the login identifier. If the backend
     stores or matches phones another way, duplicate detection (`409`) and login would
     disagree with the app.
+14. **Sifalo: "No payment route was found for the specified customer account"**
+    (`TRANSACTION_FAILED`, HTTP 422) on every live registration, 2026-09-23/24. It
+    failed 5 times across two wallet numbers (`+252634253226`, `+252634228267`),
+    all `WAAFI`, and the identical request from plain `curl` fails the same way, so
+    it is not the app. Is the WAAFI channel (Zaad/Telesom numbers) enabled on the
+    Sifalo merchant account? Trace IDs: `dc23c5c981ce731c5edc3c06810f22bc`,
+    `462a4e1c4e3708e3a880ab418afbf8d8`, `c6386369db9af668bac6a14e0ed308df`.
