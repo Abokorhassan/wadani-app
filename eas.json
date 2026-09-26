@@ -24,10 +24,16 @@
     },
     "production": {
       "channel": "production",
+      "environment": "production",
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.waddani.so",
-        "EXPO_PUBLIC_API_MOCK": "none"
+        "EXPO_PUBLIC_API_URL": "https://api.wp-membership-system.com",
+        "EXPO_PUBLIC_API_MOCK": "none",
+        "EXPO_PUBLIC_INVITE_URL": "https://play.google.com/store/apps/details?id=so.waddani.membership",
+        "EXPO_PUBLIC_S3_REGION": "eu-north-1",
+        "EXPO_PUBLIC_S3_BUCKET": "wp-membership-bucket",
+        "EXPO_PUBLIC_S3_PUBLIC_URL_BASE": "https://wp-membership-bucket.s3.eu-north-1.amazonaws.com",
+        "EXPO_PUBLIC_CARD_RETURN_URL": "https://wp-membership-system.com/pay/return"
       }
     }
   },

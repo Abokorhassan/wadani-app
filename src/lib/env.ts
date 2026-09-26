@@ -11,6 +11,8 @@ export const env = {
   apiMock: process.env.EXPO_PUBLIC_API_MOCK ?? 'all',
   /** Delay added to mock responses, so loading states are visible. */
   mockLatencyMs: Number(process.env.EXPO_PUBLIC_MOCK_LATENCY_MS ?? 450),
+  /** The party's website, which hosts the privacy policy, terms and account deletion page. */
+  siteUrl: process.env.EXPO_PUBLIC_SITE_URL || 'https://wp-membership-system.com',
   /** Link shared by "Invite family & friends"; the store or landing page (build-plan D19). */
   inviteUrl: process.env.EXPO_PUBLIC_INVITE_URL ?? '',
   /**

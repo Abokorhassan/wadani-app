@@ -1,6 +1,13 @@
-import { Languages, LogOut } from 'lucide-react-native';
+import {
+  ExternalLink,
+  Languages,
+  LogOut,
+  ShieldCheck,
+  Trash2,
+  type LucideIcon,
+} from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { RefreshControl, View } from 'react-native';
+import { Pressable, RefreshControl, View } from 'react-native';
 
 import {
   Avatar,
@@ -16,7 +23,7 @@ import {
 } from '@/design-system';
 import { useSessionStore } from '@/features/auth/session-store';
 import { isExpired, MEMBER_STATUS_TONE, useCard, useMe } from '@/features/membership';
-import { LanguageSwitch } from '@/features/settings';
+import { LanguageSwitch, openLegalPage } from '@/features/settings';
 import { formatMonthYear } from '@/lib/format';
 
 export default function ProfileScreen() {
@@ -167,6 +174,29 @@ export default function ProfileScreen() {
         <LanguageSwitch icon={false} />
       </View>
 
+      <View
+        style={{
+          marginTop: 14,
+          borderRadius: theme.radius.card,
+          borderWidth: 1,
+          borderColor: theme.color.border,
+          backgroundColor: theme.color.surface,
+          overflow: 'hidden',
+        }}>
+        <LinkRow
+          icon={ShieldCheck}
+          label={t('profile.privacy')}
+          onPress={() => openLegalPage('privacy')}
+        />
+        <View style={{ height: 1, backgroundColor: theme.color.border, marginLeft: 70 }} />
+        <LinkRow
+          icon={Trash2}
+          label={t('profile.deleteAccount')}
+          hint={t('profile.deleteAccountHint')}
+          onPress={() => openLegalPage('deleteAccount')}
+        />
+      </View>
+
       <View style={{ marginTop: 18 }}>
         <Button
           label={t('common.logOut')}
@@ -176,5 +206,46 @@ export default function ProfileScreen() {
         />
       </View>
     </Screen>
+  );
+}
+
+function LinkRow({
+  icon,
+  label,
+  hint,
+  onPress,
+}: {
+  icon: LucideIcon;
+  label: string;
+  hint?: string;
+  onPress: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="link"
+      accessibilityLabel={label}
+      accessibilityHint={hint}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 14,
+        paddingVertical: 14,
+        paddingLeft: 16,
+        paddingRight: 12,
+        opacity: pressed ? 0.6 : 1,
+      })}>
+      <IconTile icon={icon} tone="neutral" size={40} />
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text variant="bodyStrong">{label}</Text>
+        {hint ? (
+          <Text variant="caption" color="textMuted">
+            {hint}
+          </Text>
+        ) : null}
+      </View>
+      <ExternalLink size={18} color={theme.color.textMuted} />
+    </Pressable>
   );
 }

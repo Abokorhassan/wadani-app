@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native';
 
 import { PhoneField, Text, TextField, useTheme } from '@/design-system';
 import { PaymentMethodPicker } from '@/features/payments';
+import { openLegalPage } from '@/features/settings';
 
 import type { RegistrationForm } from '../form';
 
@@ -133,8 +134,24 @@ export function PaymentStep({ control, amountHint, wallet, submitError }: Paymen
                 <Trans
                   i18nKey="register.consent"
                   components={{
-                    terms: <Text variant="small" color="actionDeep" />,
-                    privacy: <Text variant="small" color="actionDeep" />,
+                    terms: (
+                      <Text
+                        variant="small"
+                        color="actionDeep"
+                        style={{ textDecorationLine: 'underline' }}
+                        accessibilityRole="link"
+                        onPress={() => openLegalPage('terms')}
+                      />
+                    ),
+                    privacy: (
+                      <Text
+                        variant="small"
+                        color="actionDeep"
+                        style={{ textDecorationLine: 'underline' }}
+                        accessibilityRole="link"
+                        onPress={() => openLegalPage('privacy')}
+                      />
+                    ),
                   }}
                 />
               </Text>

@@ -108,7 +108,10 @@
     "cardCode": "Lambarka kaadhka",
     "work": "Shaqada",
     "language": "Luqadda",
-    "languageHint": "Dooro luqadda app-ka"
+    "languageHint": "Dooro luqadda app-ka",
+    "privacy": "Siyaasadda xogta gaarka ah",
+    "deleteAccount": "Tirtir koontadayda",
+    "deleteAccountHint": "Ka codso xisbiga inay tirtiraan koontadaada iyo xogtaada"
   },
   "communications": {
     "title": "Farriimaha",

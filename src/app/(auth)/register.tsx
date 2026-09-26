@@ -44,7 +44,6 @@ import {
   PhotoUploadUnavailableError,
   type RegistrationForm,
 } from '@/features/registration';
-import { devPrefill } from '@/features/registration/dev-prefill';
 import { formatUsd } from '@/lib/format';
 import { parseMoney } from '@/lib/money';
 import { toInternationalPhone } from '@/lib/phone';
@@ -71,9 +70,7 @@ export default function RegisterScreen() {
   const periods = usePeriods();
 
   const form = useForm<RegistrationForm>({
-    // A dev build with no saved draft opens prefilled, so repeated live-mode
-    // testing doesn't mean retyping the whole form each time (dev-prefill.ts).
-    defaultValues: draft ? draftDefaults(draft) : __DEV__ ? devPrefill() : emptyRegistration,
+    defaultValues: draft ? draftDefaults(draft) : emptyRegistration,
     resolver: registrationResolver,
     mode: 'onBlur',
   });

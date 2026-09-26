@@ -108,7 +108,10 @@
     "cardCode": "Card number",
     "work": "Work",
     "language": "Language",
-    "languageHint": "Choose the app's language"
+    "languageHint": "Choose the app's language",
+    "privacy": "Privacy policy",
+    "deleteAccount": "Delete my account",
+    "deleteAccountHint": "Ask the party to delete your account and data"
   },
   "communications": {
     "title": "Communications",

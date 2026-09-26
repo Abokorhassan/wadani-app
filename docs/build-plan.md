@@ -764,7 +764,8 @@ D24 taken: a new family member is added with a name and relation only, comes bac
 - [ ] Sentry
 - [ ] Accessibility pass: screen reader labels, font scaling, contrast
 - [ ] Review on slow and offline networks
-- [ ] Somali copy review (D13), privacy policy, store listings
+- [x] Privacy policy, terms and account-deletion pages (platform web app); Play listing and forms in [play-store.md](play-store.md)
+- [ ] Somali copy review (D13)
 - [ ] EAS Submit to the Play Store and App Store
 
 **Exit criteria:** v1 is live in both stores with manual payments.

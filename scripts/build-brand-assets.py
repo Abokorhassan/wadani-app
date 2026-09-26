@@ -15,6 +15,7 @@ from pathlib import Path
 from PIL import Image
 
 BRAND = Path(__file__).resolve().parent.parent / "assets" / "brand"
+STORE = BRAND.parent / "store"
 BRAND_ORANGE = (254, 123, 0, 255)  # #FE7B00
 
 SOURCES = {
@@ -80,11 +81,13 @@ def place(mark: Image.Image, canvas: int, scale: float, background=None) -> Imag
 
 def main() -> None:
     seals: dict[str, Image.Image] = {}
+    wordmarks: dict[str, Image.Image] = {}
 
     for name, filename in SOURCES.items():
         source = Image.open(BRAND / filename).convert("RGBA")
         seal, lockup, wordmark = split_seal_and_wordmark(source)
         seals[name] = seal
+        wordmarks[name] = wordmark
         seal.save(BRAND / f"seal-{name}.png")
         lockup.save(BRAND / f"lockup-{name}.png")
         wordmark.save(BRAND / f"wordmark-{name}.png")
@@ -101,6 +104,30 @@ def main() -> None:
     place(seals["white"], 1024, 0.9).save(BRAND / "splash-icon.png")
 
     print("icons written to", BRAND)
+
+    # Google Play listing: 512px icon and 1024x500 feature graphic, both without
+    # transparency (Play rejects an alpha channel on the feature graphic).
+    STORE.mkdir(exist_ok=True)
+    place(seals["white"], 512, 0.68, BRAND_ORANGE).convert("RGB").save(STORE / "play-icon-512.png")
+    feature_graphic(seals["white"], wordmarks["black"]).save(STORE / "play-feature-graphic.png")
+    print("store graphics written to", STORE)
+
+
+def feature_graphic(seal: Image.Image, wordmark: Image.Image) -> Image.Image:
+    """Seal on the left, wordmark on the right, on the brand orange.
+
+    The wordmark is dark: white text on orange fails contrast (AGENTS.md).
+    """
+    out = Image.new("RGBA", (1024, 500), BRAND_ORANGE)
+    seal = seal.resize((300, round(seal.height * 300 / seal.width)), Image.LANCZOS)
+    wordmark = wordmark.resize((460, round(wordmark.height * 460 / wordmark.width)), Image.LANCZOS)
+    gap = 60
+    left = (1024 - seal.width - gap - wordmark.width) // 2
+    out.alpha_composite(seal, (left, (500 - seal.height) // 2))
+    out.alpha_composite(
+        wordmark, (left + seal.width + gap, (500 - wordmark.height) // 2)
+    )
+    return out.convert("RGB")
 
 
 if __name__ == "__main__":
