@@ -1,9 +1,9 @@
 import { request } from '@/api/client';
 import { parseResponse } from '@/api/parse';
 
-import { toMemberCard, toMembershipPeriod, toPlan } from './mappers';
+import { toMember, toMemberCard, toMembershipPeriod, toPlan } from './mappers';
 import { cardResponse, meResponse, periodsResponse, plansResponse } from './schemas';
-import type { MemberCard, MembershipPeriod, Plan } from './types';
+import type { Member, MemberCard, MembershipPeriod, Plan } from './types';
 
 /** Live endpoints, from api-contract/waddani-mobile-api.openapi.json. */
 export const membershipApi = {
@@ -21,10 +21,10 @@ export const membershipApi = {
     ).membershipPeriods.map(toMembershipPeriod);
   },
 
-  /** Identity only — the backend has no endpoint for the full profile. */
-  async getMyId(): Promise<string> {
+  /** The caller's full profile, read live from the backend. */
+  async getMe(): Promise<Member> {
     const data = await request('/mobile/auth/me');
-    return parseResponse(meResponse, data, 'GET /mobile/auth/me').member.id;
+    return toMember(parseResponse(meResponse, data, 'GET /mobile/auth/me').member);
   },
 
   async getCard(): Promise<MemberCard> {

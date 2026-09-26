@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { pickApi } from '@/api/mode';
@@ -14,6 +15,7 @@ const api = pickApi('membership', membershipApi, membershipApiMock);
 export const membershipKeys = {
   plans: ['plans'] as const,
   periods: ['periods'] as const,
+  me: ['me'] as const,
   /** Persisted to disk so the card opens offline (see src/api/query-client.ts). */
   card: ['card'] as const,
 };
@@ -33,15 +35,29 @@ export function usePeriods() {
 }
 
 /**
- * The signed-in member's own record.
- *
- * There is no profile endpoint: the backend returns the full member only from
- * registration, so this is whatever the session saved then. A member who signs
- * in on another device has none, and screens fall back to the card
- * (docs/api-gaps.md, question 5).
+ * The signed-in member's own record. Fetched live from `GET /mobile/auth/me` so
+ * a member sees their full profile on any device -- the session-stored record
+ * (saved at registration) is the offline fallback and is refreshed here.
  */
 export function useMe() {
-  return useSessionStore((state) => state.member);
+  const signedIn = useSessionStore((state) => state.status === 'signed-in');
+  const stored = useSessionStore((state) => state.member);
+  const setMember = useSessionStore((state) => state.setMember);
+
+  const query = useQuery({
+    queryKey: membershipKeys.me,
+    queryFn: () => api.getMe(),
+    enabled: signedIn,
+    initialData: stored ?? undefined,
+  });
+
+  useEffect(() => {
+    if (query.data && JSON.stringify(query.data) !== JSON.stringify(stored)) {
+      setMember(query.data);
+    }
+  }, [query.data, stored, setMember]);
+
+  return query.data ?? stored;
 }
 
 export function useCard() {

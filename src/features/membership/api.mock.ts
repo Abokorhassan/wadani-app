@@ -1,7 +1,7 @@
 import { mockRespond } from '@/api/mock/latency';
 
 import type { MembershipApi } from './api';
-import { toMemberCard, toMembershipPeriod, toPlan } from './mappers';
+import { toMember, toMemberCard, toMembershipPeriod, toPlan } from './mappers';
 import type { MemberDto, MembershipCardDto, MembershipPeriodDto, PlanDto } from './schemas';
 
 /** Fixtures mirror the live payloads field for field (api-contract/). */
@@ -100,6 +100,7 @@ export const periodFixtures: MembershipPeriodDto[] = [
  * of which account actually signed in.
  */
 const cardRegistry = new Map<string, MembershipCardDto>([[memberFixture.id, cardFixture]]);
+const memberRegistry = new Map<string, MemberDto>([[memberFixture.id, memberFixture]]);
 let activeMemberId: string = memberFixture.id;
 
 /** Called by the auth mock on login/register, so getCard answers for the right account. */
@@ -112,9 +113,14 @@ export function registerMockCard(memberId: string, card: MembershipCardDto): voi
   cardRegistry.set(memberId, card);
 }
 
+/** Called by the auth mock when a new member is created, so getMe answers for it. */
+export function registerMockMember(memberId: string, member: MemberDto): void {
+  memberRegistry.set(memberId, member);
+}
+
 export const membershipApiMock: MembershipApi = {
   getPlans: () => mockRespond(planFixtures.map(toPlan)),
   getPeriods: () => mockRespond(periodFixtures.map(toMembershipPeriod), 350),
-  getMyId: () => mockRespond(activeMemberId, 200),
+  getMe: () => mockRespond(toMember(memberRegistry.get(activeMemberId) ?? memberFixture), 200),
   getCard: () => mockRespond(toMemberCard(cardRegistry.get(activeMemberId) ?? cardFixture)),
 };

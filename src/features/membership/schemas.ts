@@ -90,10 +90,8 @@ export const membershipCardDto = z.object({
 
 export const cardResponse = z.object({ membershipCard: membershipCardDto });
 
-/** `GET /mobile/auth/me` carries the id and nothing else. */
-export const meResponse = z.object({
-  member: z.object({ id: z.string(), organizationId: optional(z.string()) }),
-});
+/** `GET /mobile/auth/me` now returns the caller's full member record. */
+export const meResponse = z.object({ member: memberDto });
 
 export type PlanDto = z.infer<typeof planDto>;
 export type MembershipPeriodDto = z.infer<typeof membershipPeriodDto>;
