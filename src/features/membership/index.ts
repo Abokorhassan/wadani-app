@@ -1,4 +1,5 @@
 export { MembershipCard } from './components/membership-card';
+export { MembershipCardBack } from './components/membership-card-back';
 export { MiniCard } from './components/mini-card';
 export { cardFixture, memberFixture, periodFixtures, planFixtures } from './api.mock';
 export {

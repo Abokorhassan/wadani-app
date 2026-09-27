@@ -1,10 +1,16 @@
-import { Download, Share2 } from 'lucide-react-native';
-import { useRef } from 'react';
+import { Download, RefreshCw, Share2 } from 'lucide-react-native';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, View } from 'react-native';
 
 import { Button, ErrorState, Screen, ScreenHeader, Skeleton, useTheme } from '@/design-system';
-import { MembershipCard, useCard, useCardActions, usePlanBadge } from '@/features/membership';
+import {
+  MembershipCard,
+  MembershipCardBack,
+  useCard,
+  useCardActions,
+  usePlanBadge,
+} from '@/features/membership';
 
 export default function CardScreen() {
   const theme = useTheme();
@@ -13,6 +19,7 @@ export default function CardScreen() {
   const badgeUrl = usePlanBadge(card.data?.membershipType);
   const cardRef = useRef<View>(null);
   const { save, share, busy } = useCardActions(cardRef);
+  const [showBack, setShowBack] = useState(false);
 
   return (
     <Screen
@@ -27,7 +34,11 @@ export default function CardScreen() {
 
       <View style={{ marginTop: 22 }}>
         {card.data ? (
-          <MembershipCard ref={cardRef} card={card.data} badgeUrl={badgeUrl} />
+          showBack ? (
+            <MembershipCardBack ref={cardRef} />
+          ) : (
+            <MembershipCard ref={cardRef} card={card.data} badgeUrl={badgeUrl} />
+          )
         ) : card.isError ? (
           <ErrorState
             message={t('card.loadFailed')}
@@ -40,23 +51,31 @@ export default function CardScreen() {
       </View>
 
       {card.data ? (
-        <View style={{ flexDirection: 'row', gap: 12, marginTop: 20 }}>
+        <View style={{ gap: 12, marginTop: 20 }}>
           <Button
-            label={t('card.save')}
-            icon={Download}
+            label={showBack ? t('card.flipToFront') : t('card.flipToBack')}
+            icon={RefreshCw}
             variant="secondary"
-            loading={busy === 'save'}
-            onPress={() => void save()}
-            style={{ flex: 1 }}
+            onPress={() => setShowBack((prev) => !prev)}
           />
-          <Button
-            label={t('card.share')}
-            icon={Share2}
-            variant="secondary"
-            loading={busy === 'share'}
-            onPress={() => void share()}
-            style={{ flex: 1 }}
-          />
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <Button
+              label={t('card.save')}
+              icon={Download}
+              variant="secondary"
+              loading={busy === 'save'}
+              onPress={() => void save()}
+              style={{ flex: 1 }}
+            />
+            <Button
+              label={t('card.share')}
+              icon={Share2}
+              variant="secondary"
+              loading={busy === 'share'}
+              onPress={() => void share()}
+              style={{ flex: 1 }}
+            />
+          </View>
         </View>
       ) : null}
     </Screen>

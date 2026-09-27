@@ -81,11 +81,18 @@
     "openCard": "Open membership card",
     "save": "Save",
     "share": "Share",
+    "flipToBack": "View back",
+    "flipToFront": "View front",
     "saved": "Card saved to your photos.",
     "saveFailed": "Couldn't save the card. Please try again.",
     "photosDenied": "Allow photo access to save your card.",
     "shareTitle": "My Waddani membership card",
     "loadFailed": "We couldn't load your card."
+  },
+  "cardBack": {
+    "exclusive": "This ID belongs exclusively to members of the WADDANI Party.",
+    "ifFound": "If you find this card, please return it to the nearest party office or contact us on WhatsApp:",
+    "stampLabel": "Membership Office seal"
   },
   "payments": {
     "title": "Payment history",

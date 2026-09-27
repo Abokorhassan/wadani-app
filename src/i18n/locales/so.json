@@ -81,11 +81,18 @@
     "openCard": "Fur kaadhka xubinnimada",
     "save": "Kaydi",
     "share": "La wadaag",
+    "flipToBack": "Eeg dhabarka",
+    "flipToFront": "Eeg horaanta",
     "saved": "Kaadhka waxa lagu kaydiyay sawiradaada.",
     "saveFailed": "Kaadhka lama kaydin karin. Fadlan isku day mar kale.",
     "photosDenied": "Oggolow sawirada si aad u kaydiso kaadhkaaga.",
     "shareTitle": "Kaadhkayga xubinnimada Waddani",
     "loadFailed": "Kaadhkaaga lama soo rari karin."
+  },
+  "cardBack": {
+    "exclusive": "Aqoonsigani waxa uu gaar u yahay xubnaha Xisbiga WADDANI.",
+    "ifFound": "Haddii aad hesho aqoonsigan fadlan ku hagaaji xafiiska kuugu dhow ee xisbiga ama nagala soo xidhiidh lambarkan WhatsApp-ka ah:",
+    "stampLabel": "Shaabadda Xafiiska Xubinnimada"
   },
   "payments": {
     "title": "Taariikhda lacag bixinta",

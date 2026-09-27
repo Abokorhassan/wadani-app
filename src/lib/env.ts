@@ -13,6 +13,8 @@ export const env = {
   mockLatencyMs: Number(process.env.EXPO_PUBLIC_MOCK_LATENCY_MS ?? 450),
   /** The party's website, which hosts the privacy policy, terms and account deletion page. */
   siteUrl: process.env.EXPO_PUBLIC_SITE_URL || 'https://wp-membership-system.com',
+  /** The party's WhatsApp, printed on the back of the membership card. */
+  partyWhatsApp: process.env.EXPO_PUBLIC_PARTY_WHATSAPP || '+252653140475',
   /** Link shared by "Invite family & friends"; the store or landing page (build-plan D19). */
   inviteUrl: process.env.EXPO_PUBLIC_INVITE_URL ?? '',
   /**
