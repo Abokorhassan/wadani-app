@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowRight, ChevronLeft } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,6 @@ import {
 } from '@/design-system';
 import { useLogin } from '@/features/auth';
 import { LanguageSwitch } from '@/features/settings';
-import { openWhatsApp, useContactInfo } from '@/features/support';
 
 const sealColor = require('@/assets/brand/seal-color.png');
 
@@ -28,9 +27,9 @@ export default function LoginScreen() {
   const { t } = useTranslation();
   const toast = useToast();
   const login = useLogin();
-  const contact = useContactInfo();
+  const params = useLocalSearchParams<{ identifier?: string }>();
 
-  const [identifier, setIdentifier] = useState('');
+  const [identifier, setIdentifier] = useState(params.identifier ?? '');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ identifier?: string; password?: string }>({});
 
@@ -57,11 +56,9 @@ export default function LoginScreen() {
     );
   };
 
-  /** No reset endpoint yet, so the office picks it up on WhatsApp (build-plan D10). */
-  const forgotPassword = () => {
-    if (!contact.data) return;
-    void openWhatsApp(contact.data.whatsappNumber, t('login.forgotMessage'));
-  };
+  /** Email code, then a new password (build-plan D10). */
+  const forgotPassword = () =>
+    router.push({ pathname: '/forgot-password', params: { identifier: identifier.trim() } });
 
   return (
     <Screen>

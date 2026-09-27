@@ -10,7 +10,12 @@ import { authApi } from './api';
 import { authApiMock } from './api.mock';
 import { registerResponse } from './schemas';
 import { useSessionStore } from './session-store';
-import type { Credentials, RegistrationPayload, RegistrationResult } from './types';
+import type {
+  Credentials,
+  PasswordResetInput,
+  RegistrationPayload,
+  RegistrationResult,
+} from './types';
 
 const api = pickApi('auth', authApi, authApiMock);
 
@@ -56,9 +61,33 @@ export function useRegister() {
   });
 }
 
-export function usePasswordReset() {
+/** Step 1 of a password reset: email a code to the member. */
+export function useRequestPasswordReset() {
   return useMutation({
     mutationFn: (identifier: string) => api.requestPasswordReset(identifier),
+  });
+}
+
+/**
+ * Step 2: set the new password with the code, then sign straight in with it.
+ * Resolves to whether that sign-in worked: the password has changed either way,
+ * so a failed sign-in is not a failed reset.
+ */
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: async (input: PasswordResetInput): Promise<{ signedIn: boolean }> => {
+      await api.resetPassword(input);
+      try {
+        const session = await api.login({
+          identifier: input.identifier,
+          password: input.newPassword,
+        });
+        await adoptSession(session);
+        return { signedIn: true };
+      } catch {
+        return { signedIn: false };
+      }
+    },
   });
 }
 

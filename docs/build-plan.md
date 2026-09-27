@@ -515,7 +515,7 @@ Live paths, from the OpenAPI document. Wired up on 2026-09-19.
 | Register and pay        | `POST /mobile/auth/register`                  | S2              | `201` member + payment + card, or `202` card checkout                                                |
 | Log in                  | `POST /mobile/auth/login`                     | S4              | `{identifier, password}` → `{accessToken, memberId}`                                                 |
 | Log out                 | `POST /mobile/auth/logout`                    | S13             |                                                                                                      |
-| Forgot / reset password | `POST /mobile/auth/password/forgot`, `/reset` | S4              | Replaces the WhatsApp fallback in D10                                                                |
+| Forgot / reset password | `POST /mobile/auth/password/forgot`, `/reset` | S4              | **Done 2026-09-27.** Code goes by email only; WhatsApp stays for members with no email               |
 | Own id                  | `GET /mobile/auth/me`                         | session         | Id only — no profile                                                                                 |
 | List plans              | `GET /mobile/plans`                           | S2              | `{plans}`; `price` is a decimal string, `benefits` plain strings                                     |
 | List periods            | `GET /mobile/membership-periods`              | S2              | `{membershipPeriods}`                                                                                |

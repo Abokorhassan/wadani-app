@@ -328,5 +328,30 @@
     "conflict": "Lacagtaada waa la helay laakiin ma aanu dhammaystiri karin. Fadlan la xidhiidh xafiiska si aanu u xallino.",
     "error": "Ma aanu xaqiijin karin lacag bixintaada. Haddii lacag lagaa jaray, fadlan la xidhiidh xafiiska.",
     "paidSignIn": "Lacagta waa la helay, koontadaaduna waa diyaar. Fadlan soo gal si aad u aragto kaadhkaaga."
+  },
+  "forgot": {
+    "subtitle": "Geli telefoonkaaga ama iimaylkaaga. Waxaan kood 6 god ah u diri doonaa iimaylka koontadaada.",
+    "sendCode": "Dir koodka",
+    "sendFailed": "Koodka lama diri karin. Fadlan isku day mar kale.",
+    "checkEmailTitle": "Eeg iimaylkaaga",
+    "checkEmailSubtitle": "Waxaan kood 6 god ah u dirnay iimaylka koontadaada. Wuxuu shaqaynayaa 10 daqiiqo.",
+    "code": "Koodka 6 god ah",
+    "codeInvalid": "Geli koodka 6 god ah ee iimaylka.",
+    "codeRejected": "Koodkaasi waa khalad ama wuu dhacay. Eeg iimaylka ama dir kood cusub.",
+    "newPassword": "Furaha sirta ah ee cusub",
+    "confirmPassword": "Xaqiiji furaha cusub",
+    "passwordTooShort": "Furaha sirta ahi waa inuu ahaadaa ugu yaraan 8 xaraf.",
+    "passwordMismatch": "Labada fure isma mid aha.",
+    "submit": "Deji furaha cusub",
+    "done": "Furaha waa la beddelay. Ku soo dhawoow!",
+    "doneLogIn": "Furaha waa la beddelay. Ku gal furahaaga cusub.",
+    "noCode": "Ma helin?",
+    "resend": "Mar kale dir",
+    "resent": "Kood cusub ayaan kuu dirnay.",
+    "noEmail": "Koontadaadu iimayl ma leedahay?",
+    "askWhatsApp": "Nagala soo xidhiidh WhatsApp",
+    "identifierInvalid": "Geli lambar telefoon sax ah (tusaale 63 234 5678) ama iimayl.",
+    "accountNotFound": "Lama helin koonto leh telefoonkaas ama iimaylkaas.",
+    "noEmailOnAccount": "Koontadani iimayl ma leh, markaa kood kuma diri karno. Hoos nagala soo xidhiidh WhatsApp."
   }
 }

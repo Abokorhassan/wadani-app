@@ -49,3 +49,12 @@ export interface AuthSession {
   accessToken: string;
   memberId: string;
 }
+
+/** The code emailed by the forgot-password request, plus the new password. */
+export interface PasswordResetInput {
+  /** The same phone or email the code was requested for. */
+  identifier: string;
+  /** 6 digits. */
+  otp: string;
+  newPassword: string;
+}

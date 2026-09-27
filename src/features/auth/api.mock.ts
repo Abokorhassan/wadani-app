@@ -17,6 +17,9 @@ import type { RegistrationPayload } from './types';
 /** The member from the fixtures signs in with this password. */
 export const DEMO_PASSWORD = 'waddani123';
 
+/** The mock "emails" this reset code for every account. */
+export const DEMO_RESET_CODE = '123456';
+
 interface Account {
   member: MemberDto;
   password: string;
@@ -123,4 +126,18 @@ export const authApiMock: AuthApi = {
 
   logout: () => mockRespond(undefined, 200),
   requestPasswordReset: () => mockRespond(undefined, 500),
+
+  resetPassword: async ({ identifier, otp, newPassword }) => {
+    await mockRespond(null, 600);
+    const account = accounts.find((candidate) => matches(candidate, identifier));
+    // Same answer for an unknown account and a wrong code, as the API does.
+    if (!account || otp !== DEMO_RESET_CODE) {
+      throw new ApiRequestError({
+        kind: 'validation',
+        fieldErrors: {},
+        message: 'Invalid or expired OTP',
+      });
+    }
+    account.password = newPassword;
+  },
 };

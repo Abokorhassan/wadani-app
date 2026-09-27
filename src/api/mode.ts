@@ -37,8 +37,8 @@ const mockedFeatures: ReadonlySet<string> =
  * Features the backend has no endpoints for at all (docs/api-gaps.md §2).
  * They stay on their stand-in data whatever the setting says, because going
  * live for them means 404s: `support` alone backs the Contact screen, the
- * pending screen's contact button and the "Forgot password?" fallback on
- * Login. Take a feature out of this list when its endpoints land.
+ * pending screen's contact button and the WhatsApp way out on the
+ * forgot-password screen. Take a feature out of this list when its endpoints land.
  */
 const WITHOUT_BACKEND: ReadonlySet<FeatureKey> = new Set(['family', 'notifications', 'support']);
 

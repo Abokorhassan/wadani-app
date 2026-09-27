@@ -328,5 +328,30 @@
     "conflict": "Your payment was received but we couldn't finish. Please contact the office so we can sort it out.",
     "error": "We couldn't confirm your payment. If money left your account, please contact the office.",
     "paidSignIn": "Payment received and your account is ready. Please log in to see your card."
+  },
+  "forgot": {
+    "subtitle": "Enter your phone or email. We'll email a 6-digit code to the email on your account.",
+    "sendCode": "Send code",
+    "sendFailed": "We couldn't send the code. Please try again.",
+    "checkEmailTitle": "Check your email",
+    "checkEmailSubtitle": "We sent a 6-digit code to the email on your account. It works for 10 minutes.",
+    "code": "6-digit code",
+    "codeInvalid": "Enter the 6-digit code from the email.",
+    "codeRejected": "That code is wrong or has expired. Check the email or send a new code.",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordMismatch": "The passwords don't match.",
+    "submit": "Set new password",
+    "done": "Password changed. Welcome back!",
+    "doneLogIn": "Password changed. Log in with your new password.",
+    "noCode": "Didn't get it?",
+    "resend": "Send again",
+    "resent": "We sent a new code.",
+    "noEmail": "No email on your account?",
+    "askWhatsApp": "Ask us on WhatsApp",
+    "identifierInvalid": "Enter a valid phone number (e.g. 63 234 5678) or email.",
+    "accountNotFound": "No account found for that phone or email.",
+    "noEmailOnAccount": "This account has no email, so we can't send a code. Ask us on WhatsApp below."
   }
 }

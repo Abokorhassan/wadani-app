@@ -89,7 +89,7 @@ describe('Phase 0 — foundations', () => {
 
   it('never sends features with no endpoints to the live API', () => {
     // Going live means EXPO_PUBLIC_API_MOCK=none. These three have no
-    // endpoints, and `support` backs Login's "Forgot password?", so letting
+    // endpoints, and `support` backs the forgot-password WhatsApp link, so letting
     // them follow that setting would 404 three screens (docs/api-gaps.md §2).
     const { isMocked, FEATURES_WITHOUT_BACKEND } = require('../api/mode');
     expect([...FEATURES_WITHOUT_BACKEND].sort()).toEqual(['family', 'notifications', 'support']);
@@ -507,9 +507,38 @@ describe('Phase 1 — onboarding', () => {
       'pending.title',
       'pending.stepApproved',
       'login.forgotPassword',
+      'forgot.sendCode',
+      'forgot.submit',
     ]) {
       expect(hasText(key)).toBe(true);
     }
+  });
+
+  it('resets a forgotten password with an emailed code (D10)', async () => {
+    expect(exists('app/(auth)/forgot-password.tsx')).toBe(true);
+    const { authApiMock, DEMO_PASSWORD, DEMO_RESET_CODE } = require('../features/auth/api.mock');
+    const { memberFixture } = require('../features/membership/api.mock');
+    const identifier = memberFixture.phone;
+
+    await expect(
+      authApiMock.resetPassword({ identifier, otp: '000000', newPassword: 'another-pass-1' })
+    ).rejects.toBeTruthy();
+
+    await authApiMock.resetPassword({
+      identifier,
+      otp: DEMO_RESET_CODE,
+      newPassword: 'another-pass-1',
+    });
+    await expect(
+      authApiMock.login({ identifier, password: 'another-pass-1' })
+    ).resolves.toBeTruthy();
+
+    // Put the demo password back for the rest of the suite.
+    await authApiMock.resetPassword({
+      identifier,
+      otp: DEMO_RESET_CODE,
+      newPassword: DEMO_PASSWORD,
+    });
   });
 });
 

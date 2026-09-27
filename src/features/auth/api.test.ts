@@ -30,3 +30,29 @@ describe('login identifier', () => {
     expect(await identifierSentFor('12345')).toBe('12345');
   });
 });
+
+describe('password reset', () => {
+  it('asks for a code with the phone in international form', async () => {
+    requestMock.mockResolvedValue({ message: 'ok' });
+    await authApi.requestPasswordReset('63 234 5678');
+    expect(requestMock).toHaveBeenLastCalledWith('/mobile/auth/password/forgot', {
+      method: 'POST',
+      body: { identifier: '+252632345678' },
+      authenticated: false,
+    });
+  });
+
+  it('sends the code and new password in the shape the API expects', async () => {
+    requestMock.mockResolvedValue({ message: 'ok' });
+    await authApi.resetPassword({
+      identifier: ' amina@example.com ',
+      otp: '042917',
+      newPassword: 'new-secret-123',
+    });
+    expect(requestMock).toHaveBeenLastCalledWith('/mobile/auth/password/reset', {
+      method: 'POST',
+      body: { identifier: 'amina@example.com', otp: '042917', newPassword: 'new-secret-123' },
+      authenticated: false,
+    });
+  });
+});

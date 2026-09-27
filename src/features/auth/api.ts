@@ -6,7 +6,23 @@ import { decodeJwtClaims } from '@/lib/jwt';
 import { toInternationalPhone } from '@/lib/phone';
 
 import { loginResponse, registerResponse } from './schemas';
-import type { AuthSession, Credentials, RegistrationPayload, RegistrationResult } from './types';
+import type {
+  AuthSession,
+  Credentials,
+  PasswordResetInput,
+  RegistrationPayload,
+  RegistrationResult,
+} from './types';
+
+/**
+ * Registration stores the phone in international form, so a phone typed the way
+ * people write it ("63 234 5678") has to be turned into that to match. An email,
+ * or anything that is not a phone, goes through untouched.
+ */
+function toIdentifier(raw: string): string {
+  const identifier = raw.trim();
+  return identifier.includes('@') ? identifier : (toInternationalPhone(identifier) ?? identifier);
+}
 
 function registerBody(payload: RegistrationPayload): Record<string, unknown> {
   return {
@@ -29,18 +45,9 @@ function registerBody(payload: RegistrationPayload): Record<string, unknown> {
 
 export const authApi = {
   async login(credentials: Credentials): Promise<AuthSession> {
-    // Registration stores the phone in international form, so a phone typed the
-    // way people write it ("63 234 5678") has to be turned into that to match.
-    // An email, or anything that is not a phone, goes through untouched.
-    const identifier = credentials.identifier.trim();
     const data = await request('/mobile/auth/login', {
       method: 'POST',
-      body: {
-        ...credentials,
-        identifier: identifier.includes('@')
-          ? identifier
-          : (toInternationalPhone(identifier) ?? identifier),
-      },
+      body: { ...credentials, identifier: toIdentifier(credentials.identifier) },
       authenticated: false,
     });
     const parsed = parseResponse(loginResponse, data, 'POST /mobile/auth/login');
@@ -86,10 +93,24 @@ export const authApi = {
     await request('/mobile/auth/logout', { method: 'POST' });
   },
 
+  /**
+   * Emails a 6-digit code, valid for 10 minutes. A 404 means no member has that
+   * phone or email; a 422 with code NO_EMAIL_ON_FILE means the member has no
+   * email to send it to.
+   */
   async requestPasswordReset(identifier: string): Promise<void> {
     await request('/mobile/auth/password/forgot', {
       method: 'POST',
-      body: { identifier },
+      body: { identifier: toIdentifier(identifier) },
+      authenticated: false,
+    });
+  },
+
+  /** A wrong, expired or used code comes back as a 400 "Invalid or expired OTP". */
+  async resetPassword(input: PasswordResetInput): Promise<void> {
+    await request('/mobile/auth/password/reset', {
+      method: 'POST',
+      body: { ...input, identifier: toIdentifier(input.identifier) },
       authenticated: false,
     });
   },
