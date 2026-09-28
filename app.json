@@ -54,6 +54,16 @@
           "savePhotosPermission": "Waddani saves your membership card to your photos.",
           "isAccessMediaLocationEnabled": false
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "enablePngCrunchInReleaseBuilds": true
+          }
+        }
       ]
     ],
     "experiments": {
