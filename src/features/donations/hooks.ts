@@ -6,7 +6,7 @@ import { paymentsKeys } from '@/features/payments/hooks';
 
 import { donationsApi } from './api';
 import { donationsApiMock } from './api.mock';
-import type { DonationDraft } from './types';
+import type { DonationDraft, GuestDonationDraft } from './types';
 
 const api = pickApi('donations', donationsApi, donationsApiMock);
 
@@ -17,5 +17,12 @@ export function useCreateDonation() {
     mutationFn: (draft: DonationDraft) => api.createDonation(draft),
     // A donation is a payment too, so the history reloads.
     onSuccess: () => queryClient.invalidateQueries({ queryKey: paymentsKeys.history }),
+  });
+}
+
+/** No history to refresh: a guest has no account to show it in. */
+export function useCreateGuestDonation() {
+  return useMutation({
+    mutationFn: (draft: GuestDonationDraft) => api.createGuestDonation(draft),
   });
 }

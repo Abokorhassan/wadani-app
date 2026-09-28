@@ -22,7 +22,8 @@
     "registerDescription": "Samee koonto xubinnimo oo cusub",
     "loginTitle": "Horay ayaan xubin u ahay",
     "loginDescription": "Soo gal si aad u aragto kaadhkaaga xubinnimada",
-    "memberSince": "Xisbiga Waddani · Xisbiga Qaranka Somaliland"
+    "memberSince": "Xisbiga Waddani · Xisbiga Qaranka Somaliland",
+    "donateTitle": "Taageer"
   },
   "login": {
     "title": "Ku soo dhawoow mar kale",
@@ -223,7 +224,17 @@
     "payerPhone": "Lambarka lacagta laga jarayo",
     "payerPhoneHint": "Qof kale ayaa kuu bixin kara.",
     "payerPhoneRequired": "Fadlan geli lambarka lacagta laga jarayo.",
-    "payerPhoneInvalid": "Geli lambar sax ah, tusaale 63 234 5678."
+    "payerPhoneInvalid": "Geli lambar sax ah, tusaale 63 234 5678.",
+    "guestSubtitle": "Taageer Xisbiga Waddani. Koonto looma baahna.",
+    "yourDetails": "Xogtaada",
+    "fullName": "Magaca oo buuxa",
+    "phone": "Lambarka telefoonka",
+    "fullNameRequired": "Fadlan geli magacaaga.",
+    "phoneRequired": "Fadlan geli lambarka telefoonkaaga.",
+    "phoneInvalid": "Geli lambar telefoon sax ah, tusaale 63 234 5678.",
+    "payerPhoneGuestHint": "Ka tag madhan si aad uga bixiso lambarkaaga.",
+    "becomeMember": "Noqo xubin",
+    "backToStart": "Ku noqo bilowga"
   },
   "register": {
     "title": "Samee koontadaada",

@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { useRouter, type Href } from 'expo-router';
-import { ArrowRight, KeyRound, UserPlus, type LucideIcon } from 'lucide-react-native';
+import { ArrowRight, Heart, KeyRound, UserPlus, type LucideIcon } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -31,6 +31,29 @@ export default function WelcomeScreen() {
         }}>
         <LanguageSwitch tone="brand" />
       </View>
+
+      {/* Giving needs no account, so it sits up here for anyone, opposite the language switch. */}
+      <Pressable
+        onPress={() => router.push('/give')}
+        accessibilityRole="button"
+        accessibilityLabel={t('welcome.donateTitle')}
+        style={({ pressed }) => ({
+          position: 'absolute',
+          zIndex: 1,
+          top: insets.top + theme.spacing.md,
+          left: theme.spacing.gutter,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6,
+          height: 38,
+          paddingHorizontal: 14,
+          borderRadius: theme.radius.pill,
+          backgroundColor: theme.color.surface,
+          opacity: pressed ? 0.85 : 1,
+        })}>
+        <Heart size={16} color={theme.color.actionDeep} fill={theme.color.actionDeep} />
+        <Text variant="smallStrong">{t('welcome.donateTitle')}</Text>
+      </Pressable>
 
       <View
         style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: insets.top }}>

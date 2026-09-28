@@ -22,7 +22,8 @@
     "registerDescription": "Create a new membership account",
     "loginTitle": "I'm already a member",
     "loginDescription": "Log in to view your membership card",
-    "memberSince": "Xisbiga Waddani · Somaliland National Party"
+    "memberSince": "Xisbiga Waddani · Somaliland National Party",
+    "donateTitle": "Support"
   },
   "login": {
     "title": "Welcome back",
@@ -223,7 +224,17 @@
     "payerPhone": "Wallet number to charge",
     "payerPhoneHint": "It can be someone else paying for you.",
     "payerPhoneRequired": "Please enter the wallet number to charge.",
-    "payerPhoneInvalid": "Enter a valid wallet number, e.g. 63 234 5678."
+    "payerPhoneInvalid": "Enter a valid wallet number, e.g. 63 234 5678.",
+    "guestSubtitle": "Support Xisbiga Waddani. No account needed.",
+    "yourDetails": "Your details",
+    "fullName": "Full name",
+    "phone": "Phone number",
+    "fullNameRequired": "Please enter your name.",
+    "phoneRequired": "Please enter your phone number.",
+    "phoneInvalid": "Enter a valid phone number, e.g. 63 234 5678.",
+    "payerPhoneGuestHint": "Leave empty to pay from your own phone number.",
+    "becomeMember": "Become a member",
+    "backToStart": "Back to start"
   },
   "register": {
     "title": "Create your account",

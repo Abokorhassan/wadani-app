@@ -7,6 +7,13 @@ export interface DonationDraft {
   payerPhone?: string;
 }
 
+/** A donation from someone without an account (POST /mobile/donations). */
+export interface GuestDonationDraft extends DonationDraft {
+  fullName: string;
+  /** The donor's own phone; the wallet charged can be a different one. */
+  phone: string;
+}
+
 export interface Donation {
   id: string;
   amountUsd: number;

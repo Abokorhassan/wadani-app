@@ -542,6 +542,15 @@ describe('Phase 1 — onboarding', () => {
   });
 });
 
+describe('Guest donation', () => {
+  it('lets anyone donate from Welcome without an account', () => {
+    expect(exists('app/(auth)/give.tsx')).toBe(true);
+    for (const key of ['welcome.donateTitle', 'donate.guestSubtitle', 'donate.becomeMember']) {
+      expect(hasText(key)).toBe(true);
+    }
+  });
+});
+
 describe('Phase 2 — membership core', () => {
   it('has the four tab screens plus the card and communications', () => {
     for (const route of ['home', 'news-events', 'payments', 'profile']) {
@@ -699,7 +708,9 @@ describe('Phase 4 — family & donate', () => {
   });
 
   it('accepts the quick amounts and rejects nonsense ones', () => {
-    const { parseAmount, DONATION_PRESETS } = require('../features/donations');
+    // The data modules directly: the feature's index also carries its screens.
+    const { parseAmount } = require('../features/donations/mappers');
+    const { DONATION_PRESETS } = require('../features/donations/types');
     expect(DONATION_PRESETS).toEqual([5, 10, 25, 50]);
     expect(parseAmount('25.00')).toBe(25);
     expect(parseAmount('$7.5')).toBe(7.5);
