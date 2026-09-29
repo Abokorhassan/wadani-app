@@ -42,5 +42,5 @@ example
 # generated native folders
 /ios
 /android
-*.apk
+# *.apk
 *.aab
