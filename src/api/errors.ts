@@ -60,8 +60,10 @@ export function describeError(error: ApiError): string {
  * (api-contract/, schema Error). `details` is **not** a map of field errors --
  * a declined payment sends `details: { code: 'TRANSACTION_FAILED' }` -- so
  * reading it as one invented a field called "code" and sent the wizard to the
- * step for an unknown field with nothing shown. Only the conventional
- * field-error keys are read; `details` is surfaced as `code` instead.
+ * step for an unknown field with nothing shown. So from `details` only entries
+ * holding a list of messages are read as fields, which is how the API reports
+ * them (`details: { email: ["A member with this email already exists"] }`);
+ * a string such as `code` is surfaced by `errorCode` instead.
  */
 export function parseValidationBody(body: unknown): {
   fieldErrors: Record<string, string>;
@@ -85,6 +87,13 @@ export function parseValidationBody(body: unknown): {
         if (typeof value === 'string') fieldErrors[field] = value;
         else if (Array.isArray(value) && typeof value[0] === 'string')
           fieldErrors[field] = value[0];
+      }
+    }
+
+    const details = record.details;
+    if (details && typeof details === 'object' && !Array.isArray(details)) {
+      for (const [field, value] of Object.entries(details as Record<string, unknown>)) {
+        if (Array.isArray(value) && typeof value[0] === 'string') fieldErrors[field] ??= value[0];
       }
     }
   }

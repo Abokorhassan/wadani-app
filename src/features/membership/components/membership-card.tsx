@@ -5,11 +5,18 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
-import { Avatar, StatusPill, Text, useTheme } from '@/design-system';
+import {
+  Avatar,
+  FacebookIcon,
+  StatusPill,
+  Text,
+  TikTokIcon,
+  useTheme,
+  XIcon,
+} from '@/design-system';
 
 import { isExpired, SOCIAL_HANDLE } from '../status';
 import type { MemberCard } from '../types';
-import { FacebookIcon, TikTokIcon, XIcon } from './social-icons';
 
 const sealColor = require('@/assets/brand/seal-color.png');
 const wordmarkBlack = require('@/assets/brand/wordmark-black.png');

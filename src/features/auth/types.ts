@@ -30,7 +30,8 @@ export interface RegistrationPayload {
   professionalWork: string;
   birthYear: number;
   membershipTypeId: string;
-  membershipPeriodId: string;
+  /** How long the membership lasts, 1 to 60. Replaces the period catalogue (2026-09-29). */
+  membershipMonths: number;
   address: Address;
   password: string;
   charge: ChargeRequest;

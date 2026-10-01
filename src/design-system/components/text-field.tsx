@@ -20,6 +20,8 @@ export interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   optional?: string;
   /** Static text shown before the input, e.g. a dialling code. */
   prefix?: string;
+  /** Element before the input, e.g. a dialling-code picker. Takes the place of `prefix`. */
+  leading?: React.ReactNode;
   /** Element at the end of the input, e.g. a show-password toggle. */
   trailing?: React.ReactNode;
   containerStyle?: StyleProp<ViewStyle>;
@@ -32,6 +34,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
     hint,
     optional,
     prefix,
+    leading,
     trailing,
     containerStyle,
     onFocus,
@@ -78,7 +81,8 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
           },
           focused && !error ? { boxShadow: '0px 0px 0px 4px rgba(102, 120, 60, 0.14)' } : null,
         ]}>
-        {prefix ? (
+        {leading ?? null}
+        {!leading && prefix ? (
           <>
             <Text variant="bodyMedium" style={{ fontFamily: theme.fonts.text600 }}>
               {prefix}
@@ -143,19 +147,6 @@ export function PasswordField(props: TextFieldProps) {
           <Icon size={20} color={theme.color.textMuted} />
         </Pressable>
       }
-    />
-  );
-}
-
-/** Phone input with the Somaliland dialling code shown as a prefix. */
-export function PhoneField(props: TextFieldProps) {
-  return (
-    <TextField
-      keyboardType="phone-pad"
-      autoComplete="tel"
-      prefix="+252"
-      placeholder="63 234 5678"
-      {...props}
     />
   );
 }

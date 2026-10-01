@@ -29,7 +29,7 @@ const payload = (method: ChargeMethod): RegistrationPayload => ({
   professionalWork: 'Engineer',
   birthYear: 1995,
   membershipTypeId: '00000000-0000-0000-0000-000000000000',
-  membershipPeriodId: '00000000-0000-0000-0000-000000000000',
+  membershipMonths: 12,
   address: {
     line1: '123 Main St',
     city: 'Hargeisa',
@@ -58,6 +58,13 @@ describe('POST /mobile/auth/register body', () => {
     }
   );
 
+  it('sends the typed months and no period, which the API no longer needs (2026-09-29)', async () => {
+    const body = await bodyFor('WAAFI');
+    expect(body.membershipMonths).toBe(12);
+    expect(body).not.toHaveProperty('membershipPeriodId');
+    expect(spec.required).not.toContain('membershipPeriodId');
+  });
+
   it("matches the spec's own example for a wallet payment", async () => {
     expect(await bodyFor('WAAFI')).toEqual({
       fullName: 'Mobile Tester',
@@ -69,7 +76,7 @@ describe('POST /mobile/auth/register body', () => {
       professionalWork: 'Engineer',
       birthYear: 1995,
       membershipTypeId: '00000000-0000-0000-0000-000000000000',
-      membershipPeriodId: '00000000-0000-0000-0000-000000000000',
+      membershipMonths: 12,
       address: {
         line1: '123 Main St',
         city: 'Hargeisa',

@@ -68,11 +68,12 @@ export function DonateFlow({ guest = false }: { guest?: boolean }) {
       if (!phone.trim()) next.phone = t('donate.phoneRequired');
       else if (toInternationalPhone(phone) === null) next.phone = t('donate.phoneInvalid');
     }
-    // A guest who leaves the wallet empty pays from their own phone.
-    const wallet = payerPhone.trim() || (guest ? phone.trim() : '');
-    if (isWalletMethod(method) && !next.phone) {
+    // The wallet is always asked for: a guest's own phone may be abroad, and the
+    // wallets Sifalo charges are all Somali.
+    const wallet = payerPhone.trim();
+    if (isWalletMethod(method)) {
       if (!wallet) next.payerPhone = t('donate.payerPhoneRequired');
-      else if (toInternationalPhone(wallet) === null)
+      else if (!toInternationalPhone(wallet)?.startsWith('+252'))
         next.payerPhone = t('donate.payerPhoneInvalid');
     }
     setErrors(next);
@@ -195,6 +196,10 @@ export function DonateFlow({ guest = false }: { guest?: boolean }) {
             />
             <PhoneField
               label={t('donate.phone')}
+              countryPicker={{
+                title: t('register.countryCode'),
+                searchPlaceholder: t('register.countrySearch'),
+              }}
               value={phone}
               onChangeText={(value) => {
                 setPhone(value);
@@ -215,8 +220,7 @@ export function DonateFlow({ guest = false }: { guest?: boolean }) {
         {isWalletMethod(method) ? (
           <PhoneField
             label={t('donate.payerPhone')}
-            hint={guest ? t('donate.payerPhoneGuestHint') : t('donate.payerPhoneHint')}
-            optional={guest ? t('common.optional') : undefined}
+            hint={t('donate.payerPhoneHint')}
             value={payerPhone}
             onChangeText={(value) => {
               setPayerPhone(value);

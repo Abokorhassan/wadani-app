@@ -55,6 +55,19 @@ describe('api errors', () => {
     expect(parseValidationBody(declined).fieldErrors).toEqual({});
   });
 
+  it('reads a field the API names in `details`, as a duplicate email does (409)', () => {
+    const duplicate = {
+      error: {
+        message: 'A member with this email already exists',
+        details: { email: ['A member with this email already exists'] },
+        traceId: 't',
+      },
+    };
+    expect(parseValidationBody(duplicate).fieldErrors).toEqual({
+      email: 'A member with this email already exists',
+    });
+  });
+
   it('keeps the machine-readable code separate', () => {
     expect(errorCode(declined)).toBe('TRANSACTION_FAILED');
     expect(errorCode({ error: { message: 'no details' } })).toBeUndefined();

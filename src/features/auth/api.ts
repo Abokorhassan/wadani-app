@@ -5,7 +5,7 @@ import { asCardCheckout, chargeBody } from '@/features/payments/api';
 import { decodeJwtClaims } from '@/lib/jwt';
 import { toInternationalPhone } from '@/lib/phone';
 
-import { loginResponse, registerResponse } from './schemas';
+import { emailExistsResponse, loginResponse, registerResponse } from './schemas';
 import type {
   AuthSession,
   Credentials,
@@ -36,7 +36,7 @@ function registerBody(payload: RegistrationPayload): Record<string, unknown> {
     professionalWork: payload.professionalWork,
     birthYear: payload.birthYear,
     membershipTypeId: payload.membershipTypeId,
-    membershipPeriodId: payload.membershipPeriodId,
+    membershipMonths: payload.membershipMonths,
     address: payload.address,
     password: payload.password,
     ...chargeBody(payload.charge),
@@ -87,6 +87,19 @@ export const authApi = {
       member: toMember(parsed.member),
       card: parsed.membershipCard ? toMemberCard(parsed.membershipCard) : undefined,
     };
+  },
+
+  /**
+   * Whether another member already uses this email (case-insensitive), so the
+   * form can say so under the field instead of after the whole registration.
+   */
+  async emailExists(email: string): Promise<boolean> {
+    const data = await request('/mobile/auth/email-exists', {
+      method: 'POST',
+      body: { email: email.trim() },
+      authenticated: false,
+    });
+    return parseResponse(emailExistsResponse, data, 'POST /mobile/auth/email-exists').exists;
   },
 
   async logout(): Promise<void> {

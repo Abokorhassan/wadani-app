@@ -3,10 +3,8 @@ import type { Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { Text, useTheme } from '@/design-system';
+import { Text, useTheme, WhatsAppIcon } from '@/design-system';
 import { env } from '@/lib/env';
-
-import { WhatsAppIcon } from './social-icons';
 
 const officeStamp = require('@/assets/brand/office-stamp.jpg');
 const sealColor = require('@/assets/brand/seal-color.png');

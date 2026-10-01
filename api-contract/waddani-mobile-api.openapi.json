@@ -165,6 +165,10 @@
             "type": "string",
             "format": "uuid"
           },
+          "membershipMonths": {
+            "type": "integer",
+            "description": "Months typed in at registration; absent when the period length applies"
+          },
           "address": {
             "$ref": "#/components/schemas/Address"
           },
@@ -382,6 +386,12 @@
             "type": "integer",
             "nullable": true
           },
+          "membershipTypeIconUrl": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "Public URL of the icon for the member's membership type, ready to load directly. null when that plan has no icon. Read live rather than stored on the card, so re-uploading a plan's icon changes it here immediately -- unlike membershipType and membershipTypeStars, which are fixed at issuance."
+          },
           "cardLayout": {
             "type": "string",
             "enum": [
@@ -410,6 +420,40 @@
               },
               "details": {
                 "type": "object"
+              },
+              "traceId": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "FieldErrors": {
+        "type": "object",
+        "description": "Per-field messages keyed by request field name -- show the first message under that input. Returned as error.details on a 400/409 from /mobile/auth/register.",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "email": [
+            "A member with this email already exists"
+          ]
+        }
+      },
+      "FieldError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "$ref": "#/components/schemas/FieldErrors"
               },
               "traceId": {
                 "type": "string"
@@ -757,7 +801,6 @@
                   "professionalWork",
                   "birthYear",
                   "membershipTypeId",
-                  "membershipPeriodId",
                   "address",
                   "password",
                   "amount",
@@ -811,7 +854,14 @@
                   },
                   "membershipPeriodId": {
                     "type": "string",
-                    "format": "uuid"
+                    "format": "uuid",
+                    "description": "Optional. Omit to get the default 12-month period. Usually left out in favour of membershipMonths."
+                  },
+                  "membershipMonths": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 60,
+                    "description": "Optional. How many months the membership lasts, typed in by the member: minimum 1 month, maximum 60 (5 years). Sets expiry (payment date + months) and each renewal. Omit for the default 12 months."
                   },
                   "address": {
                     "$ref": "#/components/schemas/Address"
@@ -855,7 +905,7 @@
                 "professionalWork": "Engineer",
                 "birthYear": 1995,
                 "membershipTypeId": "00000000-0000-0000-0000-000000000000",
-                "membershipPeriodId": "00000000-0000-0000-0000-000000000000",
+                "membershipMonths": 5,
                 "address": {
                   "line1": "123 Main St",
                   "city": "Hargeisa",
@@ -913,21 +963,41 @@
             }
           },
           "400": {
-            "description": "Invalid payload or unknown membershipTypeId/membershipPeriodId",
+            "description": "Invalid payload (error.details holds per-field messages) or unknown membershipTypeId/membershipPeriodId",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/FieldError"
+                },
+                "example": {
+                  "error": {
+                    "message": "Invalid registration payload",
+                    "details": {
+                      "email": [
+                        "Invalid email"
+                      ]
+                    }
+                  }
                 }
               }
             }
           },
           "409": {
-            "description": "A member with this phone or email already exists (phone and email are unique among active members; email is case-insensitive). For CARD this is checked before the checkout starts; for wallets the charge is not attempted",
+            "description": "A member with this phone or email already exists (phone and email are unique among active members; email is case-insensitive). For CARD this is checked before the checkout starts; for wallets the charge is not attempted. error.details names the field so the app can show the message under it.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/FieldError"
+                },
+                "example": {
+                  "error": {
+                    "message": "A member with this email already exists",
+                    "details": {
+                      "email": [
+                        "A member with this email already exists"
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -948,6 +1018,88 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/auth/email-exists": {
+      "post": {
+        "tags": [
+          "Registration"
+        ],
+        "summary": "Check whether an email is already registered",
+        "description": "Call on blur of the email field. If exists is true, show \"A member with this email already exists\" under the field instead of waiting for the full registration to fail. Case-insensitive.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                }
+              },
+              "example": {
+                "email": "mobile.tester@example.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "true = already used by another member; false = free to register",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "exists": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "examples": {
+                  "taken": {
+                    "summary": "Email already used",
+                    "value": {
+                      "exists": true
+                    }
+                  },
+                  "free": {
+                    "summary": "Email is free",
+                    "value": {
+                      "exists": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or malformed email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldError"
+                },
+                "example": {
+                  "error": {
+                    "message": "Invalid payload",
+                    "details": {
+                      "email": [
+                        "Invalid email"
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -1104,7 +1256,7 @@
           "Auth"
         ],
         "summary": "Request a password reset",
-        "description": "Always returns 200 regardless of whether the identifier matches a member -- never reveals account existence. Emails a 6-digit OTP via Amazon SES; it is valid for 10 minutes and only the latest one works.",
+        "description": "Emails a 6-digit OTP via Amazon SES to the email on the member account; it is valid for 10 minutes and only the latest one works. Phones are matched exactly (send the +252 international form); emails case-insensitively.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1128,7 +1280,13 @@
         },
         "responses": {
           "200": {
-            "description": "Always returned, whether or not the account exists"
+            "description": "Code sent to the email on the account"
+          },
+          "404": {
+            "description": "No member matches the phone or email (details.code ACCOUNT_NOT_FOUND)"
+          },
+          "422": {
+            "description": "The member has no email address, so no code can be sent (details.code NO_EMAIL_ON_FILE)"
           }
         }
       }

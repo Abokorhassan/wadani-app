@@ -19,4 +19,7 @@ export const registerResponse = z.object({
   membershipCard: membershipCardDto.nullish(),
 });
 
+/** POST /mobile/auth/email-exists. */
+export const emailExistsResponse = z.object({ exists: z.boolean() });
+
 export type LoginResponse = z.infer<typeof loginResponse>;

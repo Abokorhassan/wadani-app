@@ -1,13 +1,5 @@
 import { cardFixture, planFixtures } from './api.mock';
-import {
-  amountProblem,
-  amountWithinPlan,
-  badgeForPlanName,
-  defaultAmount,
-  toMemberCard,
-  toPlan,
-  toUsd,
-} from './mappers';
+import { badgeForPlanName, membershipTotal, toMemberCard, toPlan, toUsd } from './mappers';
 import { plansResponse } from './schemas';
 
 describe('membership mappers', () => {
@@ -24,13 +16,17 @@ describe('membership mappers', () => {
     expect(toUsd('0.50')).toBe(0.5);
   });
 
-  it("offers the plan's price whatever the period, as the prototype does (D5)", () => {
-    // The API gives a period no price ({id, label, months}) and the prototype
-    // prefills the plan's price regardless of period. Scaling by years, as an
-    // earlier version did, would have prefilled $75 for a $25 plan over 3 years.
-    const plan = toPlan(planFixtures[1]); // Silver, $50
-    expect(defaultAmount(plan)).toBe(50);
-    expect(defaultAmount(toPlan(planFixtures[0]))).toBe(25);
+  it("charges the plan's price for each month the member types (2026-09-29)", () => {
+    const plan = toPlan(planFixtures[0]); // Standard, $25
+    expect(membershipTotal(plan, 1)).toBe(25);
+    expect(membershipTotal(plan, 12)).toBe(300);
+    expect(membershipTotal(plan, 60)).toBe(1500);
+    // Cents stay exact: 3 × $0.10 is $0.30, not 0.30000000000000004.
+    const cheap = toPlan({ id: 'c', name: 'C', price: '0.10', benefits: [] });
+    expect(membershipTotal(cheap, 3)).toBe(0.3);
+    // A range-priced plan is charged from its price; there is no amount to choose.
+    const range = toPlan({ id: 'r', name: 'R', price: '10', priceMax: '50', benefits: [] });
+    expect(membershipTotal(range, 2)).toBe(20);
   });
 
   it('maps the card, whose code is what the QR carries', () => {
@@ -70,19 +66,6 @@ describe('membership mappers', () => {
     expect(fixed.iconUrl).toBeUndefined();
   });
 
-  it("checks a range-priced plan's amount, since the backend will not", () => {
-    const range = toPlan({ id: 'r', name: 'Gold', price: '5.00', priceMax: '50.00', benefits: [] });
-
-    expect(amountWithinPlan(range, 5)).toBe(true);
-    expect(amountWithinPlan(range, 50)).toBe(true);
-    expect(amountWithinPlan(range, 4.99)).toBe(false);
-    expect(amountWithinPlan(range, 50.01)).toBe(false);
-
-    // The default is the lowest amount the range accepts, so it is always valid.
-    expect(defaultAmount(range)).toBe(5);
-    expect(amountWithinPlan(range, defaultAmount(range))).toBe(true);
-  });
-
   it('ignores a max that is not above the min', () => {
     const odd = toPlan({ id: 'o', name: 'O', price: '20.00', priceMax: '20.00', benefits: [] });
     expect(odd.priceMaxUsd).toBeUndefined();
@@ -106,20 +89,5 @@ describe('membership mappers', () => {
     expect(badgeForPlanName(plans, 'Bronze')).toBeUndefined();
     expect(badgeForPlanName(plans, undefined)).toBeUndefined();
     expect(badgeForPlanName([], 'Gold')).toBeUndefined();
-  });
-
-  it('holds a fixed-price plan to its price, and says which way an amount is wrong', () => {
-    // The backend checks neither, so paying $1 for a $25 plan would go through.
-    const fixed = toPlan(planFixtures[0]); // $25
-    expect(amountProblem(fixed, 1)).toBe('tooLow');
-    expect(amountProblem(fixed, 24.99)).toBe('tooLow');
-    expect(amountProblem(fixed, 25)).toBeNull();
-    // A fixed plan has no top, so paying more (a donation on top) is allowed.
-    expect(amountProblem(fixed, 100)).toBeNull();
-
-    const range = toPlan({ id: 'r', name: 'R', price: '10', priceMax: '50', benefits: [] });
-    expect(amountProblem(range, 9.99)).toBe('tooLow');
-    expect(amountProblem(range, 50.01)).toBe('tooHigh');
-    expect(amountProblem(range, 30)).toBeNull();
   });
 });

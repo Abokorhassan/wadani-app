@@ -1,6 +1,5 @@
 import {
   KeyboardAvoidingView,
-  Platform,
   ScrollView,
   View,
   type StyleProp,
@@ -55,9 +54,12 @@ export function Screen({
 
   return (
     <SafeAreaView edges={safeEdges} style={{ flex: 1, backgroundColor }} testID={testID}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      {/*
+        Padding on both platforms: with edge-to-edge on (app.json), Android no
+        longer resizes the window for the keyboard, so without this a field near
+        the bottom sits under the keyboard while the member types.
+      */}
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         {scroll ? (
           <ScrollView
             style={{ flex: 1 }}

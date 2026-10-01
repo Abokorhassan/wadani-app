@@ -1,6 +1,6 @@
+import { t } from 'i18next';
 import { z } from 'zod';
 
-import { parseMoney } from '@/lib/money';
 import { toInternationalPhone } from '@/lib/phone';
 
 const currentYear = new Date().getFullYear();
@@ -73,9 +73,30 @@ export const addressSchema = z.object({
   country: z.string().trim().min(1, 'Please enter your country.'),
 });
 
+/** The API's own limits for the membership length a member types in. */
+export const MIN_MONTHS = 1;
+export const MAX_MONTHS = 60;
+export const DEFAULT_MONTHS = 12;
+
+/** Whole months as typed, or null when it is not a whole number. */
+export function monthsOf(value: string): number | null {
+  const trimmed = value.trim();
+  return /^\d{1,3}$/.test(trimmed) ? Number(trimmed) : null;
+}
+
+/*
+ * No period to pick any more (backend, 2026-09-29): the member types how many
+ * months they want, and the fee is the plan's price for each of them.
+ */
 export const planSchema = z.object({
   planId: z.string().min(1, 'Please choose a membership plan.'),
-  periodId: z.string().min(1, 'Please choose a membership period.'),
+  months: z.string().refine(
+    (value) => {
+      const months = monthsOf(value);
+      return months !== null && months >= MIN_MONTHS && months <= MAX_MONTHS;
+    },
+    { error: () => t('register.monthsInvalid', { min: MIN_MONTHS, max: MAX_MONTHS }) }
+  ),
 });
 
 /**
@@ -88,8 +109,13 @@ export function walletPhoneMessage(values: {
 }): string | undefined {
   if (values.method === 'CARD') return undefined;
   if (!values.payerPhone?.trim()) return 'Please enter the wallet number to charge.';
-  if (toInternationalPhone(values.payerPhone) === null) {
+  const international = toInternationalPhone(values.payerPhone);
+  if (international === null) {
     return 'Enter a valid wallet number, e.g. 63 234 5678.';
+  }
+  // Members may live abroad, but the wallets Sifalo charges are all Somali.
+  if (!international.startsWith('+252')) {
+    return 'Wallet payments need a Somali number (+252).';
   }
   // Strip country code to get local digits for prefix check.
   const local = values.payerPhone.replace(/[^\d]/g, '').replace(/^252/, '');
@@ -113,15 +139,6 @@ function checkWalletPhone(
 export const paymentSchema = z
   .object({
     method: z.enum(['WAAFI', 'EDAHAB', 'PREMIER_WALLET', 'CARD']),
-    // The API charges exactly this string, so it is read strictly (src/lib/money.ts).
-    amount: z
-      .string()
-      .trim()
-      .min(1, 'Please enter an amount.')
-      .refine(
-        (value) => parseMoney(value) !== null,
-        'Enter an amount like 10 or 10.50, with at most two decimals.'
-      ),
     /** The wallet to charge; it may belong to someone paying on your behalf. */
     payerPhone: optionalText,
     // Political membership is sensitive data, so consent is explicit (build-plan D11).
@@ -154,7 +171,7 @@ const FIELD_ALIASES: Record<string, keyof RegistrationForm> = {
   educationalLevel: 'education',
   photoUrl: 'photoUri',
   membershipTypeId: 'planId',
-  membershipPeriodId: 'periodId',
+  membershipMonths: 'months',
   'address.line1': 'line1',
   'address.city': 'city',
   'address.region': 'region',
@@ -191,9 +208,8 @@ export const emptyRegistration: RegistrationForm = {
   country: 'Somaliland',
   district: '',
   planId: '',
-  periodId: '',
+  months: String(DEFAULT_MONTHS),
   method: 'WAAFI',
-  amount: '',
   payerPhone: '',
   acceptedTerms: false as unknown as true,
 };

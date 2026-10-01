@@ -180,7 +180,7 @@ describe('Phase 1 — onboarding', () => {
 
   it('registers and pays in one call, and rejects a duplicate phone (D7)', async () => {
     const { authApiMock } = require('../features/auth/api.mock');
-    const { planFixtures, periodFixtures } = require('../features/membership/api.mock');
+    const { planFixtures } = require('../features/membership/api.mock');
     const payload = {
       fullName: 'Amina Yusuf',
       gender: 'female',
@@ -191,7 +191,7 @@ describe('Phase 1 — onboarding', () => {
       professionalWork: 'Teacher',
       birthYear: 1994,
       membershipTypeId: planFixtures[1].id,
-      membershipPeriodId: periodFixtures[0].id,
+      membershipMonths: 12,
       address: {
         line1: 'Jigjiga Yar',
         city: 'Hargeisa',
@@ -216,7 +216,7 @@ describe('Phase 1 — onboarding', () => {
   it("shows a signed-in member's own card, not always the demo fixture", async () => {
     const { authApiMock } = require('../features/auth/api.mock');
     const { membershipApiMock, memberFixture } = require('../features/membership/api.mock');
-    const { planFixtures, periodFixtures } = require('../features/membership/api.mock');
+    const { planFixtures } = require('../features/membership/api.mock');
 
     const payload = {
       fullName: 'Eng Ladif',
@@ -227,7 +227,7 @@ describe('Phase 1 — onboarding', () => {
       birthYear: 1990,
       photoUrl: 'https://wp-membership-bucket.s3.eu-north-1.amazonaws.com/b.jpg',
       membershipTypeId: planFixtures[0].id,
-      membershipPeriodId: periodFixtures[0].id,
+      membershipMonths: 12,
       address: {
         line1: 'Koodbuur',
         city: 'Hargeisa',
@@ -261,7 +261,7 @@ describe('Phase 1 — onboarding', () => {
 
   it('holds a card payment back until Sifalo confirms it', async () => {
     const { authApiMock } = require('../features/auth/api.mock');
-    const { planFixtures, periodFixtures } = require('../features/membership/api.mock');
+    const { planFixtures } = require('../features/membership/api.mock');
 
     const result = await authApiMock.register({
       fullName: 'Card Payer',
@@ -272,7 +272,7 @@ describe('Phase 1 — onboarding', () => {
       professionalWork: 'Driver',
       birthYear: 1990,
       membershipTypeId: planFixtures[0].id,
-      membershipPeriodId: periodFixtures[0].id,
+      membershipMonths: 12,
       address: {
         line1: 'Koodbuur',
         city: 'Hargeisa',
@@ -353,16 +353,12 @@ describe('Phase 1 — onboarding', () => {
     expect(stepForField('payerPhone')).toBe(3);
 
     // Consent is required before an account can be created (D11).
-    const payment = { method: 'WAAFI', amount: '50', payerPhone: '+252631112222' };
+    const payment = { method: 'WAAFI', payerPhone: '+252631112222' };
     expect(paymentSchema.safeParse({ ...payment, acceptedTerms: false }).success).toBe(false);
     expect(paymentSchema.safeParse({ ...payment, acceptedTerms: true }).success).toBe(true);
     // A wallet charge needs a number to bill; a card payment does not.
-    expect(
-      paymentSchema.safeParse({ method: 'WAAFI', amount: '50', acceptedTerms: true }).success
-    ).toBe(false);
-    expect(
-      paymentSchema.safeParse({ method: 'CARD', amount: '50', acceptedTerms: true }).success
-    ).toBe(true);
+    expect(paymentSchema.safeParse({ method: 'WAAFI', acceptedTerms: true }).success).toBe(false);
+    expect(paymentSchema.safeParse({ method: 'CARD', acceptedTerms: true }).success).toBe(true);
   });
 
   it('uploads the member photo to S3 before registering (2026-09-19)', () => {
@@ -384,27 +380,24 @@ describe('Phase 1 — onboarding', () => {
     expect(fields).toEqual(['line1', 'district', 'city', 'region', 'country']);
   });
 
-  it('refuses an amount or phone number that would be charged wrongly', () => {
-    const { paymentSchema, personalSchema } = require('../features/registration/form');
+  it('refuses a membership length or phone number that would be charged wrongly', () => {
+    const { paymentSchema, personalSchema, planSchema } = require('../features/registration/form');
     const pay = { method: 'WAAFI', payerPhone: '63 234 5678', acceptedTerms: true };
 
-    // These were all accepted before: "10.999" was charged as $11.00, "1e3" as $13,
-    // "abc10" as $10 and "0.001" as $0.00.
-    for (const amount of ['10.999', '1e3', 'abc10', '0.001', '0', '-5', '']) {
-      expect(paymentSchema.safeParse({ ...pay, amount }).success).toBe(false);
+    // The member types the months; the API takes 1 to 60 and the fee follows it.
+    for (const months of ['0', '61', '1.5', '-3', 'abc', '']) {
+      expect(planSchema.safeParse({ planId: 'p', months }).success).toBe(false);
     }
-    for (const amount of ['10', '10.5', '10.50', '$10']) {
-      expect(paymentSchema.safeParse({ ...pay, amount }).success).toBe(true);
+    for (const months of ['1', '12', '60']) {
+      expect(planSchema.safeParse({ planId: 'p', months }).success).toBe(true);
     }
 
     // The wallet that gets charged has to be a real number, not just non-empty.
     for (const payerPhone of ['1', '123', 'abc', '63 234']) {
-      expect(paymentSchema.safeParse({ ...pay, amount: '10', payerPhone }).success).toBe(false);
+      expect(paymentSchema.safeParse({ ...pay, payerPhone }).success).toBe(false);
     }
     // A card payment needs no wallet at all.
-    expect(
-      paymentSchema.safeParse({ method: 'CARD', amount: '10', acceptedTerms: true }).success
-    ).toBe(true);
+    expect(paymentSchema.safeParse({ method: 'CARD', acceptedTerms: true }).success).toBe(true);
 
     // The member's own phone is their identity, so it is held to the same rule.
     const person = {

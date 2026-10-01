@@ -105,36 +105,14 @@ export function toMemberCard(dto: MembershipCardDto): MemberCard {
 /** A range-priced plan lets the member choose an amount between two figures. */
 export const isRangePlan = (plan: Plan): boolean => plan.priceMaxUsd !== undefined;
 
-/** Why an amount does not suit a plan, or null when it does. */
-export type AmountProblem = 'tooLow' | 'tooHigh';
-
 /**
- * The backend charges whatever amount it is sent. It checks neither a plan's
- * price nor a range-priced plan's limits (api-contract/, POST /mobile/auth/register
- * `amount`), so the app has to: nothing below the price, and for a range-priced
- * plan nothing above its top either.
+ * What a membership costs: the plan's price for each month (backend,
+ * 2026-09-29). There is no amount to choose any more, and no period catalogue:
+ * the member types the months and this is what is charged. A range-priced plan
+ * is charged from its price, the lowest figure it accepts.
  */
-export function amountProblem(plan: Plan, amountUsd: number): AmountProblem | null {
-  if (amountUsd < plan.priceUsd) return 'tooLow';
-  if (plan.priceMaxUsd !== undefined && amountUsd > plan.priceMaxUsd) return 'tooHigh';
-  return null;
-}
-
-export const amountWithinPlan = (plan: Plan, amountUsd: number): boolean =>
-  amountProblem(plan, amountUsd) === null;
-
-/**
- * The amount offered by default for a plan (build-plan D5, revised 2026-09-21).
- *
- * It comes from the plan alone: the price, or for a range-priced plan the
- * lowest amount it accepts. The period only decides how long the membership
- * lasts. The prototype prefills the plan's price whatever period is chosen, and
- * the API gives a period no price at all (`{id, label, months}`), so scaling by
- * years, as an earlier version did, had no source and overcharged anyone
- * choosing more than one year.
- */
-export function defaultAmount(plan: Plan): number {
-  return plan.priceUsd;
+export function membershipTotal(plan: Plan, months: number): number {
+  return Math.round(plan.priceUsd * months * 100) / 100;
 }
 
 /**

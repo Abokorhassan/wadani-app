@@ -15,6 +15,7 @@ export {
   STEP_COUNT,
   STEP_FIELDS,
   formFieldFor,
+  monthsOf,
   stepForField,
   type RegistrationForm,
 } from './form';

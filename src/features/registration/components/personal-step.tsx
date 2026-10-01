@@ -28,9 +28,20 @@ const EDUCATION_LEVELS: EducationLevel[] = [
   'other',
 ];
 
-export function PersonalStep({ control }: { control: Control<RegistrationForm> }) {
+export interface PersonalStepProps {
+  control: Control<RegistrationForm>;
+  /** Checks the email with the server once the member leaves the field. */
+  onEmailBlur?: () => void;
+}
+
+export function PersonalStep({ control, onEmailBlur }: PersonalStepProps) {
   const theme = useTheme();
   const { t } = useTranslation();
+  // Members abroad register with their own number; only wallets must be Somali.
+  const countryPicker = {
+    title: t('register.countryCode'),
+    searchPlaceholder: t('register.countrySearch'),
+  };
 
   return (
     <View style={{ gap: theme.spacing.gutter }}>
@@ -89,6 +100,7 @@ export function PersonalStep({ control }: { control: Control<RegistrationForm> }
         render={({ field, fieldState }) => (
           <PhoneField
             label={t('register.phone')}
+            countryPicker={countryPicker}
             value={field.value}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
@@ -103,6 +115,7 @@ export function PersonalStep({ control }: { control: Control<RegistrationForm> }
         render={({ field, fieldState }) => (
           <PhoneField
             label={t('register.whatsapp')}
+            countryPicker={countryPicker}
             optional={t('common.optional')}
             value={field.value ?? ''}
             onChangeText={field.onChange}
@@ -121,7 +134,10 @@ export function PersonalStep({ control }: { control: Control<RegistrationForm> }
             optional={t('common.optional')}
             value={field.value ?? ''}
             onChangeText={field.onChange}
-            onBlur={field.onBlur}
+            onBlur={() => {
+              field.onBlur();
+              onEmailBlur?.();
+            }}
             error={fieldState.error?.message}
             placeholder="you@example.com"
             keyboardType="email-address"

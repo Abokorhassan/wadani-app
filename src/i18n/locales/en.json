@@ -50,7 +50,6 @@
   "home": {
     "greeting": "Hi, {{name}}",
     "subtitle": "Welcome back to your Waddani membership.",
-    "notifications": "Notifications",
     "inviteTitle": "Invite your family & friends",
     "inviteText": "Grow the Waddani community — share the app and get them registered.",
     "invite": "Invite",
@@ -119,7 +118,11 @@
     "languageHint": "Choose the app's language",
     "privacy": "Privacy policy",
     "deleteAccount": "Delete my account",
-    "deleteAccountHint": "Ask the party to delete your account and data"
+    "deleteAccountHint": "Ask the party to delete your account and data",
+    "terms": "Membership terms",
+    "follow": "Follow the party",
+    "followHint": "News and updates from Xisbiga Waddani",
+    "website": "Website"
   },
   "communications": {
     "title": "Communications",
@@ -232,7 +235,6 @@
     "fullNameRequired": "Please enter your name.",
     "phoneRequired": "Please enter your phone number.",
     "phoneInvalid": "Enter a valid phone number, e.g. 63 234 5678.",
-    "payerPhoneGuestHint": "Leave empty to pay from your own phone number.",
     "becomeMember": "Become a member",
     "backToStart": "Back to start"
   },
@@ -270,21 +272,16 @@
     "addressLine": "Street or neighbourhood",
     "addressPlaceholder": "e.g. Jigjiga Yar",
     "plan": "Membership plan",
-    "perYear": "/ year",
     "topBenefits": "Top benefits",
-    "period": "Membership period",
     "total": "Total",
     "plansFailed": "We couldn't load the plans.",
-    "periodsFailed": "We couldn't load the periods.",
     "method": "Payment method",
     "methodHints": {
-      "WAAFI": "Zaad · EVC · eSahal",
+      "WAAFI": "Zaad",
       "EDAHAB": "Dahabshiil",
       "PREMIER_WALLET": "Premier Bank",
       "CARD": "Visa · Mastercard"
     },
-    "amount": "Amount (USD)",
-    "amountHint": "From your plan · {{plan}}",
     "consent": "I agree to the <terms>membership terms</terms> and <privacy>privacy policy</privacy>.",
     "consentLabel": "I agree to the membership terms and privacy policy",
     "submit": "Create account & get card",
@@ -306,16 +303,24 @@
     "photoUploadFailed": "We couldn't upload your photo. Please try again.",
     "fixErrors": "Please fix the highlighted fields to continue.",
     "planBadge": "{{plan}} badge",
-    "youChoose": "you choose",
-    "amountRange": "Choose an amount between {{min}} and {{max}}.",
     "planUnavailable": "That plan isn't available. Please choose a plan again.",
-    "periodUnavailable": "That period isn't available. Please choose a period again.",
-    "amountTooLow": "This plan costs at least {{min}}.",
-    "amountTooHigh": "The most this plan accepts is {{max}}.",
     "methodSelected": "{{method}}, selected",
     "declined": "The payment was declined. Please check the wallet number and method, then try again.",
     "couldNotFinish": "We couldn't finish your registration",
-    "fixOnStep": "Go back to the {{step}} step to change it."
+    "fixOnStep": "Go back to the {{step}} step to change it.",
+    "months": "Membership length",
+    "monthsHint": "From {{min}} to {{max}} months",
+    "monthsWord_one": "month",
+    "monthsWord_other": "months",
+    "monthsUnit_one": "{{count}} month",
+    "monthsUnit_other": "{{count}} months",
+    "monthsInvalid": "Enter a whole number of months from {{min}} to {{max}}.",
+    "perMonth": "/ month",
+    "totalFormula": "{{price}} × {{months}}",
+    "toPay": "To pay",
+    "emailTaken": "A member with this email already exists.",
+    "countryCode": "Country code",
+    "countrySearch": "Search country or code"
   },
   "pending": {
     "title": "We're confirming your payment",
@@ -364,5 +369,202 @@
     "identifierInvalid": "Enter a valid phone number (e.g. 63 234 5678) or email.",
     "accountNotFound": "No account found for that phone or email.",
     "noEmailOnAccount": "This account has no email, so we can't send a code. Ask us on WhatsApp below."
+  },
+  "legal": {
+    "updated": "Last updated {{date}}",
+    "seeAlso": "See also",
+    "contactEmail": "Email",
+    "contactWhatsApp": "WhatsApp",
+    "privacy": {
+      "title": "Privacy policy",
+      "intro": "This policy explains what the Waddani membership app collects, why, who it is shared with and what you can do about it. The app is run by Xisbiga Waddani (the Waddani National Party), Somaliland. We are responsible for your data.",
+      "sections": [
+        {
+          "title": "What we collect",
+          "blocks": [
+            {
+              "li": [
+                "Who you are: full name, gender, year of birth, education and work.",
+                "How to reach you: phone number, and your WhatsApp number and email if you give them.",
+                "Where you live: street or neighbourhood, district, city, region and country.",
+                "Your photo, which is printed on your membership card.",
+                "Your account: a password, which we store only in scrambled (hashed) form.",
+                "Your membership: plan, length in months, card number and status.",
+                "Payments and donations: amount, date, method, the wallet number charged and the payment reference."
+              ]
+            },
+            {
+              "p": "Being a member of a political party is sensitive information. We treat everything above as confidential."
+            },
+            {
+              "p": "We do not collect your location, contacts or browsing, we do not show ads, and we do not track you across other apps."
+            }
+          ]
+        },
+        {
+          "title": "Why we use it",
+          "blocks": [
+            {
+              "li": [
+                "To register you as a member and issue your membership card.",
+                "To take membership fees and donations, and keep a record of them.",
+                "To send you party news, events and notices about your membership.",
+                "To let party offices manage membership, for example seeing how many members each region has.",
+                "To keep the service secure and fix problems."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Who we share it with",
+          "blocks": [
+            {
+              "p": "We never sell your data. We share it only with the services needed to run the app:"
+            },
+            {
+              "li": [
+                "Sifalo Pay, which processes wallet (Zaad, eDahab, Premier Wallet) and card payments. Card details are entered on Sifalo's own page; we never see or store them.",
+                "Amazon Web Services, which stores member photos and sends our emails.",
+                "Our hosting provider, which runs the servers that hold the membership database."
+              ]
+            },
+            {
+              "p": "We may also share data if the law requires it."
+            }
+          ]
+        },
+        {
+          "title": "How long we keep it",
+          "blocks": [
+            {
+              "p": "We keep your data while you are a member. If you delete your account, we delete your profile and photo. We keep payment and donation records for as long as the law or our accounting requires, without using them for anything else."
+            }
+          ]
+        },
+        {
+          "title": "Security",
+          "blocks": [
+            {
+              "p": "Data is sent over encrypted connections (HTTPS). Passwords are hashed. Only authorised party staff can see member records."
+            }
+          ]
+        },
+        {
+          "title": "Your rights",
+          "blocks": [
+            {
+              "p": "You can see your details in the app at any time. You can ask us to correct them, or to delete your account and data: see \"Delete my account\" on the Profile screen."
+            }
+          ]
+        },
+        {
+          "title": "Contact",
+          "blocks": [
+            {
+              "contact": "true"
+            }
+          ]
+        },
+        {
+          "title": "Changes",
+          "blocks": [
+            {
+              "p": "If we change this policy we will update the date above, and tell members in the app when the change matters."
+            }
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Membership terms",
+      "intro": "These terms apply when you join Xisbiga Waddani (the Waddani National Party) through the Waddani membership app.",
+      "sections": [
+        {
+          "title": "Joining",
+          "blocks": [
+            {
+              "li": [
+                "The details you give must be true and your own. A membership is for one person.",
+                "You must meet the party's own rules for who can become a member.",
+                "Your membership starts once your payment is received, and lasts for the number of months you chose (1 to 60)."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Fees and donations",
+          "blocks": [
+            {
+              "li": [
+                "The fee is the plan's monthly price times the number of months you choose. The total is shown before you pay.",
+                "Payments are made through Sifalo Pay by mobile wallet or card.",
+                "Fees and donations are not refundable, except where a payment was taken by mistake. Contact us and we will look into it."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Your card and account",
+          "blocks": [
+            {
+              "li": [
+                "Your membership card belongs to you. Do not share it or let anyone else use it.",
+                "Keep your password private. You are responsible for what is done with your account.",
+                "The party may suspend or end a membership that breaks these terms or the party's rules."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Your data",
+          "blocks": [
+            {
+              "p": "How we handle your data is explained in the privacy policy."
+            }
+          ]
+        },
+        {
+          "title": "Contact",
+          "blocks": [
+            {
+              "contact": "true"
+            }
+          ]
+        }
+      ]
+    },
+    "deleteAccount": {
+      "title": "Delete your account",
+      "intro": "You can ask us to delete your Waddani membership account and the data that goes with it.",
+      "sections": [
+        {
+          "title": "How to ask",
+          "blocks": [
+            {
+              "p": "Send us a message from the phone number or email your account uses:"
+            },
+            {
+              "contact": "true"
+            },
+            {
+              "p": "Write \"Delete my account\" and include your full name and card number (shown on the Profile screen). We may message you back to confirm it is really you."
+            }
+          ]
+        },
+        {
+          "title": "What happens",
+          "blocks": [
+            {
+              "li": [
+                "We delete your account within 30 days of confirming the request.",
+                "Deleted: your profile, photo, password, address and contact details, and your membership card.",
+                "Kept: records of payments and donations, for as long as the law or our accounting requires. They are no longer linked to an active account.",
+                "Deleting your account ends your membership. Fees already paid are not refunded."
+              ]
+            }
+          ]
+        }
+      ]
+    }
   }
 }

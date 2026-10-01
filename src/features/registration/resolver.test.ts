@@ -1,14 +1,7 @@
 import '@/i18n';
 
-import { queryClient } from '@/api/query-client';
-import { membershipKeys } from '@/features/membership/hooks';
-import { toPlan } from '@/features/membership/mappers';
-
 import { emptyRegistration, type RegistrationForm } from './form';
 import { registrationResolver } from './resolver';
-
-const PLAN_ID = 'plan-range';
-const rangePlan = toPlan({ id: PLAN_ID, name: 'Range', price: '10', priceMax: '50', benefits: [] });
 
 const valid: RegistrationForm = {
   ...emptyRegistration,
@@ -24,10 +17,9 @@ const valid: RegistrationForm = {
   line1: 'Jigjiga Yar',
   city: 'Hargeisa',
   region: 'Woqooyi Galbeed',
-  planId: PLAN_ID,
-  periodId: 'period-1',
+  planId: 'plan-1',
+  months: '12',
   method: 'WAAFI',
-  amount: '20',
   payerPhone: '63 234 5678',
   acceptedTerms: true,
 };
@@ -42,21 +34,17 @@ async function errorsFor(values: RegistrationForm) {
 }
 
 describe('registration resolver', () => {
-  beforeEach(() => queryClient.setQueryData(membershipKeys.plans, [rangePlan]));
-  afterEach(() => queryClient.clear());
-
   it('accepts a complete, valid registration', async () => {
     expect(await errorsFor(valid)).toEqual({});
   });
 
-  it("refuses an amount above the plan's top, which the backend would accept", async () => {
-    const errors = await errorsFor({ ...valid, amount: '100' });
-    expect(errors.amount?.message).toContain('$50.00');
-  });
-
-  it("refuses an amount below the plan's price", async () => {
-    const errors = await errorsFor({ ...valid, amount: '5' });
-    expect(errors.amount?.message).toContain('$10.00');
+  it("holds the months to the API's own 1 to 60", async () => {
+    for (const months of ['1', '12', '60']) {
+      expect((await errorsFor({ ...valid, months })).months).toBeUndefined();
+    }
+    for (const months of ['0', '61', '1.5', '-1', 'abc', '']) {
+      expect((await errorsFor({ ...valid, months })).months).toBeDefined();
+    }
   });
 
   it('reports every problem at once, not one per tap', async () => {
@@ -64,11 +52,11 @@ describe('registration resolver', () => {
     // an object-level zod check is skipped while any field is invalid.
     const errors = await errorsFor({
       ...valid,
-      amount: '100',
+      months: '0',
       payerPhone: '',
       acceptedTerms: false as unknown as true,
     });
-    expect(errors.amount).toBeDefined();
+    expect(errors.months).toBeDefined();
     expect(errors.payerPhone).toBeDefined();
     expect(errors.acceptedTerms).toBeDefined();
   });
@@ -78,8 +66,11 @@ describe('registration resolver', () => {
     expect(errors.payerPhone).toBeUndefined();
   });
 
-  it('cannot check the amount until the plan has loaded, and does not pretend to', async () => {
-    queryClient.clear();
-    expect((await errorsFor({ ...valid, amount: '100' })).amount).toBeUndefined();
+  it('accepts a phone from abroad, but only a Somali wallet', async () => {
+    // Members abroad register with their own number (2026-09-29)...
+    expect((await errorsFor({ ...valid, phone: '+44 7911 123456' })).phone).toBeUndefined();
+    expect((await errorsFor({ ...valid, whatsapp: '+46 070 123 4567' })).whatsapp).toBeUndefined();
+    // ...but a local wallet can only charge a Somali number.
+    expect((await errorsFor({ ...valid, payerPhone: '+44 7911 123456' })).payerPhone).toBeDefined();
   });
 });

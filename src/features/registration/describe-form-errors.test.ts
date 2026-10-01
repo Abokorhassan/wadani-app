@@ -21,13 +21,13 @@ describe('describeFormErrors', () => {
 
   it("puts the current step's own errors first, plainly", () => {
     const errors = {
-      amount: { message: 'Please enter an amount.' },
+      payerPhone: { message: 'Please enter the wallet number to charge.' },
       fullName: { message: 'Please enter your full name.' },
     } as FieldErrors<RegistrationForm>;
 
-    // amount lives on the payment step (3); fullName on personal (0).
+    // payerPhone lives on the payment step (3); fullName on personal (0).
     const text = describeFormErrors(errors, 3, t);
-    expect(text.split('\n')[0]).toBe('Please enter an amount.');
+    expect(text.split('\n')[0]).toBe('Please enter the wallet number to charge.');
   });
 
   it('labels an error that lives on a different step, so it is not lost', () => {

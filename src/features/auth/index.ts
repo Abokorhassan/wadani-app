@@ -1,6 +1,7 @@
 export { authApi } from './api';
 export { DEMO_PASSWORD } from './api.mock';
 export {
+  useEmailExists,
   useFinishCardRegistration,
   useLogin,
   useRegister,

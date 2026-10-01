@@ -3,7 +3,7 @@ import { Controller, type Control } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
-import { PhoneField, Text, TextField, useTheme } from '@/design-system';
+import { PhoneField, Text, useTheme } from '@/design-system';
 import { PaymentMethodPicker } from '@/features/payments';
 import { openLegalPage } from '@/features/settings';
 
@@ -11,8 +11,11 @@ import type { RegistrationForm } from '../form';
 
 export interface PaymentStepProps {
   control: Control<RegistrationForm>;
-  /** Shown under the amount: which plan and period it came from (build-plan D5). */
-  amountHint?: string;
+  /**
+   * What will be charged, worked out from the plan and the months: there is no
+   * amount to type any more (2026-09-29). Missing until the plan has loaded.
+   */
+  total?: { amount: string; formula: string };
   /** Wallet charges need a number to bill; a card payment does not. */
   wallet: boolean;
   /**
@@ -23,7 +26,7 @@ export interface PaymentStepProps {
   submitError?: string | null;
 }
 
-export function PaymentStep({ control, amountHint, wallet, submitError }: PaymentStepProps) {
+export function PaymentStep({ control, total, wallet, submitError }: PaymentStepProps) {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -66,22 +69,33 @@ export function PaymentStep({ control, amountHint, wallet, submitError }: Paymen
         )}
       />
 
-      <Controller
-        control={control}
-        name="amount"
-        render={({ field, fieldState }) => (
-          <TextField
-            label={t('register.amount')}
-            prefix="$"
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            error={fieldState.error?.message}
-            hint={amountHint}
-            keyboardType="decimal-pad"
-          />
-        )}
-      />
+      {total ? (
+        <View
+          accessibilityRole="summary"
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: theme.spacing.md,
+            padding: 18,
+            borderRadius: theme.radius.card,
+            borderWidth: 1,
+            borderColor: theme.color.border,
+            backgroundColor: theme.color.surface,
+          }}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text variant="smallStrong" color="textSecondary" style={{ fontSize: 15 }}>
+              {t('register.toPay')}
+            </Text>
+            <Text variant="caption" color="textMuted">
+              {total.formula}
+            </Text>
+          </View>
+          <Text variant="display" style={{ fontSize: 26, lineHeight: 30 }}>
+            {total.amount}
+          </Text>
+        </View>
+      ) : null}
 
       {wallet ? (
         <Controller

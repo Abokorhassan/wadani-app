@@ -50,7 +50,6 @@
   "home": {
     "greeting": "Salaan, {{name}}",
     "subtitle": "Ku soo dhawoow xubinnimadaada Waddani.",
-    "notifications": "Ogeysiisyada",
     "inviteTitle": "Casuun qoyskaaga & saaxiibadaa",
     "inviteText": "Kobci bulshada Waddani — la wadaag app-ka oo ka caawi inay is diiwaan geliyaan.",
     "invite": "Casuun",
@@ -119,7 +118,11 @@
     "languageHint": "Dooro luqadda app-ka",
     "privacy": "Siyaasadda xogta gaarka ah",
     "deleteAccount": "Tirtir koontadayda",
-    "deleteAccountHint": "Ka codso xisbiga inay tirtiraan koontadaada iyo xogtaada"
+    "deleteAccountHint": "Ka codso xisbiga inay tirtiraan koontadaada iyo xogtaada",
+    "terms": "Shuruudaha xubinnimada",
+    "follow": "Raac xisbiga",
+    "followHint": "Warka iyo warbixinnada Xisbiga Waddani",
+    "website": "Bogga internetka"
   },
   "communications": {
     "title": "Farriimaha",
@@ -232,7 +235,6 @@
     "fullNameRequired": "Fadlan geli magacaaga.",
     "phoneRequired": "Fadlan geli lambarka telefoonkaaga.",
     "phoneInvalid": "Geli lambar telefoon sax ah, tusaale 63 234 5678.",
-    "payerPhoneGuestHint": "Ka tag madhan si aad uga bixiso lambarkaaga.",
     "becomeMember": "Noqo xubin",
     "backToStart": "Ku noqo bilowga"
   },
@@ -270,21 +272,16 @@
     "addressLine": "Waddada ama xaafadda",
     "addressPlaceholder": "tusaale Jigjiga Yar",
     "plan": "Qorshaha xubinnimada",
-    "perYear": "/ sannadkii",
     "topBenefits": "Faa'iidooyinka ugu muhiimsan",
-    "period": "Muddada xubinnimada",
     "total": "Wadarta",
     "plansFailed": "Qorshayaasha lama soo rari karin.",
-    "periodsFailed": "Muddooyinka lama soo rari karin.",
     "method": "Habka lacag bixinta",
     "methodHints": {
-      "WAAFI": "Zaad · EVC · eSahal",
+      "WAAFI": "Zaad",
       "EDAHAB": "Dahabshiil",
       "PREMIER_WALLET": "Premier Bank",
       "CARD": "Visa · Mastercard"
     },
-    "amount": "Qadarka (USD)",
-    "amountHint": "Qorshahaaga · {{plan}}",
     "consent": "Waan oggolahay <terms>shuruudaha xubinnimada</terms> iyo <privacy>siyaasadda xogta gaarka ah</privacy>.",
     "consentLabel": "Waan oggolahay shuruudaha xubinnimada iyo siyaasadda xogta gaarka ah",
     "submit": "Samee koonto & hel kaadh",
@@ -306,16 +303,24 @@
     "photoUploadFailed": "Sawirkaaga lama soo gelin karin. Fadlan isku day mar kale.",
     "fixErrors": "Fadlan sax meelaha la calaamadeeyay si aad u sii waddo.",
     "planBadge": "Calaamadda {{plan}}",
-    "youChoose": "adigaa dooranaya",
-    "amountRange": "Dooro qadar u dhexeeya {{min}} iyo {{max}}.",
     "planUnavailable": "Qorshahaas lama heli karo. Fadlan mar kale dooro qorshe.",
-    "periodUnavailable": "Muddadaas lama heli karo. Fadlan mar kale dooro muddo.",
-    "amountTooLow": "Qorshahani wuxuu ugu yaraan yahay {{min}}.",
-    "amountTooHigh": "Inta ugu badan ee qorshahani aqbalo waa {{max}}.",
     "methodSelected": "{{method}}, waa la doortay",
     "declined": "Lacag bixinta waa la diiday. Fadlan hubi lambarka iyo habka, kadibna isku day mar kale.",
     "couldNotFinish": "Ma aanu dhammaystiri karin diiwaan gelintaada",
-    "fixOnStep": "Ku noqo tallaabada {{step}} si aad u beddesho."
+    "fixOnStep": "Ku noqo tallaabada {{step}} si aad u beddesho.",
+    "months": "Muddada xubinnimada",
+    "monthsHint": "Laga bilaabo {{min}} ilaa {{max}} bilood",
+    "monthsWord_one": "bil",
+    "monthsWord_other": "bilood",
+    "monthsUnit_one": "{{count}} bil",
+    "monthsUnit_other": "{{count}} bilood",
+    "monthsInvalid": "Geli tirada bilaha oo dhan, laga bilaabo {{min}} ilaa {{max}}.",
+    "perMonth": "/ bishii",
+    "totalFormula": "{{price}} × {{months}}",
+    "toPay": "Lacagta la bixinayo",
+    "emailTaken": "Xubin kale ayaa horay u isticmaashay iimaylkan.",
+    "countryCode": "Koodhka dalka",
+    "countrySearch": "Raadi dal ama koodh"
   },
   "pending": {
     "title": "Waxaanu xaqiijinaynaa lacag bixintaada",
@@ -364,5 +369,202 @@
     "identifierInvalid": "Geli lambar telefoon sax ah (tusaale 63 234 5678) ama iimayl.",
     "accountNotFound": "Lama helin koonto leh telefoonkaas ama iimaylkaas.",
     "noEmailOnAccount": "Koontadani iimayl ma leh, markaa kood kuma diri karno. Hoos nagala soo xidhiidh WhatsApp."
+  },
+  "legal": {
+    "updated": "Waxa la cusboonaysiiyay {{date}}",
+    "seeAlso": "Sidoo kale eeg",
+    "contactEmail": "Iimayl",
+    "contactWhatsApp": "WhatsApp",
+    "privacy": {
+      "title": "Siyaasadda xogta gaarka ah",
+      "intro": "Siyaasaddani waxay sharraxaysaa waxa app-ka xubinnimada Waddani uruuriyo, sababta, cidda lala wadaago iyo waxa aad ka samayn karto. App-ka waxa maamula Xisbiga Waddani (Xisbiga Qaranka Waddani), Somaliland. Annaga ayaa mas'uul ka ah xogtaada.",
+      "sections": [
+        {
+          "title": "Waxa aanu uruurinno",
+          "blocks": [
+            {
+              "li": [
+                "Cidda aad tahay: magacaaga oo dhan, jinsiga, sannadka dhalashada, waxbarashada iyo shaqada.",
+                "Sida laguula xidhiidho: lambarka telefoonka, iyo lambarkaaga WhatsApp iyo iimaylkaaga haddii aad bixiso.",
+                "Halka aad ku nooshahay: waddada ama xaafadda, degmada, magaalada, gobolka iyo dalka.",
+                "Sawirkaaga, oo lagu daabaco kaadhkaaga xubinnimada.",
+                "Koontadaada: furaha sirta ah, oo aanu u kaydinno qaab qarsoon (hashed) oo keliya.",
+                "Xubinnimadaada: qorshaha, muddada (bilaha), lambarka kaadhka iyo xaaladda.",
+                "Lacag bixinta iyo deeqaha: qadarka, taariikhda, habka, lambarka laga jaray iyo tixraaca lacag bixinta."
+              ]
+            },
+            {
+              "p": "Ka mid ahaanshaha xisbi siyaasadeed waa xog xasaasi ah. Wax kasta oo kor ku xusan waxaanu u haynaa si qarsoodi ah."
+            },
+            {
+              "p": "Ma uruurinno goobta aad joogto, xidhiidhadaada ama waxa aad internetka ka daawato, xayaysiis ma muujinno, kumana raadinno apps kale."
+            }
+          ]
+        },
+        {
+          "title": "Sababta aanu u isticmaalno",
+          "blocks": [
+            {
+              "li": [
+                "Si aanu kuugu diiwaan gelinno xubin oo kuu siinno kaadhkaaga xubinnimada.",
+                "Si aanu u qaadno lacagta xubinnimada iyo deeqaha, una kaydinno diiwaankooda.",
+                "Si aanu kuugu soo dirno warka xisbiga, dhacdooyinka iyo ogeysiisyada ku saabsan xubinnimadaada.",
+                "Si xafiisyada xisbigu u maamulaan xubinnimada, tusaale ahaan in la ogaado inta xubnood ee gobol kasta leeyahay.",
+                "Si adeeggu u ahaado mid ammaan ah loona hagaajiyo dhibaatooyinka."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Cidda aanu la wadaagno",
+          "blocks": [
+            {
+              "p": "Xogtaada weligeed ma iibinno. Waxaanu la wadaagnaa oo keliya adeegyada loo baahan yahay si app-ku u shaqeeyo:"
+            },
+            {
+              "li": [
+                "Sifalo Pay, oo fuliya lacag bixinta boorsooyinka (Zaad, eDahab, Premier Wallet) iyo kaadhadhka. Faahfaahinta kaadhka waxa lagu qoraa bogga Sifalo; annagu weligeed ma aragno mana kaydinno.",
+                "Amazon Web Services, oo kaydiya sawirada xubnaha oo dira iimaylkayaga.",
+                "Shirkadda martigelisa server-yada, oo haysa kaydka xogta xubinnimada."
+              ]
+            },
+            {
+              "p": "Waxa kale oo laga yaabaa inaanu xogta la wadaagno haddii sharcigu inaga doono."
+            }
+          ]
+        },
+        {
+          "title": "Inta aanu hayno",
+          "blocks": [
+            {
+              "p": "Xogtaada waxaanu haynaa inta aad xubin tahay. Haddii aad tirtirto koontadaada, waxaanu tirtiraynaa xogtaada iyo sawirkaaga. Diiwaanka lacag bixinta iyo deeqaha waxaanu haynaa inta sharcigu ama xisaabaadkayagu u baahdaan, annagoon wax kale u isticmaalin."
+            }
+          ]
+        },
+        {
+          "title": "Ammaanka",
+          "blocks": [
+            {
+              "p": "Xogta waxa lagu diraa xidhiidho sir ah (HTTPS). Furayaasha sirta ah waa la qariyaa (hashed). Diiwaanka xubnaha waxa arki kara oo keliya shaqaalaha xisbiga ee loo oggolaaday."
+            }
+          ]
+        },
+        {
+          "title": "Xuquuqdaada",
+          "blocks": [
+            {
+              "p": "Faahfaahintaada waxaad ku arki kartaa app-ka wakhti kasta. Waxaad naga codsan kartaa inaanu saxno, ama inaanu tirtirno koontadaada iyo xogtaada: eeg \"Tirtir koontadayda\" ee bogga Xogtayda."
+            }
+          ]
+        },
+        {
+          "title": "Xidhiidh",
+          "blocks": [
+            {
+              "contact": "true"
+            }
+          ]
+        },
+        {
+          "title": "Isbeddellada",
+          "blocks": [
+            {
+              "p": "Haddii aanu beddelno siyaasaddan, waxaanu cusboonaysiinaynaa taariikhda kore, waxaanuna app-ka ku ogeysiinaynaa xubnaha marka isbeddelku muhiim yahay."
+            }
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Shuruudaha xubinnimada",
+      "intro": "Shuruudahani waxay khuseeyaan marka aad ku biirto Xisbiga Waddani (Xisbiga Qaranka Waddani) adigoo isticmaalaya app-ka xubinnimada Waddani.",
+      "sections": [
+        {
+          "title": "Ku biiritaanka",
+          "blocks": [
+            {
+              "li": [
+                "Faahfaahinta aad bixiso waa inay run tahay oo taada tahay. Xubinnimadu waa qof keliya.",
+                "Waa inaad buuxisaa shuruudaha xisbiga ee qofka xubin noqon kara.",
+                "Xubinnimadaadu waxay bilaabataa marka lacagtaada la helo, waxayna socotaa inta bilood ee aad dooratay (1 ilaa 60)."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Lacagta iyo deeqaha",
+          "blocks": [
+            {
+              "li": [
+                "Lacagta xubinnimadu waa qiimaha bishii ee qorshaha oo lagu dhuftay inta bilood ee aad doorato. Wadarta waa lagu tusayaa inta aanad bixin.",
+                "Lacag bixintu waxay ku dhacdaa Sifalo Pay, boorso mobile ama kaadh.",
+                "Lacagta xubinnimada iyo deeqaha dib looma celiyo, marka laga reebo lacag si khalad ah loo qaaday. Nala soo xidhiidh, waanu eegaynaa."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Kaadhkaaga iyo koontadaada",
+          "blocks": [
+            {
+              "li": [
+                "Kaadhkaaga xubinnimadu adigaa iska leh. Ha la wadaagin, hana u oggolaan qof kale inuu isticmaalo.",
+                "Furahaaga sirta ah si qarsoodi ah u hay. Adiga ayaa mas'uul ka ah waxa lagu sameeyo koontadaada.",
+                "Xisbigu wuu hakin karaa ama joojin karaa xubinnimo jebisa shuruudahan ama xeerarka xisbiga."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Xogtaada",
+          "blocks": [
+            {
+              "p": "Sida aanu u maareyno xogtaada waxa lagu sharraxay siyaasadda xogta gaarka ah."
+            }
+          ]
+        },
+        {
+          "title": "Xidhiidh",
+          "blocks": [
+            {
+              "contact": "true"
+            }
+          ]
+        }
+      ]
+    },
+    "deleteAccount": {
+      "title": "Tirtir koontadaada",
+      "intro": "Waxaad naga codsan kartaa inaanu tirtirno koontadaada xubinnimada Waddani iyo xogta la socota.",
+      "sections": [
+        {
+          "title": "Sida loo codsado",
+          "blocks": [
+            {
+              "p": "Farriin noogu soo dir lambarka telefoonka ama iimaylka ay koontadaadu isticmaasho:"
+            },
+            {
+              "contact": "true"
+            },
+            {
+              "p": "Qor \"Tirtir koontadayda\" oo ku dar magacaaga oo dhan iyo lambarka kaadhkaaga (waxa uu ku qoran yahay bogga Xogtayda). Waxa laga yaabaa inaanu kuu soo jawaabno si aanu u xaqiijino inaad adigu tahay."
+            }
+          ]
+        },
+        {
+          "title": "Waxa dhacaya",
+          "blocks": [
+            {
+              "li": [
+                "Koontadaada waxaanu tirtiraynaa 30 maalmood gudahood marka aanu xaqiijino codsiga.",
+                "Waa la tirtirayaa: xogtaada, sawirkaaga, furahaaga sirta ah, cinwaankaaga iyo xidhiidhkaaga, iyo kaadhkaaga xubinnimada.",
+                "Waa la hayaa: diiwaanka lacag bixinta iyo deeqaha, inta sharcigu ama xisaabaadkayagu u baahdaan. Mar dambe laguma xidhna koonto firfircoon.",
+                "Tirtiridda koontadu waxay soo afjaraysaa xubinnimadaada. Lacagta horay loo bixiyay dib looma celiyo."
+              ]
+            }
+          ]
+        }
+      ]
+    }
   }
 }

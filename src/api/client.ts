@@ -151,6 +151,14 @@ export async function request(path: string, options: RequestOptions = {}): Promi
     throw new ApiRequestError({ kind: 'declined', message, code: errorCode(json) }, message);
   }
 
+  // A duplicate phone or email (409) names the field, so it can be shown under it.
+  if (response.status === 409) {
+    const { fieldErrors, message } = parseValidationBody(json);
+    if (Object.keys(fieldErrors).length > 0) {
+      throw new ApiRequestError({ kind: 'validation', fieldErrors, message });
+    }
+  }
+
   // Everything else (409 conflict, 500, 503…). The API nests its wording under
   // `{ error: { message } }`, so read it that way — otherwise a duplicate phone
   // or an unreachable gateway would collapse to a generic "something went wrong".

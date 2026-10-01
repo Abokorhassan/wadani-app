@@ -68,6 +68,13 @@ export const authApiMock: AuthApi = {
         fieldErrors: { phone: 'A member with this phone number already exists.' },
       });
     }
+    const email = payload.email?.trim().toLowerCase();
+    if (email && accounts.some((account) => (account.member.email ?? '').toLowerCase() === email)) {
+      throw new ApiRequestError({
+        kind: 'validation',
+        fieldErrors: { email: 'A member with this email already exists' },
+      });
+    }
 
     const plan = planFixtures.find((candidate) => candidate.id === payload.membershipTypeId);
     const member: MemberDto = {
@@ -85,7 +92,7 @@ export const authApiMock: AuthApi = {
       status: 'CARD_ISSUED',
       address: { ...payload.address, district: payload.address.district ?? null },
       membershipTypeId: payload.membershipTypeId,
-      membershipPeriodId: payload.membershipPeriodId,
+      membershipPeriodId: memberFixture.membershipPeriodId,
       createdAt: new Date().toISOString(),
       isEligibleForPayment: false,
     };
@@ -122,6 +129,12 @@ export const authApiMock: AuthApi = {
       member: toMember(member),
       card: toMemberCard(cardDto),
     };
+  },
+
+  emailExists: async (email) => {
+    const value = email.trim().toLowerCase();
+    const taken = accounts.some((account) => (account.member.email ?? '').toLowerCase() === value);
+    return mockRespond(taken, 250);
   },
 
   logout: () => mockRespond(undefined, 200),

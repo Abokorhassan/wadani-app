@@ -12,11 +12,17 @@
  * long as it is a plausible length, because members live abroad.
  */
 export function toInternationalPhone(input: string): string | null {
-  const compact = input.trim().replace(/[\s().-]/g, '');
+  const trimmed = input.trim();
+  const compact = trimmed.replace(/[\s().-]/g, '');
   if (!compact) return null;
 
   if (compact.startsWith('+') || compact.startsWith('00')) {
-    const digits = compact.replace(/^(\+|00)/, '');
+    // The phone field writes "<dial> <number>", e.g. "+44 07911 123456". The
+    // space marks where the code ends, so a trunk 0 typed after it can go.
+    const split = /^\+(\d{1,4})\s+(.+)$/.exec(trimmed);
+    const digits = split
+      ? split[1] + split[2].replace(/[\s().-]/g, '').replace(/^0/, '')
+      : compact.replace(/^(\+|00)/, '');
     if (!/^\d{8,15}$/.test(digits)) return null;
     // A Somali number is exactly nine digits after 252; anything else is a typo.
     if (digits.startsWith('252') && digits.length !== 12) return null;

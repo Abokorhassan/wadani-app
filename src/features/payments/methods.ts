@@ -13,8 +13,8 @@ export interface PaymentMethodInfo {
 }
 
 /**
- * What a member can pay with. Sifalo's WAAFI channel covers ZAAD, EVC, eSAHAL,
- * CASHPLUS and JEEB, which is why Zaad has no entry of its own.
+ * What a member can pay with. Sifalo's WAAFI channel is how Zaad is charged,
+ * which is why Zaad has no entry of its own. The app offers it as Zaad only.
  */
 export const PAYMENT_METHODS: Record<ChargeMethod, PaymentMethodInfo> = {
   WAAFI: { id: 'WAAFI', label: 'Zaad / Waafi', icon: Smartphone, tone: 'brand' },

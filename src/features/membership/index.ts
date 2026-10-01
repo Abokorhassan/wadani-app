@@ -12,12 +12,9 @@ export {
   usePlans,
 } from './hooks';
 export {
-  amountProblem,
-  type AmountProblem,
-  amountWithinPlan,
   badgeForPlanName,
   isRangePlan,
-  defaultAmount,
+  membershipTotal,
   toAmountString,
   toEducationDto,
   toGenderDto,

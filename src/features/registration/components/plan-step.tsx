@@ -5,41 +5,37 @@ import { Controller, type Control, type UseFormSetValue } from 'react-hook-form'
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, View } from 'react-native';
 
-import { ErrorState, Rosette, Skeleton, Text, useTheme } from '@/design-system';
-import {
-  isRangePlan,
-  usePeriods,
-  usePlans,
-  type MembershipPeriod,
-  type Plan,
-} from '@/features/membership';
+import { ErrorState, Rosette, Skeleton, Text, TextField, useTheme } from '@/design-system';
+import { membershipTotal, usePlans, type Plan } from '@/features/membership';
 import { formatUsd } from '@/lib/format';
 
-import type { RegistrationForm } from '../form';
+import { MAX_MONTHS, MIN_MONTHS, monthsOf, type RegistrationForm } from '../form';
 
 /** Plan ids are uuids, so the backend's `stars` rank picks the icon. */
 const PLAN_ICONS: readonly LucideIcon[] = [IdCard, Star, Crown];
 
 const planIconRank = (stars?: number): number => (!stars || stars <= 1 ? 0 : stars >= 3 ? 2 : 1);
 
+/** One tap for the lengths most members pick; any other can be typed. */
+const QUICK_MONTHS = [1, 6, 12, 24] as const;
+
 export interface PlanStepProps {
   control: Control<RegistrationForm>;
   planId: string;
-  periodId: string;
+  months: string;
   setValue: UseFormSetValue<RegistrationForm>;
 }
 
-export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps) {
+export function PlanStep({ control, planId, months, setValue }: PlanStepProps) {
   const theme = useTheme();
   const { t } = useTranslation();
   const plans = usePlans();
-  const periods = usePeriods();
 
   /*
-   * Preselect the first plan and period, and repair a choice the backend no
-   * longer offers. A saved draft keeps the id it was written with, so a plan
-   * retired since then would otherwise leave the step with no plan, no price
-   * and no way out (build-plan D12).
+   * Preselect the first plan, and repair a choice the backend no longer offers.
+   * A saved draft keeps the id it was written with, so a plan retired since then
+   * would otherwise leave the step with no plan, no price and no way out
+   * (build-plan D12).
    */
   useEffect(() => {
     const list = plans.data;
@@ -47,14 +43,9 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
     if (!planId || !list.some((option) => option.id === planId)) setValue('planId', list[0].id);
   }, [planId, plans.data, setValue]);
 
-  useEffect(() => {
-    const list = periods.data;
-    if (!list?.length) return;
-    if (!periodId || !list.some((option) => option.id === periodId))
-      setValue('periodId', list[0].id);
-  }, [periodId, periods.data, setValue]);
-
   const plan = plans.data?.find((candidate) => candidate.id === planId);
+  const count = monthsOf(months);
+  const validCount = count !== null && count >= MIN_MONTHS && count <= MAX_MONTHS ? count : null;
 
   return (
     <View style={{ gap: theme.spacing.gutter }}>
@@ -111,66 +102,71 @@ export function PlanStep({ control, planId, periodId, setValue }: PlanStepProps)
         <Skeleton height={330} radius={theme.radius.hero} />
       ) : null}
 
-      <View style={{ gap: 10 }}>
-        <Text variant="label" color="textSecondary">
-          {t('register.period')}
-        </Text>
-        {periods.isPending ? (
-          <Skeleton height={74} radius={theme.radius.card} />
-        ) : periods.isError || !periods.data ? (
-          <ErrorState
-            message={t('register.periodsFailed')}
-            onRetry={() => void periods.refetch()}
-            retryLabel={t('common.retry')}
-          />
-        ) : (
-          <Controller
-            control={control}
-            name="periodId"
-            render={({ field, fieldState }) => (
-              <View style={{ gap: theme.spacing.sm }}>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md }}>
-                  {periods.data.map((option) => (
-                    <PeriodOption
-                      key={option.id}
-                      period={option}
-                      selected={option.id === field.value}
-                      onSelect={() => field.onChange(option.id)}
-                    />
-                  ))}
-                </View>
-                {fieldState.error ? (
-                  <Text
-                    variant="caption"
-                    color="danger"
-                    style={{ fontFamily: theme.fonts.text600 }}>
-                    {fieldState.error.message}
-                  </Text>
-                ) : null}
-              </View>
-            )}
-          />
+      <Controller
+        control={control}
+        name="months"
+        render={({ field, fieldState }) => (
+          <View style={{ gap: theme.spacing.md }}>
+            <TextField
+              label={t('register.months')}
+              value={field.value}
+              onChangeText={(text) => field.onChange(text.replace(/[^\d]/g, ''))}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+              hint={t('register.monthsHint', { min: MIN_MONTHS, max: MAX_MONTHS })}
+              keyboardType="number-pad"
+              maxLength={2}
+              trailing={
+                <Text variant="bodyMedium" color="textMuted">
+                  {t('register.monthsWord', { count: monthsOf(field.value) ?? 0 })}
+                </Text>
+              }
+            />
+            <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+              {QUICK_MONTHS.map((option) => (
+                <MonthsChip
+                  key={option}
+                  label={t('register.monthsUnit', { count: option })}
+                  selected={monthsOf(field.value) === option}
+                  onSelect={() => field.onChange(String(option))}
+                />
+              ))}
+            </View>
+          </View>
         )}
-      </View>
+      />
 
-      {plan && !isRangePlan(plan) ? (
+      {plan ? (
         <View
           style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            gap: 4,
             padding: 18,
             borderRadius: theme.radius.card,
             borderWidth: 1,
             borderColor: theme.color.border,
             backgroundColor: theme.color.surface,
           }}>
-          <Text variant="smallStrong" color="textSecondary" style={{ fontSize: 15 }}>
-            {t('register.total')}
-          </Text>
-          <Text variant="display" style={{ fontSize: 26, lineHeight: 30 }}>
-            {formatUsd(plan.priceUsd)}
-          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+            <Text variant="smallStrong" color="textSecondary" style={{ fontSize: 15 }}>
+              {t('register.total')}
+            </Text>
+            <Text variant="display" style={{ fontSize: 26, lineHeight: 30 }}>
+              {validCount === null ? '—' : formatUsd(membershipTotal(plan, validCount))}
+            </Text>
+          </View>
+          {validCount !== null ? (
+            <Text variant="caption" color="textMuted" style={{ textAlign: 'right' }}>
+              {t('register.totalFormula', {
+                price: formatUsd(plan.priceUsd),
+                months: t('register.monthsUnit', { count: validCount }),
+              })}
+            </Text>
+          ) : null}
         </View>
       ) : null}
     </View>
@@ -274,12 +270,10 @@ function PlanCard({ plan }: { plan: Plan }) {
 
       <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
         <Text variant="amount" color="brand" style={{ fontSize: 54, lineHeight: 56 }}>
-          {plan.priceMaxUsd !== undefined
-            ? `$${plan.priceUsd}–$${plan.priceMaxUsd}`
-            : `$${plan.priceUsd}`}
+          {`$${plan.priceUsd}`}
         </Text>
         <Text variant="bodyMedium" color="textOnInkSoft">
-          {plan.priceMaxUsd !== undefined ? t('register.youChoose') : t('register.perYear')}
+          {t('register.perMonth')}
         </Text>
       </View>
 
@@ -322,12 +316,12 @@ function PlanCard({ plan }: { plan: Plan }) {
   );
 }
 
-function PeriodOption({
-  period,
+function MonthsChip({
+  label,
   selected,
   onSelect,
 }: {
-  period: MembershipPeriod;
+  label: string;
   selected: boolean;
   onSelect: () => void;
 }) {
@@ -338,37 +332,19 @@ function PeriodOption({
       onPress={onSelect}
       accessibilityRole="radio"
       accessibilityState={{ selected }}
-      accessibilityLabel={period.label}
+      accessibilityLabel={label}
       style={{
-        flexGrow: 1,
-        flexBasis: '30%',
-        minWidth: 96,
-        flexDirection: 'row',
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        gap: theme.spacing.sm,
-        paddingVertical: 14,
-        paddingHorizontal: 12,
+        height: 44,
         borderRadius: theme.radius.pill,
         borderWidth: selected ? 2 : 1.5,
         borderColor: selected ? theme.color.action : theme.color.borderStrong,
         backgroundColor: selected ? theme.color.actionTint : theme.color.surface,
       }}>
-      {selected ? (
-        <View
-          style={{
-            width: 20,
-            height: 20,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 10,
-            backgroundColor: theme.color.action,
-          }}>
-          <Check size={13} color={theme.color.textOnAction} strokeWidth={3} />
-        </View>
-      ) : null}
-      <Text variant="bodyStrong" color={selected ? 'text' : 'textSecondary'}>
-        {period.label}
+      <Text variant="smallStrong" color={selected ? 'text' : 'textSecondary'}>
+        {label}
       </Text>
     </Pressable>
   );

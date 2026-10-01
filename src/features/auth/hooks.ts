@@ -61,6 +61,25 @@ export function useRegister() {
   });
 }
 
+/**
+ * Asks the server whether an email is already taken. Resolves to null when it
+ * cannot tell (offline, server down): the form then lets the member carry on,
+ * and registration itself still refuses a duplicate.
+ */
+export function useEmailExists() {
+  return async (email: string): Promise<boolean | null> => {
+    try {
+      return await queryClient.fetchQuery({
+        queryKey: ['email-exists', email.trim().toLowerCase()],
+        queryFn: () => api.emailExists(email),
+        staleTime: 30_000,
+      });
+    } catch {
+      return null;
+    }
+  };
+}
+
 /** Step 1 of a password reset: email a code to the member. */
 export function useRequestPasswordReset() {
   return useMutation({
