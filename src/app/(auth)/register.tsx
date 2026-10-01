@@ -15,15 +15,13 @@ import {
   useTheme,
   useToast,
 } from '@/design-system';
-import { useFinishCardRegistration, useRegister, type RegistrationPayload } from '@/features/auth';
 import {
-  defaultAmount,
-  isRangePlan,
-  usePeriods,
-  usePlans,
-  type EducationLevel,
-  type Gender,
-} from '@/features/membership';
+  useEmailExists,
+  useFinishCardRegistration,
+  useRegister,
+  type RegistrationPayload,
+} from '@/features/auth';
+import { membershipTotal, usePlans, type EducationLevel, type Gender } from '@/features/membership';
 import { isWalletMethod, useCardCheckout, type ChargeMethod } from '@/features/payments';
 import {
   AddressStep,
@@ -31,6 +29,7 @@ import {
   draftDefaults,
   emptyRegistration,
   formFieldFor,
+  monthsOf,
   PaymentStep,
   PersonalStep,
   PlanStep,
@@ -45,7 +44,6 @@ import {
   type RegistrationForm,
 } from '@/features/registration';
 import { formatUsd } from '@/lib/format';
-import { parseMoney } from '@/lib/money';
 import { toInternationalPhone } from '@/lib/phone';
 
 export default function RegisterScreen() {
@@ -67,7 +65,7 @@ export default function RegisterScreen() {
   const finishCardRegistration = useFinishCardRegistration();
   const runCardCheckout = useCardCheckout();
   const plans = usePlans();
-  const periods = usePeriods();
+  const emailExists = useEmailExists();
 
   const form = useForm<RegistrationForm>({
     defaultValues: draft ? draftDefaults(draft) : emptyRegistration,
@@ -80,7 +78,22 @@ export default function RegisterScreen() {
   // eslint-disable-next-line react-hooks/incompatible-library
   const values = form.watch();
   const plan = plans.data?.find((candidate) => candidate.id === values.planId);
-  const period = periods.data?.find((candidate) => candidate.id === values.periodId);
+  const months = monthsOf(values.months);
+  // What gets charged: the plan's price for each month typed (2026-09-29).
+  const totalUsd = plan && months !== null ? membershipTotal(plan, months) : null;
+
+  /**
+   * Flags the email under its field when another member already uses it, and
+   * says whether it did. Silent when the server cannot be asked: registration
+   * itself still refuses a duplicate.
+   */
+  const emailIsTaken = async (): Promise<boolean> => {
+    const email = form.getValues('email')?.trim();
+    if (!email || form.getFieldState('email').invalid) return false;
+    const taken = await emailExists(email);
+    if (taken) form.setError('email', { message: t('register.emailTaken') });
+    return taken === true;
+  };
 
   const goTo = (next: number) => {
     saveDraft(form.getValues(), next);
@@ -95,17 +108,14 @@ export default function RegisterScreen() {
   const validateStep = async (index: number): Promise<boolean> => {
     let ok = await form.trigger(STEP_FIELDS[index]);
 
-    // A plan or period saved in a draft, or not loaded yet, may not exist on the
-    // server, and registering with an unknown id is rejected outright.
-    if (index === 2) {
-      if (!plan) {
-        form.setError('planId', { message: t('register.planUnavailable') });
-        ok = false;
-      }
-      if (!period) {
-        form.setError('periodId', { message: t('register.periodUnavailable') });
-        ok = false;
-      }
+    // The email is unique, so a clash is caught here, not after the payment step.
+    if (index === 0 && (await emailIsTaken())) ok = false;
+
+    // A plan saved in a draft, or not loaded yet, may not exist on the server,
+    // and registering with an unknown id is rejected outright.
+    if (index === 2 && !plan) {
+      form.setError('planId', { message: t('register.planUnavailable') });
+      ok = false;
     }
 
     // The field that failed can be scrolled out of sight, so say so here too.
@@ -116,12 +126,6 @@ export default function RegisterScreen() {
   const onNext = async () => {
     if (!(await validateStep(step))) return;
 
-    // Leaving the plan step sets the amount from the plan (D5). It is reset rather
-    // than only filled when blank: the backend charges the amount as sent, so a
-    // figure left from an earlier plan would bill the member the wrong sum.
-    if (step === 2 && plan) {
-      form.setValue('amount', defaultAmount(plan).toFixed(2));
-    }
     if (step < STEP_COUNT - 1) {
       goTo(step + 1);
       return;
@@ -141,10 +145,21 @@ export default function RegisterScreen() {
       return;
     }
 
+    // The step tabs can skip past the personal step's own check, so ask again.
+    if (await emailIsTaken()) {
+      setSubmitError(
+        `${t('register.emailTaken')} ${t('register.fixOnStep', { step: t('register.steps.personal') })}`
+      );
+      return;
+    }
+
     const values = form.getValues();
     const method = values.method as ChargeMethod;
-    const amountUsd = parseMoney(values.amount);
-    if (amountUsd === null) return; // validateStep has already refused this
+    // The whole form is valid, so the plan and months are known.
+    if (totalUsd === null || months === null) {
+      setSubmitError(t('register.planUnavailable'));
+      return;
+    }
 
     let photoUrl: string;
     try {
@@ -178,7 +193,7 @@ export default function RegisterScreen() {
       professionalWork: values.professionalWork.trim(),
       birthYear: Number(values.birthYear),
       membershipTypeId: values.planId,
-      membershipPeriodId: values.periodId,
+      membershipMonths: months,
       address: {
         line1: values.line1.trim(),
         city: values.city.trim(),
@@ -189,7 +204,7 @@ export default function RegisterScreen() {
       password: values.password,
       charge: {
         method,
-        amountUsd,
+        amountUsd: totalUsd,
         payerPhone: values.payerPhone?.trim() || undefined,
       },
     };
@@ -284,15 +299,16 @@ export default function RegisterScreen() {
     ]);
   };
 
-  const amountHint =
-    plan && isRangePlan(plan)
-      ? t('register.amountRange', {
-          min: formatUsd(plan.priceUsd),
-          max: formatUsd(plan.priceMaxUsd ?? plan.priceUsd),
-        })
-      : plan
-        ? t('register.amountHint', { plan: plan.name })
-        : undefined;
+  const total =
+    plan && months !== null && totalUsd !== null
+      ? {
+          amount: formatUsd(totalUsd),
+          formula: t('register.totalFormula', {
+            price: formatUsd(plan.priceUsd),
+            months: t('register.monthsUnit', { count: months }),
+          }),
+        }
+      : undefined;
 
   return (
     <Screen
@@ -364,20 +380,26 @@ export default function RegisterScreen() {
       </View>
 
       <View style={{ marginTop: 26 }}>
-        {step === 0 ? <PersonalStep control={form.control} /> : null}
+        {step === 0 ? (
+          <PersonalStep
+            control={form.control}
+            // After the field's own validation, which would otherwise clear the flag.
+            onEmailBlur={() => void form.trigger('email').then((ok) => ok && emailIsTaken())}
+          />
+        ) : null}
         {step === 1 ? <AddressStep control={form.control} /> : null}
         {step === 2 ? (
           <PlanStep
             control={form.control}
             planId={values.planId}
-            periodId={values.periodId}
+            months={values.months}
             setValue={form.setValue}
           />
         ) : null}
         {step === 3 ? (
           <PaymentStep
             control={form.control}
-            amountHint={amountHint}
+            total={total}
             wallet={isWalletMethod(values.method as ChargeMethod)}
             submitError={submitError}
           />

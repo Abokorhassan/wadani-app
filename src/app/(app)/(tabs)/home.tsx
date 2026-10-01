@@ -1,7 +1,6 @@
 import { Image } from 'expo-image';
 import { useRouter, type Href } from 'expo-router';
 import {
-  Bell,
   Heart,
   IdCard,
   MessageCircle,
@@ -17,7 +16,6 @@ import { Pressable, RefreshControl, Share, View } from 'react-native';
 import {
   Button,
   ErrorState,
-  IconButton,
   IconTile,
   Rosette,
   Screen,
@@ -130,12 +128,6 @@ export default function HomeScreen() {
             </Text>
           </View>
         </View>
-        <IconButton
-          icon={Bell}
-          badge
-          accessibilityLabel={t('home.notifications')}
-          onPress={() => router.push('/communications')}
-        />
       </View>
 
       <View style={{ marginTop: 26, gap: 6 }}>

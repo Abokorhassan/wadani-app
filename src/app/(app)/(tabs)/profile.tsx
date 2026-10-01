@@ -1,5 +1,7 @@
+import { Image } from 'expo-image';
 import {
-  ExternalLink,
+  ChevronRight,
+  FileText,
   Languages,
   LogOut,
   ShieldCheck,
@@ -22,8 +24,8 @@ import {
   useTheme,
 } from '@/design-system';
 import { useSessionStore } from '@/features/auth/session-store';
-import { isExpired, MEMBER_STATUS_TONE, useCard, useMe } from '@/features/membership';
-import { LanguageSwitch, openLegalPage } from '@/features/settings';
+import { isExpired, MEMBER_STATUS_TONE, useCard, useMe, usePlanBadge } from '@/features/membership';
+import { LanguageSwitch, openLegalPage, SocialLinksCard } from '@/features/settings';
 import { formatMonthYear } from '@/lib/format';
 
 export default function ProfileScreen() {
@@ -32,6 +34,7 @@ export default function ProfileScreen() {
   const member = useMe();
   const card = useCard();
   const signOut = useSessionStore((state) => state.signOut);
+  const badgeUrl = usePlanBadge(card.data?.membershipType);
 
   // The backend has no profile endpoint, so the card fills the gaps for a
   // member who signed in on another device (docs/api-gaps.md, question 5).
@@ -79,7 +82,32 @@ export default function ProfileScreen() {
               borderColor: theme.color.border,
               backgroundColor: theme.color.surface,
             }}>
-            <Avatar name={name ?? ''} uri={photoUrl} size={96} radius={32} />
+            <View>
+              <Avatar name={name ?? ''} uri={photoUrl} size={104} />
+              {/* The plan's badge, pinned to the photo like a medal. */}
+              {badgeUrl ? (
+                <View
+                  style={{
+                    position: 'absolute',
+                    right: -6,
+                    bottom: -6,
+                    width: 44,
+                    height: 44,
+                    padding: 3,
+                    borderRadius: 22,
+                    backgroundColor: theme.color.surface,
+                  }}>
+                  <Image
+                    source={{ uri: badgeUrl }}
+                    style={{ flex: 1 }}
+                    contentFit="contain"
+                    accessibilityLabel={t('register.planBadge', {
+                      plan: card.data?.membershipType ?? '',
+                    })}
+                  />
+                </View>
+              ) : null}
+            </View>
             <View style={{ alignItems: 'center', gap: 2 }}>
               <Text variant="headline" center>
                 {name}
@@ -190,12 +218,20 @@ export default function ProfileScreen() {
         />
         <View style={{ height: 1, backgroundColor: theme.color.border, marginLeft: 70 }} />
         <LinkRow
+          icon={FileText}
+          label={t('profile.terms')}
+          onPress={() => openLegalPage('terms')}
+        />
+        <View style={{ height: 1, backgroundColor: theme.color.border, marginLeft: 70 }} />
+        <LinkRow
           icon={Trash2}
           label={t('profile.deleteAccount')}
           hint={t('profile.deleteAccountHint')}
           onPress={() => openLegalPage('deleteAccount')}
         />
       </View>
+
+      <SocialLinksCard style={{ marginTop: 14 }} />
 
       <View style={{ marginTop: 18 }}>
         <Button
@@ -245,7 +281,7 @@ function LinkRow({
           </Text>
         ) : null}
       </View>
-      <ExternalLink size={18} color={theme.color.textMuted} />
+      <ChevronRight size={18} color={theme.color.textMuted} />
     </Pressable>
   );
 }
