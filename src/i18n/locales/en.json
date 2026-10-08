@@ -284,7 +284,7 @@
     },
     "consent": "I agree to the <terms>membership terms</terms> and <privacy>privacy policy</privacy>.",
     "consentLabel": "I agree to the membership terms and privacy policy",
-    "submit": "Create account & get card",
+    "submit": "Pay {{amount}}",
     "haveAccount": "Already have an account?",
     "failed": "We couldn't create your account. Please try again.",
     "discardTitle": "Discard registration?",
@@ -309,7 +309,7 @@
     "couldNotFinish": "We couldn't finish your registration",
     "fixOnStep": "Go back to the {{step}} step to change it.",
     "months": "Membership length",
-    "monthsHint": "From {{min}} to {{max}} months",
+    "monthsHint": "From {{min}} to {{max}}",
     "monthsWord_one": "month",
     "monthsWord_other": "months",
     "monthsUnit_one": "{{count}} month",
@@ -320,7 +320,19 @@
     "toPay": "To pay",
     "emailTaken": "A member with this email already exists.",
     "countryCode": "Country code",
-    "countrySearch": "Search country or code"
+    "countrySearch": "Search country or code",
+    "monthlyAmount": "Monthly amount",
+    "amountRange": "Between {{min}} and {{max}}",
+    "amountOutOfRange": "Choose an amount between {{min}} and {{max}} a month.",
+    "amountInvalid": "Enter an amount like 25 or 25.50.",
+    "amountLower": "Lower amount",
+    "amountHigher": "Higher amount",
+    "monthsLower": "Fewer months",
+    "monthsHigher": "More months",
+    "moreBenefits": "+{{count}} more",
+    "fewerBenefits": "Show less",
+    "submitCard": "Continue to payment",
+    "payHint": "You'll get a request on your phone to approve the payment."
   },
   "pending": {
     "title": "We're confirming your payment",
@@ -496,7 +508,7 @@
           "blocks": [
             {
               "li": [
-                "The fee is the plan's monthly price times the number of months you choose. The total is shown before you pay.",
+                "You choose a monthly amount within the plan's range, and the fee is that amount times the number of months you choose. The total is shown before you pay.",
                 "Payments are made through Sifalo Pay by mobile wallet or card.",
                 "Fees and donations are not refundable, except where a payment was taken by mistake. Contact us and we will look into it."
               ]

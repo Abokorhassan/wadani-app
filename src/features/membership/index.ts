@@ -13,8 +13,10 @@ export {
 } from './hooks';
 export {
   badgeForPlanName,
+  amountInPlanRange,
   isRangePlan,
   membershipTotal,
+  planRange,
   toAmountString,
   toEducationDto,
   toGenderDto,

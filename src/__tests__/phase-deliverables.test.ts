@@ -361,6 +361,16 @@ describe('Phase 1 — onboarding', () => {
     expect(paymentSchema.safeParse({ method: 'CARD', acceptedTerms: true }).success).toBe(true);
   });
 
+  it('keeps pricing logic out of the route, in one shared quote', () => {
+    // AGENTS.md: src/app holds routes only. The wizard reads the quote; it does
+    // not parse amounts or work out totals itself.
+    const route = source('app/(auth)/register.tsx');
+    expect(route).toContain('quoteFor');
+    expect(route).not.toContain('membershipTotal');
+    expect(route).not.toContain('amountInPlanRange');
+    expect(source('features/registration/components/plan-step.tsx')).toContain('quoteFor');
+  });
+
   it('uploads the member photo to S3 before registering (2026-09-19)', () => {
     // photoUrl is required by the API and must be a URL the backend can read,
     // so the picked file goes to the party's bucket first.
@@ -386,10 +396,10 @@ describe('Phase 1 — onboarding', () => {
 
     // The member types the months; the API takes 1 to 60 and the fee follows it.
     for (const months of ['0', '61', '1.5', '-3', 'abc', '']) {
-      expect(planSchema.safeParse({ planId: 'p', months }).success).toBe(false);
+      expect(planSchema.safeParse({ planId: 'p', amount: '10', months }).success).toBe(false);
     }
     for (const months of ['1', '12', '60']) {
-      expect(planSchema.safeParse({ planId: 'p', months }).success).toBe(true);
+      expect(planSchema.safeParse({ planId: 'p', amount: '10', months }).success).toBe(true);
     }
 
     // The wallet that gets charged has to be a real number, not just non-empty.

@@ -34,6 +34,7 @@ const FIELD_LABELS: Partial<Record<keyof RegistrationForm, string>> = {
   country: 'Country',
   district: 'District',
   planId: 'Membership plan',
+  amount: 'Monthly amount',
   months: 'Membership length',
   method: 'Payment method',
   payerPhone: 'Wallet number',

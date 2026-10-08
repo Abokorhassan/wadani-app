@@ -105,14 +105,27 @@ export function toMemberCard(dto: MembershipCardDto): MemberCard {
 /** A range-priced plan lets the member choose an amount between two figures. */
 export const isRangePlan = (plan: Plan): boolean => plan.priceMaxUsd !== undefined;
 
+/** The monthly amounts a plan accepts: one figure for a fixed price. */
+export function planRange(plan: Plan): { min: number; max: number } {
+  return { min: plan.priceUsd, max: plan.priceMaxUsd ?? plan.priceUsd };
+}
+
 /**
- * What a membership costs: the plan's price for each month (backend,
- * 2026-09-29). There is no amount to choose any more, and no period catalogue:
- * the member types the months and this is what is charged. A range-priced plan
- * is charged from its price, the lowest figure it accepts.
+ * Whether a monthly amount suits the plan. The backend charges whatever amount
+ * it is sent and checks neither end of the range, so the app has to.
  */
-export function membershipTotal(plan: Plan, months: number): number {
-  return Math.round(plan.priceUsd * months * 100) / 100;
+export function amountInPlanRange(plan: Plan, monthlyUsd: number): boolean {
+  const { min, max } = planRange(plan);
+  return monthlyUsd >= min && monthlyUsd <= max;
+}
+
+/**
+ * What a membership costs (2026-10-06): the monthly amount the member chose
+ * from the plan's range, for each month they typed. A fixed-price plan's
+ * monthly amount is simply its price.
+ */
+export function membershipTotal(monthlyUsd: number, months: number): number {
+  return Math.round(monthlyUsd * months * 100) / 100;
 }
 
 /**

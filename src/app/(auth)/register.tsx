@@ -21,7 +21,7 @@ import {
   useRegister,
   type RegistrationPayload,
 } from '@/features/auth';
-import { membershipTotal, usePlans, type EducationLevel, type Gender } from '@/features/membership';
+import { usePlans, type EducationLevel, type Gender } from '@/features/membership';
 import { isWalletMethod, useCardCheckout, type ChargeMethod } from '@/features/payments';
 import {
   AddressStep,
@@ -29,7 +29,7 @@ import {
   draftDefaults,
   emptyRegistration,
   formFieldFor,
-  monthsOf,
+  quoteFor,
   PaymentStep,
   PersonalStep,
   PlanStep,
@@ -78,9 +78,8 @@ export default function RegisterScreen() {
   // eslint-disable-next-line react-hooks/incompatible-library
   const values = form.watch();
   const plan = plans.data?.find((candidate) => candidate.id === values.planId);
-  const months = monthsOf(values.months);
-  // What gets charged: the plan's price for each month typed (2026-09-29).
-  const totalUsd = plan && months !== null ? membershipTotal(plan, months) : null;
+  // What gets charged, or null until the amount and months are both valid.
+  const quote = quoteFor(plan, values.amount, values.months);
 
   /**
    * Flags the email under its field when another member already uses it, and
@@ -156,7 +155,7 @@ export default function RegisterScreen() {
     const values = form.getValues();
     const method = values.method as ChargeMethod;
     // The whole form is valid, so the plan and months are known.
-    if (totalUsd === null || months === null) {
+    if (!quote) {
       setSubmitError(t('register.planUnavailable'));
       return;
     }
@@ -193,7 +192,7 @@ export default function RegisterScreen() {
       professionalWork: values.professionalWork.trim(),
       birthYear: Number(values.birthYear),
       membershipTypeId: values.planId,
-      membershipMonths: months,
+      membershipMonths: quote.months,
       address: {
         line1: values.line1.trim(),
         city: values.city.trim(),
@@ -204,7 +203,7 @@ export default function RegisterScreen() {
       password: values.password,
       charge: {
         method,
-        amountUsd: totalUsd,
+        amountUsd: quote.totalUsd,
         payerPhone: values.payerPhone?.trim() || undefined,
       },
     };
@@ -299,21 +298,39 @@ export default function RegisterScreen() {
     ]);
   };
 
-  const total =
-    plan && months !== null && totalUsd !== null
-      ? {
-          amount: formatUsd(totalUsd),
-          formula: t('register.totalFormula', {
-            price: formatUsd(plan.priceUsd),
-            months: t('register.monthsUnit', { count: months }),
-          }),
-        }
-      : undefined;
+  /*
+   * The last button names what it does. Pressing it takes money, so it says so
+   * and shows the sum; a card opens a checkout page first, so it says that
+   * instead of promising a charge.
+   */
+  const lastStep = step === STEP_COUNT - 1;
+  const paysByCard = values.method === 'CARD';
+  const primaryLabel = !lastStep
+    ? t('common.next')
+    : paysByCard || !quote
+      ? t('register.submitCard')
+      : t('register.submit', { amount: formatUsd(quote.totalUsd) });
+
+  const total = quote
+    ? {
+        amount: formatUsd(quote.totalUsd),
+        formula: t('register.totalFormula', {
+          price: formatUsd(quote.monthlyUsd),
+          months: t('register.monthsUnit', { count: quote.months }),
+        }),
+      }
+    : undefined;
 
   return (
     <Screen
       footer={
         <View style={{ gap: theme.spacing.lg }}>
+          {/* The one thing about a wallet payment that surprises people. */}
+          {lastStep && !paysByCard ? (
+            <Text variant="caption" color="textMuted" center>
+              {t('register.payHint')}
+            </Text>
+          ) : null}
           <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
             {step > 0 ? (
               <Button
@@ -326,8 +343,8 @@ export default function RegisterScreen() {
               />
             ) : null}
             <Button
-              label={step === STEP_COUNT - 1 ? t('register.submit') : t('common.next')}
-              iconRight={step === STEP_COUNT - 1 ? undefined : ArrowRight}
+              label={primaryLabel}
+              iconRight={lastStep ? undefined : ArrowRight}
               loading={register.isPending || uploading || finishCardRegistration.isPending}
               onPress={() => void onNext()}
               style={{ flex: 1 }}
@@ -392,6 +409,7 @@ export default function RegisterScreen() {
           <PlanStep
             control={form.control}
             planId={values.planId}
+            amount={values.amount}
             months={values.months}
             setValue={form.setValue}
           />

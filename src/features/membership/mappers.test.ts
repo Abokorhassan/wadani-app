@@ -1,5 +1,13 @@
 import { cardFixture, planFixtures } from './api.mock';
-import { badgeForPlanName, membershipTotal, toMemberCard, toPlan, toUsd } from './mappers';
+import {
+  amountInPlanRange,
+  badgeForPlanName,
+  membershipTotal,
+  planRange,
+  toMemberCard,
+  toPlan,
+  toUsd,
+} from './mappers';
 import { plansResponse } from './schemas';
 
 describe('membership mappers', () => {
@@ -16,17 +24,26 @@ describe('membership mappers', () => {
     expect(toUsd('0.50')).toBe(0.5);
   });
 
-  it("charges the plan's price for each month the member types (2026-09-29)", () => {
-    const plan = toPlan(planFixtures[0]); // Standard, $25
-    expect(membershipTotal(plan, 1)).toBe(25);
-    expect(membershipTotal(plan, 12)).toBe(300);
-    expect(membershipTotal(plan, 60)).toBe(1500);
+  it('charges the chosen monthly amount for each month typed (2026-10-06)', () => {
+    expect(membershipTotal(25, 1)).toBe(25);
+    expect(membershipTotal(25, 12)).toBe(300);
+    expect(membershipTotal(50, 60)).toBe(3000);
     // Cents stay exact: 3 × $0.10 is $0.30, not 0.30000000000000004.
-    const cheap = toPlan({ id: 'c', name: 'C', price: '0.10', benefits: [] });
-    expect(membershipTotal(cheap, 3)).toBe(0.3);
-    // A range-priced plan is charged from its price; there is no amount to choose.
+    expect(membershipTotal(0.1, 3)).toBe(0.3);
+  });
+
+  it("holds the monthly amount to the plan's range; a fixed plan to its price", () => {
     const range = toPlan({ id: 'r', name: 'R', price: '10', priceMax: '50', benefits: [] });
-    expect(membershipTotal(range, 2)).toBe(20);
+    expect(planRange(range)).toEqual({ min: 10, max: 50 });
+    expect(amountInPlanRange(range, 10)).toBe(true);
+    expect(amountInPlanRange(range, 50)).toBe(true);
+    expect(amountInPlanRange(range, 9.99)).toBe(false);
+    expect(amountInPlanRange(range, 50.01)).toBe(false);
+
+    const fixed = toPlan(planFixtures[0]); // $25
+    expect(planRange(fixed)).toEqual({ min: 25, max: 25 });
+    expect(amountInPlanRange(fixed, 25)).toBe(true);
+    expect(amountInPlanRange(fixed, 30)).toBe(false);
   });
 
   it('maps the card, whose code is what the QR carries', () => {

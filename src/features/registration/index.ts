@@ -20,6 +20,7 @@ export {
   type RegistrationForm,
 } from './form';
 export { describeFormErrors, STEP_NAME_KEYS } from './describe-form-errors';
+export { quoteFor, type Quote } from './quote';
 export { registrationResolver } from './resolver';
 export { usePhotoPicker } from './use-photo-picker';
 export { PhotoUploadUnavailableError, uploadMemberPhoto } from './upload-photo';

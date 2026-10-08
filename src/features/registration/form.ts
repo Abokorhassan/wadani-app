@@ -1,6 +1,7 @@
 import { t } from 'i18next';
 import { z } from 'zod';
 
+import { parseMoney } from '@/lib/money';
 import { toInternationalPhone } from '@/lib/phone';
 
 const currentYear = new Date().getFullYear();
@@ -85,11 +86,17 @@ export function monthsOf(value: string): number | null {
 }
 
 /*
- * No period to pick any more (backend, 2026-09-29): the member types how many
- * months they want, and the fee is the plan's price for each of them.
+ * No period to pick any more (backend, 2026-09-29). The member chooses a monthly
+ * amount from the plan's range, then the months; the fee is one times the other
+ * (2026-10-06). Whether the amount suits the plan is checked in the resolver,
+ * which can see the loaded plans.
  */
 export const planSchema = z.object({
   planId: z.string().min(1, 'Please choose a membership plan.'),
+  /** The monthly amount, read strictly because the API charges what it is sent. */
+  amount: z
+    .string()
+    .refine((value) => parseMoney(value) !== null, { error: () => t('register.amountInvalid') }),
   months: z.string().refine(
     (value) => {
       const months = monthsOf(value);
@@ -208,6 +215,7 @@ export const emptyRegistration: RegistrationForm = {
   country: 'Somaliland',
   district: '',
   planId: '',
+  amount: '',
   months: String(DEFAULT_MONTHS),
   method: 'WAAFI',
   payerPhone: '',

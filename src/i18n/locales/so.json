@@ -284,7 +284,7 @@
     },
     "consent": "Waan oggolahay <terms>shuruudaha xubinnimada</terms> iyo <privacy>siyaasadda xogta gaarka ah</privacy>.",
     "consentLabel": "Waan oggolahay shuruudaha xubinnimada iyo siyaasadda xogta gaarka ah",
-    "submit": "Samee koonto & hel kaadh",
+    "submit": "Bixi {{amount}}",
     "haveAccount": "Horay ma u leedahay koonto?",
     "failed": "Koontadaada lama samayn karin. Fadlan isku day mar kale.",
     "discardTitle": "Ma tuuraysaa diiwaan gelinta?",
@@ -309,7 +309,7 @@
     "couldNotFinish": "Ma aanu dhammaystiri karin diiwaan gelintaada",
     "fixOnStep": "Ku noqo tallaabada {{step}} si aad u beddesho.",
     "months": "Muddada xubinnimada",
-    "monthsHint": "Laga bilaabo {{min}} ilaa {{max}} bilood",
+    "monthsHint": "Laga bilaabo {{min}} ilaa {{max}}",
     "monthsWord_one": "bil",
     "monthsWord_other": "bilood",
     "monthsUnit_one": "{{count}} bil",
@@ -320,7 +320,19 @@
     "toPay": "Lacagta la bixinayo",
     "emailTaken": "Xubin kale ayaa horay u isticmaashay iimaylkan.",
     "countryCode": "Koodhka dalka",
-    "countrySearch": "Raadi dal ama koodh"
+    "countrySearch": "Raadi dal ama koodh",
+    "monthlyAmount": "Lacagta bishii",
+    "amountRange": "Inta u dhexeysa {{min}} iyo {{max}}",
+    "amountOutOfRange": "Dooro lacag u dhexeysa {{min}} iyo {{max}} bishii.",
+    "amountInvalid": "Geli lacag sida 25 ama 25.50.",
+    "amountLower": "Lacag ka yar",
+    "amountHigher": "Lacag ka badan",
+    "monthsLower": "Bilo ka yar",
+    "monthsHigher": "Bilo ka badan",
+    "moreBenefits": "+{{count}} kale",
+    "fewerBenefits": "Muuji wax yar",
+    "submitCard": "Ku sii wad lacag bixinta",
+    "payHint": "Taleefankaaga ayaa codsi kuugu iman doona si aad u oggolaato lacag bixinta."
   },
   "pending": {
     "title": "Waxaanu xaqiijinaynaa lacag bixintaada",
@@ -496,7 +508,7 @@
           "blocks": [
             {
               "li": [
-                "Lacagta xubinnimadu waa qiimaha bishii ee qorshaha oo lagu dhuftay inta bilood ee aad doorato. Wadarta waa lagu tusayaa inta aanad bixin.",
+                "Waxaad doorataa lacag bishii ah oo ku jirta xadka qorshaha, lacagta xubinnimaduna waa lacagtaas oo lagu dhuftay inta bilood ee aad doorato. Wadarta waa lagu tusayaa inta aanad bixin.",
                 "Lacag bixintu waxay ku dhacdaa Sifalo Pay, boorso mobile ama kaadh.",
                 "Lacagta xubinnimada iyo deeqaha dib looma celiyo, marka laga reebo lacag si khalad ah loo qaaday. Nala soo xidhiidh, waanu eegaynaa."
               ]
