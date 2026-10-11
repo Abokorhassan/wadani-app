@@ -17,7 +17,8 @@ import {
   useToast,
 } from '@/design-system';
 import { useLogin } from '@/features/auth';
-import { LanguageSwitch } from '@/features/settings';
+import { AppearanceToggle, LanguageSwitch } from '@/features/settings';
+import { WhatsAppLink } from '@/features/support';
 
 const sealColor = require('@/assets/brand/seal-color.png');
 
@@ -74,7 +75,10 @@ export default function LoginScreen() {
           accessibilityLabel={t('common.back')}
           onPress={() => router.back()}
         />
-        <LanguageSwitch />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}>
+          <AppearanceToggle />
+          <LanguageSwitch />
+        </View>
       </View>
 
       <View style={{ marginTop: 26 }}>
@@ -133,7 +137,11 @@ export default function LoginScreen() {
 
       <View style={{ flex: 1 }} />
 
-      <Text variant="small" color="textMuted" center style={{ marginTop: theme.spacing.xl }}>
+      <View style={{ marginTop: theme.spacing.xl }}>
+        <WhatsAppLink message={t('welcome.whatsappMessage')} />
+      </View>
+
+      <Text variant="small" color="textMuted" center style={{ marginTop: theme.spacing.sm }}>
         {t('login.noAccount')}{' '}
         <Text variant="smallStrong" color="actionDeep" onPress={() => router.replace('/register')}>
           {t('login.createAccount')}

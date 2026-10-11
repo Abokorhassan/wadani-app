@@ -46,7 +46,7 @@ export const shadow = {
   },
   float: { boxShadow: '0px 18px 40px -16px rgba(26, 21, 18, 0.22)' },
   action: { boxShadow: '0px 12px 24px -14px rgba(85, 101, 47, 0.75)' },
-  brand: { boxShadow: '0px 24px 40px -22px rgba(190, 90, 0, 0.8)' },
+  brand: { boxShadow: '0px 24px 40px -22px rgba(200, 75, 0, 0.8)' },
   ticket: {
     boxShadow: '0px 1px 2px rgba(26, 21, 18, 0.05), 0px 34px 60px -30px rgba(120, 60, 10, 0.45)',
   },

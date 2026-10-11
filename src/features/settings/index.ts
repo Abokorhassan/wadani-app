@@ -1,3 +1,6 @@
+export { useAppearanceStore, useAppTheme, type Appearance } from './appearance';
+export { AppearanceToggle } from './components/appearance-toggle';
+export { AppearanceSwitch } from './components/appearance-switch';
 export { LanguageSwitch } from './components/language-switch';
 export { LegalScreen } from './components/legal-screen';
 export { SocialLinksCard } from './components/social-links-card';

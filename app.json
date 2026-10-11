@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Waddani",
+    "name": "Waddani Party",
     "slug": "waddani",
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "waddani",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "icon": "./assets/brand/icon.png",
     "ios": {
@@ -15,11 +15,10 @@
     "android": {
       "package": "so.waddani.membership",
       "adaptiveIcon": {
-        "backgroundColor": "#FE7B00",
+        "backgroundColor": "#FE6600",
         "foregroundImage": "./assets/brand/android-icon-foreground.png",
         "monochromeImage": "./assets/brand/android-icon-monochrome.png"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "blockedPermissions": [
         "android.permission.RECORD_AUDIO",
@@ -35,7 +34,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#FE7B00",
+          "backgroundColor": "#FE6600",
           "image": "./assets/brand/splash-icon.png",
           "imageWidth": 180
         }

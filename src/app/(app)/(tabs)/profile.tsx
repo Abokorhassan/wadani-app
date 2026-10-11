@@ -3,6 +3,7 @@ import {
   ChevronRight,
   FileText,
   Languages,
+  SunMoon,
   LogOut,
   ShieldCheck,
   Trash2,
@@ -25,7 +26,12 @@ import {
 } from '@/design-system';
 import { useSessionStore } from '@/features/auth/session-store';
 import { isExpired, MEMBER_STATUS_TONE, useCard, useMe, usePlanBadge } from '@/features/membership';
-import { LanguageSwitch, openLegalPage, SocialLinksCard } from '@/features/settings';
+import {
+  AppearanceSwitch,
+  LanguageSwitch,
+  openLegalPage,
+  SocialLinksCard,
+} from '@/features/settings';
 import { formatMonthYear } from '@/lib/format';
 
 export default function ProfileScreen() {
@@ -200,6 +206,28 @@ export default function ProfileScreen() {
           </Text>
         </View>
         <LanguageSwitch icon={false} />
+      </View>
+
+      <View
+        style={{
+          gap: theme.spacing.md,
+          marginTop: 14,
+          padding: 16,
+          borderRadius: theme.radius.card,
+          borderWidth: 1,
+          borderColor: theme.color.border,
+          backgroundColor: theme.color.surface,
+        }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <IconTile icon={SunMoon} tone="brand" size={40} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text variant="bodyStrong">{t('profile.appearance')}</Text>
+            <Text variant="caption" color="textMuted">
+              {t('profile.appearanceHint')}
+            </Text>
+          </View>
+        </View>
+        <AppearanceSwitch />
       </View>
 
       <View

@@ -6,7 +6,8 @@ import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Rosette, Text, useTheme } from '@/design-system';
-import { LanguageSwitch } from '@/features/settings';
+import { AppearanceToggle, LanguageSwitch } from '@/features/settings';
+import { WhatsAppLink } from '@/features/support';
 
 const lockup = require('@/assets/brand/lockup-color.png');
 
@@ -19,7 +20,7 @@ export default function WelcomeScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.color.brand }}>
       <View style={{ position: 'absolute', left: -85, top: -32 }}>
-        <Rosette size={560} color={theme.color.text} opacity={0.08} layers={5} waves={16} />
+        <Rosette size={560} color={theme.color.textOnBrand} opacity={0.08} layers={5} waves={16} />
       </View>
 
       <View
@@ -28,7 +29,11 @@ export default function WelcomeScreen() {
           zIndex: 1,
           top: insets.top + theme.spacing.md,
           right: theme.spacing.gutter,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: theme.spacing.sm,
         }}>
+        <AppearanceToggle tone="brand" />
         <LanguageSwitch tone="brand" />
       </View>
 
@@ -99,6 +104,8 @@ export default function WelcomeScreen() {
             onPress={() => router.push('/login')}
           />
         </View>
+
+        <WhatsAppLink message={t('welcome.whatsappMessage')} />
       </View>
     </View>
   );

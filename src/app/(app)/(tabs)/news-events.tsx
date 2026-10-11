@@ -103,7 +103,7 @@ function NewsCard({ item, featured }: { item: NewsItem; featured: boolean }) {
       {featured ? (
         <View style={{ height: 148, overflow: 'hidden', backgroundColor: theme.color.brand }}>
           <View style={{ position: 'absolute', right: -120, top: -140 }}>
-            <Rosette size={360} color={theme.color.text} opacity={0.14} />
+            <Rosette size={360} color={theme.color.textOnBrand} opacity={0.14} />
           </View>
           <Image
             source={sealBlack}

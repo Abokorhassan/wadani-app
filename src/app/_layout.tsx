@@ -14,15 +14,18 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { DevApiLogViewer } from '@/api/components/dev-api-log-viewer';
 import { persistOptions, queryClient } from '@/api/query-client';
-import { lightTheme, ThemeProvider, ToastProvider } from '@/design-system';
+import { ThemeProvider, ToastProvider } from '@/design-system';
 import { useSessionStore } from '@/features/auth/session-store';
 import { CardCheckoutProvider } from '@/features/payments';
+import { useAppTheme } from '@/features/settings';
 import '@/i18n';
 
 void SplashScreen.preventAutoHideAsync();
@@ -61,6 +64,8 @@ function useAuthGate() {
 export default function RootLayout() {
   const restore = useSessionStore((state) => state.restore);
   const status = useAuthGate();
+  // Light, dark, or the phone's own setting (Profile > Appearance).
+  const theme = useAppTheme();
   // Keys must match `fonts` in src/design-system/tokens/typography.ts.
   const [fontsLoaded, fontError] = useFonts({
     BricolageGrotesque_700Bold,
@@ -83,40 +88,47 @@ export default function RootLayout() {
     if (ready) void SplashScreen.hideAsync();
   }, [ready]);
 
+  // The window behind every screen, so a screen change never flashes white in dark mode.
+  useEffect(() => {
+    void SystemUI.setBackgroundColorAsync(theme.color.background);
+  }, [theme]);
+
   if (!ready) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
-          <ThemeProvider value={lightTheme}>
-            <ToastProvider>
-              {/* __DEV__ is false in a release build, so this never renders there. */}
-              {__DEV__ ? <DevApiLogViewer /> : null}
-              <CardCheckoutProvider>
-                <StatusBar style="dark" />
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    contentStyle: { backgroundColor: lightTheme.color.background },
-                  }}>
-                  <Stack.Screen name="index" />
-                  <Stack.Screen name="(auth)" />
-                  <Stack.Screen name="(app)" />
-                  <Stack.Screen
-                    name="gallery"
-                    options={{
-                      headerShown: true,
-                      presentation: 'modal',
-                      title: 'Component gallery',
-                    }}
-                  />
-                </Stack>
-              </CardCheckoutProvider>
-            </ToastProvider>
-          </ThemeProvider>
-        </PersistQueryClientProvider>
-      </SafeAreaProvider>
+      <KeyboardProvider>
+        <SafeAreaProvider>
+          <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
+            <ThemeProvider value={theme}>
+              <ToastProvider>
+                {/* __DEV__ is false in a release build, so this never renders there. */}
+                {__DEV__ ? <DevApiLogViewer /> : null}
+                <CardCheckoutProvider>
+                  <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                      contentStyle: { backgroundColor: theme.color.background },
+                    }}>
+                    <Stack.Screen name="index" />
+                    <Stack.Screen name="(auth)" />
+                    <Stack.Screen name="(app)" />
+                    <Stack.Screen
+                      name="gallery"
+                      options={{
+                        headerShown: true,
+                        presentation: 'modal',
+                        title: 'Component gallery',
+                      }}
+                    />
+                  </Stack>
+                </CardCheckoutProvider>
+              </ToastProvider>
+            </ThemeProvider>
+          </PersistQueryClientProvider>
+        </SafeAreaProvider>
+      </KeyboardProvider>
     </GestureHandlerRootView>
   );
 }

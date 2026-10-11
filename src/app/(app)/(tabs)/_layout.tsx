@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import { House, Newspaper, Receipt, User } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 
-import { FloatingTabBar, useTheme } from '@/design-system';
+import { FloatingTabBar, TabBlurTarget, useTheme } from '@/design-system';
 
 export default function TabsLayout() {
   const theme = useTheme();
@@ -11,6 +11,9 @@ export default function TabsLayout() {
   return (
     <Tabs
       tabBar={(props) => <FloatingTabBar {...props} />}
+      screenLayout={({ route, children }) => (
+        <TabBlurTarget route={route}>{children}</TabBlurTarget>
+      )}
       screenOptions={{
         headerShown: false,
         sceneStyle: { backgroundColor: theme.color.background },

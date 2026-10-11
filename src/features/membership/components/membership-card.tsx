@@ -13,6 +13,8 @@ import {
   TikTokIcon,
   useTheme,
   XIcon,
+  lightTheme,
+  ThemeProvider,
 } from '@/design-system';
 
 import { isExpired, SOCIAL_HANDLE } from '../status';
@@ -25,7 +27,9 @@ const wordmarkBlack = require('@/assets/brand/wordmark-black.png');
 const PHOTO = 150;
 const RING = PHOTO + 22;
 const FOOTER_HEIGHT = 56;
-const BADGE = 84;
+const BADGE = 72;
+/** How far the badge reaches up into the orange panel; the number keeps clear of it. */
+const BADGE_OVERLAP = 26;
 
 export interface MembershipCardProps {
   card: MemberCard;
@@ -36,7 +40,19 @@ export interface MembershipCardProps {
 }
 
 /** The full membership card shown at check-in, after the party's printed card. */
-export function MembershipCard({ card, badgeUrl, ref }: MembershipCardProps) {
+/**
+ * The card is a printed card: it looks the same in light and dark mode, and is
+ * saved and shared as it is printed. So it always draws with the light theme.
+ */
+export function MembershipCard(props: MembershipCardProps) {
+  return (
+    <ThemeProvider value={lightTheme}>
+      <MembershipCardFace {...props} />
+    </ThemeProvider>
+  );
+}
+
+function MembershipCardFace({ card, badgeUrl, ref }: MembershipCardProps) {
   const theme = useTheme();
   const { t } = useTranslation();
   const expired = isExpired(card);
@@ -63,7 +79,7 @@ export function MembershipCard({ card, badgeUrl, ref }: MembershipCardProps) {
             alignItems: 'center',
             justifyContent: 'center',
             gap: 14,
-            paddingTop: 26,
+            paddingTop: 20,
             paddingHorizontal: 22,
           }}>
           <Image source={sealColor} style={{ width: 66, height: 66 }} />
@@ -75,7 +91,7 @@ export function MembershipCard({ card, badgeUrl, ref }: MembershipCardProps) {
         </View>
 
         {/* Orange panel, with the photo riding on its top edge */}
-        <View style={{ marginTop: 26, alignItems: 'center', paddingHorizontal: 22 }}>
+        <View style={{ marginTop: 18, alignItems: 'center', paddingHorizontal: 22 }}>
           <View
             style={{
               position: 'absolute',
@@ -112,7 +128,7 @@ export function MembershipCard({ card, badgeUrl, ref }: MembershipCardProps) {
             color="textOnBrand"
             center
             style={{
-              marginTop: 18,
+              marginTop: 12,
               fontFamily: theme.fonts.display800,
               fontSize: 25,
               lineHeight: 30,
@@ -157,7 +173,7 @@ export function MembershipCard({ card, badgeUrl, ref }: MembershipCardProps) {
 
           <View
             style={{
-              marginTop: 18,
+              marginTop: 14,
               padding: 10,
               borderRadius: 6,
               backgroundColor: '#FFFFFF',
@@ -174,7 +190,7 @@ export function MembershipCard({ card, badgeUrl, ref }: MembershipCardProps) {
             variant="heading"
             color="textOnBrand"
             center
-            style={{ marginTop: 14, marginBottom: 50 }}>
+            style={{ marginTop: 10, marginBottom: BADGE_OVERLAP + 8 }}>
             <Text
               variant="heading"
               color="textOnBrandSoft"
@@ -220,7 +236,7 @@ export function MembershipCard({ card, badgeUrl, ref }: MembershipCardProps) {
           style={{
             position: 'absolute',
             right: 16,
-            bottom: FOOTER_HEIGHT - BADGE / 2,
+            bottom: FOOTER_HEIGHT + BADGE_OVERLAP - BADGE,
             width: BADGE,
             height: BADGE,
             borderRadius: BADGE / 2,

@@ -16,7 +16,7 @@ from PIL import Image
 
 BRAND = Path(__file__).resolve().parent.parent / "assets" / "brand"
 STORE = BRAND.parent / "store"
-BRAND_ORANGE = (254, 123, 0, 255)  # #FE7B00
+BRAND_ORANGE = (254, 102, 0, 255)  # #FE6600
 
 SOURCES = {
     "color": "logo-full-color.png",

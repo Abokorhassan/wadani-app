@@ -98,10 +98,12 @@ export default function ContactScreen() {
                     borderRadius: theme.radius.pill,
                     backgroundColor: 'rgba(26, 21, 18, 0.12)',
                   }}>
-                  <MessageCircle size={24} color={theme.color.text} />
+                  <MessageCircle size={24} color={theme.color.textOnWhatsapp} />
                 </View>
                 <View style={{ flex: 1, gap: 2 }}>
-                  <Text variant="heading">{t('contact.whatsappTitle')}</Text>
+                  <Text variant="heading" color="textOnWhatsapp">
+                    {t('contact.whatsappTitle')}
+                  </Text>
                   <Text
                     variant="small"
                     color="textOnWhatsappSoft"
@@ -109,7 +111,7 @@ export default function ContactScreen() {
                     {contact.data.phone}
                   </Text>
                 </View>
-                <ArrowRight size={22} color={theme.color.text} />
+                <ArrowRight size={22} color={theme.color.textOnWhatsapp} />
               </Pressable>
 
               <View

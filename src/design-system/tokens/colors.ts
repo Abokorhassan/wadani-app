@@ -10,9 +10,9 @@
  * - Small text on a tint uses the matching "deep" colour, never the base hue.
  */
 export const palette = {
-  orange: '#FE7B00',
-  orangeDeep: '#D96A00',
-  orangeTint: '#FFF0E0',
+  orange: '#FE6600',
+  orangeDeep: '#D45500',
+  orangeTint: '#FFECDF',
   /** Secondary text on orange surfaces (ink at ~80%). */
   onOrangeSoft: '#4A2C10',
 
@@ -59,3 +59,47 @@ export const palette = {
 } as const;
 
 export type Palette = typeof palette;
+
+/**
+ * Dark mode, warm like the light palette rather than a cold grey. Orange stays
+ * the same and still carries ink text; the colours used as text on dark
+ * surfaces (green links, brown, status) are lifted to keep their contrast.
+ */
+export const darkPalette = {
+  ground: '#14110F',
+  surface: '#1E1A17',
+  surfaceRaised: '#2A2420',
+  selected: '#3D352E',
+  cream: '#2A211A',
+  sunken: '#0E0C0A',
+  line: '#2E2823',
+  lineStrong: '#40372F',
+  fieldLine: '#3A322C',
+  ticketLine: '#2E2823',
+  ticketFoot: '#1A1714',
+
+  text: '#F4EEE8',
+  textSoft: '#D2C7BB',
+  muted: '#A39689',
+  faint: '#6F655C',
+
+  orangeDeep: '#FF8A3D',
+  orangeTint: '#3A2414',
+  greenDeep: '#A9C46E',
+  greenTint: '#263019',
+  brown: '#C08B79',
+  brownDeep: '#DDA896',
+  brownTint: '#33241F',
+
+  success: '#6CCB91',
+  successTint: '#163322',
+  warning: '#E8AE48',
+  warningTint: '#3A2C12',
+  danger: '#F2736A',
+  dangerTint: '#3D1A18',
+  dangerPressed: '#52211E',
+  info: '#7DB3EE',
+  infoTint: '#172A40',
+
+  overlay: 'rgba(0, 0, 0, 0.62)',
+} as const;

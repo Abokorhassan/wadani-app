@@ -3,7 +3,7 @@ import type { Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { Text, useTheme, WhatsAppIcon } from '@/design-system';
+import { Text, useTheme, WhatsAppIcon, lightTheme, ThemeProvider } from '@/design-system';
 import { env } from '@/lib/env';
 
 const officeStamp = require('@/assets/brand/office-stamp.jpg');
@@ -15,7 +15,19 @@ export interface MembershipCardBackProps {
 }
 
 /** The reverse of the printed membership card: ownership notice + return instructions. */
-export function MembershipCardBack({ ref }: MembershipCardBackProps) {
+/**
+ * The card is a printed card: it looks the same in light and dark mode, and is
+ * saved and shared as it is printed. So it always draws with the light theme.
+ */
+export function MembershipCardBack(props: MembershipCardBackProps) {
+  return (
+    <ThemeProvider value={lightTheme}>
+      <MembershipCardBackFace {...props} />
+    </ThemeProvider>
+  );
+}
+
+function MembershipCardBackFace({ ref }: MembershipCardBackProps) {
   const theme = useTheme();
   const { t } = useTranslation();
 

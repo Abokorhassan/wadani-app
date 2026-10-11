@@ -28,9 +28,9 @@ export function MiniCard({ card, onPress }: MiniCardProps) {
       accessibilityLabel={t('card.openCard')}
       style={({ pressed }) => [
         {
-          height: 204,
+          // Sized by its content: a fixed height left an empty band in the middle.
+          gap: 26,
           overflow: 'hidden',
-          justifyContent: 'space-between',
           padding: 20,
           borderRadius: theme.radius.hero,
           backgroundColor: theme.color.brand,
@@ -39,7 +39,7 @@ export function MiniCard({ card, onPress }: MiniCardProps) {
         theme.shadow.brand,
       ]}>
       <View style={{ position: 'absolute', right: -150, top: -150 }}>
-        <Rosette size={340} color={theme.color.text} opacity={0.1} />
+        <Rosette size={340} color={theme.color.textOnBrand} opacity={0.1} />
       </View>
 
       <View
@@ -49,18 +49,26 @@ export function MiniCard({ card, onPress }: MiniCardProps) {
           justifyContent: 'space-between',
           gap: 12,
         }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        {/* Shrinks so the pill keeps its place: in Somali both run long. */}
+        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Image source={sealBlack} style={{ width: 36, height: 36 }} />
-          <View style={{ gap: 1 }}>
-            <Text variant="overline" color="textOnBrand">
+          <View style={{ flex: 1, gap: 1 }}>
+            <Text
+              variant="overline"
+              color="textOnBrand"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.8}>
               {t('card.membershipCard')}
             </Text>
-            <Text variant="captionStrong" color="textOnBrandSoft">
+            <Text variant="captionStrong" color="textOnBrandSoft" numberOfLines={1}>
               {t('common.partyName')}
             </Text>
           </View>
         </View>
-        <StatusPill label={expired ? t('status.expired') : t('status.active')} tone="ink" dot />
+        <View style={{ flexShrink: 0 }}>
+          <StatusPill label={expired ? t('status.expired') : t('status.active')} tone="ink" dot />
+        </View>
       </View>
 
       <View

@@ -16,4 +16,5 @@ export const StorageKey = {
   queryCache: 'query-cache',
   registrationDraft: 'registration-draft',
   language: 'language',
+  appearance: 'appearance',
 } as const;

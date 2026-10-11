@@ -62,7 +62,7 @@ export function LanguageSwitch({ tone = 'surface', icon = true }: LanguageSwitch
                 justifyContent: 'center',
                 paddingHorizontal: 10,
                 borderRadius: theme.radius.pill,
-                backgroundColor: active ? theme.color.surface : 'transparent',
+                backgroundColor: active ? theme.color.surfaceSelected : 'transparent',
               },
               active ? theme.shadow.raised : null,
             ]}>

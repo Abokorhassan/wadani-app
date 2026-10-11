@@ -55,7 +55,7 @@ function colorsFor(theme: Theme, variant: ButtonVariant) {
     case 'danger':
       return {
         bg: theme.color.dangerTint,
-        pressed: '#F8D9D5',
+        pressed: theme.color.dangerPressed,
         border: theme.color.dangerTint,
         fg: theme.color.danger,
       };

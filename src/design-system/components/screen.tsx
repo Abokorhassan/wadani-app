@@ -1,14 +1,17 @@
+import { useState } from 'react';
+import { ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
 import {
   KeyboardAvoidingView,
-  ScrollView,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
+  KeyboardAwareScrollView,
+  KeyboardStickyView,
+} from 'react-native-keyboard-controller';
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
 import { useTheme } from '../theme';
 import { TAB_BAR_CLEARANCE } from './tab-bar';
+
+/** Room left between the keyboard (or the footer above it) and the field being typed in. */
+const FIELD_CLEARANCE = 24;
 
 export interface ScreenProps {
   children: React.ReactNode;
@@ -39,6 +42,7 @@ export function Screen({
   testID,
 }: ScreenProps) {
   const theme = useTheme();
+  const [footerHeight, setFooterHeight] = useState(0);
   const backgroundColor =
     background === 'brand'
       ? theme.color.brand
@@ -54,37 +58,46 @@ export function Screen({
 
   return (
     <SafeAreaView edges={safeEdges} style={{ flex: 1, backgroundColor }} testID={testID}>
-      {/*
-        Padding on both platforms: with edge-to-edge on (app.json), Android no
-        longer resizes the window for the keyboard, so without this a field near
-        the bottom sits under the keyboard while the member types.
-      */}
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-        {scroll ? (
-          <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={[{ flexGrow: 1 }, padding, contentStyle]}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="on-drag"
-            showsVerticalScrollIndicator={false}
-            refreshControl={refreshControl}>
-            {children}
-          </ScrollView>
-        ) : (
+      {scroll ? (
+        /*
+         * Scrolls the whole field being typed in into view above the keyboard,
+         * and above the pinned footer when there is one. Only keeping the
+         * caret in view, as before, left the field's border, label and error
+         * half hidden (2026-10-11).
+         */
+        <KeyboardAwareScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={[{ flexGrow: 1 }, padding, contentStyle]}
+          bottomOffset={(footer ? footerHeight : 0) + FIELD_CLEARANCE}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          showsVerticalScrollIndicator={false}
+          refreshControl={refreshControl}>
+          {children}
+        </KeyboardAwareScrollView>
+      ) : (
+        <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
           <View style={[{ flex: 1 }, padding, contentStyle]}>{children}</View>
-        )}
+        </KeyboardAvoidingView>
+      )}
 
-        {footer ? (
+      {footer ? (
+        // Rides up with the keyboard, so "Next" stays reachable while typing. No
+        // offset for the open state: a floating keyboard reports no height while
+        // "open", and an offset then pushed the buttons down under the nav bar.
+        <KeyboardStickyView>
           <View
+            onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)}
             style={{
               paddingHorizontal: theme.spacing.gutter,
               paddingTop: theme.spacing.lg,
               paddingBottom: theme.spacing.lg,
+              backgroundColor,
             }}>
             {footer}
           </View>
-        ) : null}
-      </KeyboardAvoidingView>
+        </KeyboardStickyView>
+      ) : null}
     </SafeAreaView>
   );
 }

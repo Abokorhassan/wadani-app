@@ -4,13 +4,17 @@ import type { SupportApi } from './api';
 import { toContactInfo, toFaqItem } from './mappers';
 import type { ContactInfoDto, FaqItemDto } from './schemas';
 
-/** From the prototype; the party still has to confirm these (build-plan D23). */
+/**
+ * The support API has no backend yet, so this is what the app shows live. The
+ * email and WhatsApp are the party's real ones, as on the legal pages; the phone
+ * and office are still the prototype's and need the party to confirm (D23).
+ */
 export const contactInfoFixture: ContactInfoDto = {
   phone: '+252 63 400 1122',
-  email: 'info@waddani.so',
+  email: 'wadaniparty2026@gmail.com',
   officeName: 'Waddani House, Hargeisa',
   officeHours: 'Sat–Thu, 8:00 AM – 4:00 PM',
-  whatsappNumber: '252634001122',
+  whatsappNumber: '252653140475',
 };
 
 /**

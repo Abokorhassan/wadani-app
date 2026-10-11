@@ -28,7 +28,7 @@ import { MiniCard, useCard, useMe } from '@/features/membership';
 import { env } from '@/lib/env';
 import { firstName } from '@/lib/format';
 
-const sealBlack = require('@/assets/brand/seal-black.png');
+const sealColor = require('@/assets/brand/seal-color.png');
 
 interface Tile {
   icon: LucideIcon;
@@ -56,11 +56,11 @@ export default function HomeScreen() {
       href: '/card',
     },
     {
-      icon: Receipt,
+      icon: Newspaper,
       tone: 'action',
-      title: t('home.tiles.payments'),
-      text: t('home.tiles.paymentsText'),
-      href: '/payments',
+      title: t('home.tiles.news'),
+      text: t('home.tiles.newsText'),
+      href: '/news-events',
     },
     {
       icon: Heart,
@@ -70,11 +70,11 @@ export default function HomeScreen() {
       href: '/donate',
     },
     {
-      icon: Newspaper,
+      icon: Receipt,
       tone: 'brand',
-      title: t('home.tiles.news'),
-      text: t('home.tiles.newsText'),
-      href: '/news-events',
+      title: t('home.tiles.payments'),
+      text: t('home.tiles.paymentsText'),
+      href: '/payments',
     },
     {
       icon: Users,
@@ -117,7 +117,7 @@ export default function HomeScreen() {
         }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Image
-            source={sealBlack}
+            source={sealColor}
             style={{ width: 40, height: 40 }}
             accessibilityLabel={t('common.partyName')}
           />

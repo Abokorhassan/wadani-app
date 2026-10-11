@@ -17,7 +17,7 @@ import {
   useToast,
 } from '@/design-system';
 import { useRequestPasswordReset, useResetPassword } from '@/features/auth';
-import { LanguageSwitch } from '@/features/settings';
+import { AppearanceToggle, LanguageSwitch } from '@/features/settings';
 import { openWhatsApp, useContactInfo } from '@/features/support';
 import { toInternationalPhone } from '@/lib/phone';
 
@@ -136,7 +136,10 @@ export default function ForgotPasswordScreen() {
           accessibilityLabel={t('common.back')}
           onPress={() => (stage === 'reset' ? setStage('request') : router.back())}
         />
-        <LanguageSwitch />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}>
+          <AppearanceToggle />
+          <LanguageSwitch />
+        </View>
       </View>
 
       <View style={{ marginTop: 26 }}>

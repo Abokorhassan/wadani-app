@@ -54,7 +54,7 @@ export function SegmentedTabs<T extends string = string>({
                 gap: theme.spacing.sm,
                 height: theme.controlHeight.chip,
                 borderRadius: theme.radius.pill,
-                backgroundColor: active ? theme.color.surface : 'transparent',
+                backgroundColor: active ? theme.color.surfaceSelected : 'transparent',
               },
               active ? theme.shadow.raised : null,
             ]}>
