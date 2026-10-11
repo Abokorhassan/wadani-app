@@ -381,7 +381,7 @@ function PlanCard({ plan }: { plan: Plan }) {
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'baseline', gap: 5 }}>
             <Text variant="display" color="brand" style={{ fontSize: 30, lineHeight: 34 }}>
               {isRangePlan(plan)
-                ? `${shortUsd(range.min)}–${shortUsd(range.max)}`
+                ? t('register.rangeUpTo', { min: shortUsd(range.min), max: shortUsd(range.max) })
                 : shortUsd(range.min)}
             </Text>
             <Text variant="caption" color="textOnInkSoft">

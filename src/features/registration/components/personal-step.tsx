@@ -131,7 +131,7 @@ export function PersonalStep({ control, onEmailBlur }: PersonalStepProps) {
         render={({ field, fieldState }) => (
           <TextField
             label={t('register.email')}
-            optional={t('common.optional')}
+
             value={field.value ?? ''}
             onChangeText={field.onChange}
             onBlur={() => {

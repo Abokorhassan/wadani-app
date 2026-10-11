@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { ArrowLeft, ArrowRight } from 'lucide-react-native';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Alert, View } from 'react-native';
@@ -73,9 +73,23 @@ export default function RegisterScreen() {
     mode: 'onBlur',
   });
 
+  /*
+   * A field showing an error is checked again on every change, so the message
+   * goes the moment the value is right. The form otherwise re-checks only on
+   * blur, and errors from "Next" stayed on screen after the member fixed them
+   * (2026-10-11). A field with no error is still left alone while typing, so
+   * "a" on the way to an email is not flagged.
+   */
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/incompatible-library
+    const subscription = form.watch((_values, { name, type }) => {
+      if (type === 'change' && name && form.getFieldState(name).invalid) void form.trigger(name);
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
   // react-hook-form isn't compatible with the React Compiler, so this screen
   // is left uncompiled rather than restructured around it.
-  // eslint-disable-next-line react-hooks/incompatible-library
   const values = form.watch();
   const plan = plans.data?.find((candidate) => candidate.id === values.planId);
   // What gets charged, or null until the amount and months are both valid.
@@ -404,7 +418,7 @@ export default function RegisterScreen() {
             onEmailBlur={() => void form.trigger('email').then((ok) => ok && emailIsTaken())}
           />
         ) : null}
-        {step === 1 ? <AddressStep control={form.control} /> : null}
+        {step === 1 ? <AddressStep control={form.control} setValue={form.setValue} /> : null}
         {step === 2 ? (
           <PlanStep
             control={form.control}

@@ -23,7 +23,11 @@
     "loginTitle": "Horay ayaan xubin u ahay",
     "loginDescription": "Soo gal si aad u aragto kaadhkaaga xubinnimada",
     "memberSince": "Xisbiga Waddani · Xisbiga Qaranka Somaliland",
-    "donateTitle": "Taageer"
+    "donateTitle": "Taageer",
+    "whatsappQuestion": "Su'aal ma qabtaa?",
+    "whatsappCta": "Nagala sheekayso WhatsApp",
+    "whatsappLabel": "Kala sheekayso xisbiga WhatsApp",
+    "whatsappMessage": "Salaan Waddani, waxaan qabaa su'aal ku saabsan ku biirista xisbiga."
   },
   "login": {
     "title": "Ku soo dhawoow mar kale",
@@ -122,7 +126,14 @@
     "terms": "Shuruudaha xubinnimada",
     "follow": "Raac xisbiga",
     "followHint": "Warka iyo warbixinnada Xisbiga Waddani",
-    "website": "Bogga internetka"
+    "website": "Bogga internetka",
+    "appearance": "Muuqaalka",
+    "appearanceHint": "Iftiin, mugdi, ama raac taleefankaaga",
+    "appearanceSystem": "Taleefanka",
+    "appearanceLight": "Iftiin",
+    "appearanceDark": "Mugdi",
+    "switchToDark": "U beddel qaabka mugdiga",
+    "switchToLight": "U beddel qaabka iftiinka"
   },
   "communications": {
     "title": "Farriimaha",
@@ -253,7 +264,7 @@
     "photoHint": "Waxa lagu muujinayaa kaadhkaaga xubinnimada",
     "photoDenied": "Oggolow sawirada si aad u doorato sawir.",
     "fullName": "Magaca oo dhan",
-    "fullNamePlaceholder": "tusaale Aamina Yuusuf",
+    "fullNamePlaceholder": "tusaale Axmed Cali",
     "gender": "Jinsiga",
     "male": "Lab",
     "female": "Dheddig",
@@ -293,8 +304,8 @@
     "keepEditing": "Sii wad",
     "work": "Shaqada / xirfadda",
     "workPlaceholder": "tusaale Macallin",
-    "region": "Gobolka",
-    "regionPlaceholder": "tusaale Woqooyi Galbeed",
+    "region": "Gobol / dowlad-goboleed",
+    "regionPlaceholder": "tusaale Maroodi Jeex",
     "district": "Degmada",
     "payerPhone": "Lambarka lacagta laga jarayo",
     "payerPhoneHint": "Qof kale ayaa kuu bixin kara.",
@@ -332,7 +343,19 @@
     "moreBenefits": "+{{count}} kale",
     "fewerBenefits": "Muuji wax yar",
     "submitCard": "Ku sii wad lacag bixinta",
-    "payHint": "Taleefankaaga ayaa codsi kuugu iman doona si aad u oggolaato lacag bixinta."
+    "payHint": "Taleefankaaga ayaa codsi kuugu iman doona si aad u oggolaato lacag bixinta.",
+    "emailRequired": "Fadlan geli iimaylkaaga.",
+    "emailInvalid": "Fadlan geli iimayl sax ah.",
+    "rangeUpTo": "{{min}} ilaa {{max}}",
+    "chooseRegionFirst": "Marka hore dooro gobolkaaga",
+    "otherCity": "Mid kale (qor)",
+    "cityName": "Magaca magaalada",
+    "districtPlaceholder": "tusaale 26 Juun",
+    "countryChoose": "Dooro dalkaaga",
+    "regionChoose": "Dooro gobolkaaga",
+    "cityChoose": "Dooro magaaladaada",
+    "searchList": "Raadi",
+    "cityPlaceholderAbroad": "tusaale London"
   },
   "pending": {
     "title": "Waxaanu xaqiijinaynaa lacag bixintaada",

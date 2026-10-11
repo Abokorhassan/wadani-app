@@ -32,15 +32,15 @@ export const personalSchema = z.object({
     (value) => value === undefined || toInternationalPhone(value) !== null,
     'Enter a valid phone number, e.g. 63 234 5678.'
   ),
-  // The backend treats phone as the identity; email is extra.
+  // Required by the party (2026-10-11), though the API takes it as optional: the
+  // emailed reset code is the only way back into an account that lost its password.
   email: z
-    .string()
+    .string({ error: () => t('register.emailRequired') })
     .trim()
-    .optional()
-    .refine(
-      (value) => !value || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value),
-      'Please enter a valid email.'
-    ),
+    .min(1, { error: () => t('register.emailRequired') })
+    .refine((value) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value), {
+      error: () => t('register.emailInvalid'),
+    }),
   birthYear: z
     .string()
     .trim()
@@ -64,14 +64,15 @@ export const personalSchema = z.object({
     .min(1, 'Please add a photo for your membership card.'),
 });
 
-// Listed in the order the screen shows them, so the wizard's error jump and the
-// form agree: street, district, city, region, country.
+// Listed in the order the screen shows them, largest area first (2026-10-11), so
+// the wizard's error jump and the form agree: country, region, city, district,
+// street. The keys are the API's own address fields.
 export const addressSchema = z.object({
-  line1: z.string().trim().min(1, 'Please enter your street or neighbourhood.'),
-  district: optionalText,
-  city: z.string().trim().min(1, 'Please enter your city.'),
-  region: z.string().trim().min(1, 'Please enter your region.'),
   country: z.string().trim().min(1, 'Please enter your country.'),
+  region: z.string().trim().min(1, 'Please choose your region.'),
+  city: z.string().trim().min(1, 'Please choose or type your town.'),
+  district: optionalText,
+  line1: z.string().trim().min(1, 'Please enter your street or neighbourhood.'),
 });
 
 /** The API's own limits for the membership length a member types in. */

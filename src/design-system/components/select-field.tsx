@@ -1,6 +1,6 @@
-import { Check, ChevronDown } from 'lucide-react-native';
+import { Check, ChevronDown, Search } from 'lucide-react-native';
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, View } from 'react-native';
+import { FlatList, Modal, Pressable, TextInput, View } from 'react-native';
 
 import { useTheme } from '../theme';
 import { Text } from './text';
@@ -17,6 +17,8 @@ export interface SelectFieldProps<T extends string = string> {
   options: SelectOption<T>[];
   onChange: (value: T) => void;
   placeholder?: string;
+  /** Adds a search box above the list; for long lists such as countries. */
+  searchPlaceholder?: string;
   error?: string;
   hint?: string;
   /** Marker beside the label for a field that can be left empty, e.g. "Optional". */
@@ -32,6 +34,7 @@ export function SelectField<T extends string = string>({
   options,
   onChange,
   placeholder = 'Select',
+  searchPlaceholder,
   error,
   hint,
   optional,
@@ -40,7 +43,18 @@ export function SelectField<T extends string = string>({
 }: SelectFieldProps<T>) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
   const selected = options.find((option) => option.value === value);
+
+  const needle = query.trim().toLowerCase();
+  const shown = needle
+    ? options.filter((option) => option.label.toLowerCase().includes(needle))
+    : options;
+
+  const close = () => {
+    setOpen(false);
+    setQuery('');
+  };
 
   return (
     <View style={{ gap: theme.spacing.sm }}>
@@ -76,7 +90,11 @@ export function SelectField<T extends string = string>({
           backgroundColor: pressed ? theme.color.surfaceSunken : theme.color.surface,
           opacity: disabled ? 0.5 : 1,
         })}>
-        <Text variant="bodyMedium" color={selected ? 'text' : 'textPlaceholder'}>
+        <Text
+          variant="bodyMedium"
+          color={selected ? 'text' : 'textPlaceholder'}
+          numberOfLines={1}
+          style={{ flex: 1 }}>
           {selected?.label ?? placeholder}
         </Text>
         <ChevronDown size={20} color={theme.color.textMuted} />
@@ -92,15 +110,17 @@ export function SelectField<T extends string = string>({
         </Text>
       ) : null}
 
-      <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
+      <Modal visible={open} transparent animationType="slide" onRequestClose={close}>
         <Pressable
-          onPress={() => setOpen(false)}
+          onPress={close}
           accessibilityLabel="Close"
           style={{ flex: 1, backgroundColor: theme.color.overlay, justifyContent: 'flex-end' }}>
           <Pressable
             onPress={(event) => event.stopPropagation()}
             style={{
-              maxHeight: '70%',
+              // A search box needs room for the keyboard and a few results.
+              height: searchPlaceholder ? '75%' : undefined,
+              maxHeight: searchPlaceholder ? undefined : '70%',
               paddingTop: theme.spacing.xl,
               paddingBottom: theme.spacing.xxl,
               borderTopLeftRadius: theme.radius.sheet,
@@ -110,15 +130,46 @@ export function SelectField<T extends string = string>({
             <Text variant="heading" style={{ paddingHorizontal: theme.spacing.gutter }}>
               {label}
             </Text>
-            <ScrollView style={{ marginTop: theme.spacing.md }}>
-              {options.map((option) => {
-                const isSelected = option.value === value;
+            {searchPlaceholder ? (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: theme.spacing.sm,
+                  marginTop: theme.spacing.md,
+                  marginHorizontal: theme.spacing.gutter,
+                  height: 48,
+                  paddingHorizontal: theme.spacing.md,
+                  borderRadius: theme.radius.lg,
+                  borderWidth: 1.5,
+                  borderColor: theme.color.fieldBorder,
+                  backgroundColor: theme.color.surface,
+                }}>
+                <Search size={18} color={theme.color.textMuted} />
+                <TextInput
+                  value={query}
+                  onChangeText={setQuery}
+                  placeholder={searchPlaceholder}
+                  placeholderTextColor={theme.color.textPlaceholder}
+                  autoCorrect={false}
+                  accessibilityLabel={searchPlaceholder}
+                  style={[theme.typography.bodyMedium, { flex: 1, color: theme.color.text }]}
+                />
+              </View>
+            ) : null}
+            <FlatList
+              data={shown}
+              keyExtractor={(option) => option.value}
+              keyboardShouldPersistTaps="handled"
+              style={{ marginTop: theme.spacing.md }}
+              initialNumToRender={20}
+              renderItem={({ item }) => {
+                const isSelected = item.value === value;
                 return (
                   <Pressable
-                    key={option.value}
                     onPress={() => {
-                      onChange(option.value);
-                      setOpen(false);
+                      onChange(item.value);
+                      close();
                     }}
                     accessibilityRole="button"
                     accessibilityState={{ selected: isSelected }}
@@ -132,10 +183,10 @@ export function SelectField<T extends string = string>({
                       backgroundColor: pressed ? theme.color.surfaceSunken : 'transparent',
                     })}>
                     <View style={{ flex: 1 }}>
-                      <Text variant={isSelected ? 'bodyStrong' : 'bodyMedium'}>{option.label}</Text>
-                      {option.description ? (
+                      <Text variant={isSelected ? 'bodyStrong' : 'bodyMedium'}>{item.label}</Text>
+                      {item.description ? (
                         <Text variant="caption" color="textMuted">
-                          {option.description}
+                          {item.description}
                         </Text>
                       ) : null}
                     </View>
@@ -144,8 +195,8 @@ export function SelectField<T extends string = string>({
                     ) : null}
                   </Pressable>
                 );
-              })}
-            </ScrollView>
+              }}
+            />
           </Pressable>
         </Pressable>
       </Modal>

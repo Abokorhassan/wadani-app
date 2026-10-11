@@ -20,7 +20,7 @@ const valid: RegistrationForm = {
   fullName: 'Amina Yusuf',
   gender: 'female',
   phone: '63 234 5678',
-  email: '',
+  email: 'amina@example.com',
   birthYear: '1998',
   education: 'bachelor',
   professionalWork: 'Teacher',

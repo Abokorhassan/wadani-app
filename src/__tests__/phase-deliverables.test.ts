@@ -61,7 +61,7 @@ describe('Phase 0 — foundations', () => {
 
   it('defines the theme tokens the screens use', () => {
     const { lightTheme } = require('../design-system/theme');
-    expect(lightTheme.color.brand).toBe('#FE7B00');
+    expect(lightTheme.color.brand).toBe('#FE6600');
     expect(lightTheme.color.action).toBe('#66783C');
     // Orange carries dark text: white on orange fails contrast (build-plan §6).
     expect(lightTheme.color.textOnBrand).toBe(lightTheme.color.text);
@@ -147,6 +147,11 @@ describe('Phase 0 — foundations', () => {
     expect(source('app/(auth)/welcome.tsx')).toContain('<LanguageSwitch');
     expect(source('app/(auth)/login.tsx')).toContain('<LanguageSwitch');
     expect(source('app/(app)/(tabs)/profile.tsx')).toContain('<LanguageSwitch');
+    // A visitor can switch dark mode before they have an account (2026-10-11).
+    for (const screen of ['welcome', 'login', 'forgot-password']) {
+      expect(source(`app/(auth)/${screen}.tsx`)).toContain('<AppearanceToggle');
+    }
+    expect(source('app/(app)/(tabs)/profile.tsx')).toContain('<AppearanceSwitch');
   });
 });
 
@@ -342,8 +347,10 @@ describe('Phase 1 — onboarding', () => {
     expect(personalSchema.safeParse({ ...base, birthYear: '' }).success).toBe(false);
     expect(personalSchema.safeParse({ ...base, birthYear: '98' }).success).toBe(false);
     expect(personalSchema.safeParse({ ...base, professionalWork: '' }).success).toBe(false);
-    // Email is optional: the phone number is the identity.
-    expect(personalSchema.safeParse({ ...base, email: undefined }).success).toBe(true);
+    // Email is required (2026-10-11): it is how a locked-out member gets back in.
+    expect(personalSchema.safeParse({ ...base, email: undefined }).success).toBe(false);
+    expect(personalSchema.safeParse({ ...base, email: '' }).success).toBe(false);
+    expect(personalSchema.safeParse({ ...base, email: 'not-an-email' }).success).toBe(false);
     // The API's own minimum password length.
     expect(personalSchema.safeParse({ ...base, password: 'secret1' }).success).toBe(false);
     // A server-side clash sends the wizard back to the step holding the field (D7).
@@ -382,12 +389,37 @@ describe('Phase 1 — onboarding', () => {
     expect(source('lib/env.ts')).toContain('EXPO_PUBLIC_AWS_ACCESS_KEY_ID');
   });
 
-  it('asks for the address in the order the party chose', () => {
-    // Street, district, region, country (2026-09-20). City is required by the
-    // API but was not in that list, so it sits between district and region.
+  it('asks for the address largest area first, with any country to pick (2026-10-11)', () => {
+    // Country, region, city, district, street: the API's own fields, largest first.
     const screen = source('features/registration/components/address-step.tsx');
     const fields = [...screen.matchAll(/name="(\w+)"/g)].map((match) => match[1]);
-    expect(fields).toEqual(['line1', 'district', 'city', 'region', 'country']);
+    expect(fields).toEqual(['country', 'region', 'city', 'district', 'line1']);
+    // The step must subscribe with useWatch: a watch() function passed down is
+    // skipped by the React Compiler, which left the town list empty.
+    expect(screen).toContain('useWatch');
+    expect(screen.replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/\bwatch\(/);
+
+    const { COUNTRIES, COUNTRY, regionsOf, citiesFor } = require('../features/registration/places');
+    // Somaliland first, then the world; Somalia itself is not offered.
+    expect(COUNTRY).toBe('Somaliland');
+    expect(COUNTRIES[0]).toBe('Somaliland');
+    expect(COUNTRIES).toContain('United Kingdom');
+    expect(COUNTRIES).not.toContain('Somalia');
+    expect(COUNTRIES.length).toBeGreaterThan(200);
+
+    expect(regionsOf('Somaliland')).toEqual([
+      'Awdal',
+      'Maroodi Jeex',
+      'Saaxil',
+      'Togdheer',
+      'Sool',
+      'Sanaag',
+    ]);
+    expect(citiesFor('Somaliland', 'Maroodi Jeex')).toContain('Hargeysa');
+    // Abroad: states / provinces to pick, and the city is typed.
+    expect(regionsOf('United States').length).toBeGreaterThan(40);
+    expect(citiesFor('United States', 'Minnesota')).toEqual([]);
+    expect(regionsOf('Nowhere')).toEqual([]);
   });
 
   it('refuses a membership length or phone number that would be charged wrongly', () => {
@@ -413,7 +445,7 @@ describe('Phase 1 — onboarding', () => {
     const person = {
       fullName: 'Amina Yusuf',
       gender: 'female',
-      email: '',
+      email: 'amina@example.com',
       education: 'bachelor',
       professionalWork: 'Teacher',
       birthYear: '1998',
