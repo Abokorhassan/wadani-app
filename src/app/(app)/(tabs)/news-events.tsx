@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import { useLocalSearchParams } from 'expo-router';
 import { Calendar, Clock, MapPin, Newspaper } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,7 +26,17 @@ type Tab = 'news' | 'events';
 export default function NewsEventsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
-  const [tab, setTab] = useState<Tab>('news');
+  // A notification opens this screen on the tab it is about.
+  const { tab: requested, at } = useLocalSearchParams<{ tab?: string; at?: string }>();
+  const [tab, setTab] = useState<Tab>(requested === 'events' ? 'events' : 'news');
+  // The tab stays mounted, so each new link (a new `at`, the notification id)
+  // switches it again, even to the tab the last one asked for.
+  const link = `${requested}:${at}`;
+  const [handled, setHandled] = useState(link);
+  if (link !== handled) {
+    setHandled(link);
+    if (requested === 'news' || requested === 'events') setTab(requested);
+  }
   const news = useNews();
   const events = useEvents();
   const active = tab === 'news' ? news : events;

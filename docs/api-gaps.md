@@ -109,6 +109,8 @@ A sweep of every screen for things the API cannot actually do.
   password?"** — `support` backs that fallback. These three now stay on their
   stand-in data whatever the setting says (`FEATURES_WITHOUT_BACKEND` in
   `src/api/mode.ts`). Remove one from that list when its endpoints land.
+  Notifications came off it in November 2026, when the backend added
+  `/mobile/notifications`.
 - **Three FAQ answers described the old manual flow** — telling members to send
   a Zaad reference for the office to check, and to add family members from the
   home screen. Both impossible now. Rewritten.

@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { useRouter, type Href } from 'expo-router';
 import {
+  Bell,
   Heart,
   IdCard,
   MessageCircle,
@@ -16,6 +17,7 @@ import { Pressable, RefreshControl, Share, View } from 'react-native';
 import {
   Button,
   ErrorState,
+  IconButton,
   IconTile,
   Rosette,
   Screen,
@@ -25,6 +27,7 @@ import {
   type IconTileTone,
 } from '@/design-system';
 import { MiniCard, useCard, useMe } from '@/features/membership';
+import { useUnreadCount } from '@/features/notifications';
 import { env } from '@/lib/env';
 import { firstName } from '@/lib/format';
 
@@ -44,6 +47,7 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const me = useMe();
   const card = useCard();
+  const unread = useUnreadCount().data ?? 0;
 
   const name = me?.fullName ?? card.data?.memberFullName ?? '';
 
@@ -128,6 +132,14 @@ export default function HomeScreen() {
             </Text>
           </View>
         </View>
+        <IconButton
+          icon={Bell}
+          badge={unread > 0}
+          accessibilityLabel={
+            unread > 0 ? t('home.notificationsUnread', { count: unread }) : t('home.notifications')
+          }
+          onPress={() => router.push('/communications')}
+        />
       </View>
 
       <View style={{ marginTop: 26, gap: 6 }}>

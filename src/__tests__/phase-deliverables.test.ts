@@ -88,11 +88,12 @@ describe('Phase 0 — foundations', () => {
   });
 
   it('never sends features with no endpoints to the live API', () => {
-    // Going live means EXPO_PUBLIC_API_MOCK=none. These three have no
-    // endpoints, and `support` backs the forgot-password WhatsApp link, so letting
-    // them follow that setting would 404 three screens (docs/api-gaps.md §2).
+    // Going live means EXPO_PUBLIC_API_MOCK=none. These two have no endpoints,
+    // and `support` backs the forgot-password WhatsApp link, so letting them
+    // follow that setting would 404 their screens (docs/api-gaps.md §2).
+    // Notifications left this list when /mobile/notifications landed (2026-11).
     const { isMocked, FEATURES_WITHOUT_BACKEND } = require('../api/mode');
-    expect([...FEATURES_WITHOUT_BACKEND].sort()).toEqual(['family', 'notifications', 'support']);
+    expect([...FEATURES_WITHOUT_BACKEND].sort()).toEqual(['family', 'support']);
     for (const feature of FEATURES_WITHOUT_BACKEND) {
       expect(isMocked(feature)).toBe(true);
     }
@@ -607,6 +608,21 @@ describe('Temporary passwords set by staff', () => {
 
     // Put the temporary password back for anyone testing by hand.
     await authApiMock.changePassword({ currentPassword: 'MyOwnPass1', newPassword: password });
+  });
+});
+
+describe('In-app notifications', () => {
+  it('has an inbox behind a bell on Home, on the real endpoints', () => {
+    expect(source('app/(app)/(tabs)/home.tsx')).toContain("router.push('/communications')");
+    const inbox = source('app/(app)/communications.tsx');
+    expect(inbox).toContain('useMarkRead');
+    expect(inbox).toContain('useMarkAllRead');
+    const api = source('features/notifications/api.ts');
+    for (const path of ['/mobile/notifications', '/mobile/notifications/read-all']) {
+      expect(api).toContain(`'${path}'`);
+    }
+    expect(api).not.toContain('/me/notifications');
+    expect(hasText('communications.markAllRead')).toBe(true);
   });
 });
 

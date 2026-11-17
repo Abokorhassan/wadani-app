@@ -71,7 +71,10 @@
       "familyText": "Maamul xubnaha qoyska",
       "contact": "Xidhiidh & Su'aalo",
       "contactText": "Caawimo & WhatsApp"
-    }
+    },
+    "notifications": "Ogeysiisyo",
+    "notificationsUnread_one": "Ogeysiisyo, {{count}} aan la akhrin",
+    "notificationsUnread_other": "Ogeysiisyo, {{count}} aan la akhrin"
   },
   "card": {
     "title": "Kaadhkayga",
@@ -138,15 +141,13 @@
     "changePassword": "Beddel furaha sirta ah"
   },
   "communications": {
-    "title": "Farriimaha",
-    "subtitle": "Ogeysiisyada laguugu soo diray WhatsApp-ka iyo iimaylka.",
-    "emptyTitle": "Weli farriin ma jirto",
-    "emptyText": "Warka xubinnimadaada halkan ayuu ka soo muuqan doonaa.",
-    "loadFailed": "Farriimahaaga lama soo rari karin.",
-    "channels": {
-      "whatsapp": "WhatsApp",
-      "email": "Iimayl"
-    }
+    "title": "Ogeysiisyo",
+    "subtitle": "Wararka xisbiga, munaasabadaha, iyo lacag-bixintaada iyo deeqahaaga.",
+    "emptyTitle": "Weli ogeysiis ma jiro",
+    "emptyText": "Wararka xisbiga, munaasabadaha iyo lacag-bixintaada halkan ayay ka soo muuqan doonaan.",
+    "loadFailed": "Ogeysiisyadaada lama soo rari karin.",
+    "markAllRead": "Dhammaan calaamadee la akhriyey",
+    "unread": "Aan la akhrin"
   },
   "status": {
     "registered": "La diiwaan geliyay",

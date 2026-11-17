@@ -71,7 +71,10 @@
       "familyText": "Manage family members",
       "contact": "Contact & FAQs",
       "contactText": "Help & WhatsApp chat"
-    }
+    },
+    "notifications": "Notifications",
+    "notificationsUnread_one": "Notifications, {{count}} unread",
+    "notificationsUnread_other": "Notifications, {{count}} unread"
   },
   "card": {
     "title": "My Card",
@@ -138,15 +141,13 @@
     "changePassword": "Change password"
   },
   "communications": {
-    "title": "Communications",
-    "subtitle": "Notifications sent to your WhatsApp and email.",
-    "emptyTitle": "No messages yet",
-    "emptyText": "Updates about your membership will appear here.",
-    "loadFailed": "We couldn't load your messages.",
-    "channels": {
-      "whatsapp": "WhatsApp",
-      "email": "Email"
-    }
+    "title": "Notifications",
+    "subtitle": "Party news, events, and your payments and donations.",
+    "emptyTitle": "No notifications yet",
+    "emptyText": "Party news, events and your payments will appear here.",
+    "loadFailed": "We couldn't load your notifications.",
+    "markAllRead": "Mark all read",
+    "unread": "Unread"
   },
   "status": {
     "registered": "Registered",
