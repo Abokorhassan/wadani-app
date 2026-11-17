@@ -7,6 +7,7 @@ export {
   membershipKeys,
   useCard,
   useMe,
+  useOnFreePlan,
   usePeriods,
   usePlanBadge,
   usePlans,
@@ -14,6 +15,7 @@ export {
 export {
   badgeForPlanName,
   amountInPlanRange,
+  isOnFreePlan,
   isRangePlan,
   membershipTotal,
   planRange,

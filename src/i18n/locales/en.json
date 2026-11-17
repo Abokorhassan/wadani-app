@@ -105,7 +105,8 @@
     "planMembership": "{{plan}} membership",
     "emptyTitle": "No payments yet",
     "emptyText": "Your membership payments will appear here.",
-    "loadFailed": "We couldn't load your payments."
+    "loadFailed": "We couldn't load your payments.",
+    "methodFree": "Free"
   },
   "profile": {
     "title": "Profile",
@@ -257,7 +258,8 @@
       "personal": "Personal",
       "address": "Address",
       "plan": "Plan",
-      "payment": "Payment"
+      "payment": "Payment",
+      "confirm": "Confirm"
     },
     "addPhoto": "Add a photo",
     "changePhoto": "Change photo",
@@ -355,7 +357,12 @@
     "regionChoose": "Choose your region",
     "cityChoose": "Choose your town",
     "searchList": "Search",
-    "cityPlaceholderAbroad": "e.g. London"
+    "cityPlaceholderAbroad": "e.g. London",
+    "free": "Free",
+    "freeNote": "Nothing to pay. Your membership card is ready the moment you register.",
+    "freeSummaryTitle": "Free membership",
+    "freeSummaryText": "You won't be charged. Accept the terms below to create your account and get your card.",
+    "submitFree": "Join for free"
   },
   "pending": {
     "title": "We're confirming your payment",

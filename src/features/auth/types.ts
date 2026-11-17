@@ -30,11 +30,15 @@ export interface RegistrationPayload {
   professionalWork: string;
   birthYear: number;
   membershipTypeId: string;
-  /** How long the membership lasts, 1 to 60. Replaces the period catalogue (2026-09-29). */
-  membershipMonths: number;
+  /**
+   * How long the membership lasts, 1 to 60. Replaces the period catalogue
+   * (2026-09-29). Left out for a free plan, which the server times itself.
+   */
+  membershipMonths?: number;
   address: Address;
   password: string;
-  charge: ChargeRequest;
+  /** Absent for a free plan: nothing is charged (MOBILE_FREE_PLAN.md §2). */
+  charge?: ChargeRequest;
 }
 
 /**

@@ -15,6 +15,8 @@ const rangePlan = toPlan({
   benefits: [],
 });
 
+const freePlan = toPlan({ id: 'plan-free', name: 'Free', price: '0.00', benefits: [] });
+
 const valid: RegistrationForm = {
   ...emptyRegistration,
   fullName: 'Amina Yusuf',
@@ -47,7 +49,7 @@ async function errorsFor(values: RegistrationForm) {
 }
 
 describe('registration resolver', () => {
-  beforeEach(() => queryClient.setQueryData(membershipKeys.plans, [rangePlan]));
+  beforeEach(() => queryClient.setQueryData(membershipKeys.plans, [rangePlan, freePlan]));
   afterEach(() => queryClient.clear());
 
   it('accepts a complete, valid registration', async () => {
@@ -93,6 +95,20 @@ describe('registration resolver', () => {
     expect(errors.months).toBeDefined();
     expect(errors.payerPhone).toBeDefined();
     expect(errors.acceptedTerms).toBeDefined();
+  });
+
+  it('asks for nothing about payment on a free plan, but still for the terms', async () => {
+    const free: RegistrationForm = {
+      ...valid,
+      planId: 'plan-free',
+      amount: '',
+      months: '',
+      payerPhone: '',
+    };
+    expect(await errorsFor(free)).toEqual({});
+
+    const errors = await errorsFor({ ...free, acceptedTerms: false as unknown as true });
+    expect(Object.keys(errors)).toEqual(['acceptedTerms']);
   });
 
   it('asks for no wallet when paying by card', async () => {

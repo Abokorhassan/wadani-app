@@ -25,7 +25,14 @@ import {
   useTheme,
 } from '@/design-system';
 import { useSessionStore } from '@/features/auth/session-store';
-import { isExpired, MEMBER_STATUS_TONE, useCard, useMe, usePlanBadge } from '@/features/membership';
+import {
+  isExpired,
+  MEMBER_STATUS_TONE,
+  useCard,
+  useMe,
+  useOnFreePlan,
+  usePlanBadge,
+} from '@/features/membership';
 import {
   AppearanceSwitch,
   LanguageSwitch,
@@ -41,6 +48,7 @@ export default function ProfileScreen() {
   const card = useCard();
   const signOut = useSessionStore((state) => state.signOut);
   const badgeUrl = usePlanBadge(card.data?.membershipType);
+  const free = useOnFreePlan(card.data?.membershipType);
 
   // The backend has no profile endpoint, so the card fills the gaps for a
   // member who signed in on another device (docs/api-gaps.md, question 5).
@@ -91,7 +99,7 @@ export default function ProfileScreen() {
             <View>
               <Avatar name={name ?? ''} uri={photoUrl} size={104} />
               {/* The plan's badge, pinned to the photo like a medal. */}
-              {badgeUrl ? (
+              {badgeUrl && !free ? (
                 <View
                   style={{
                     position: 'absolute',

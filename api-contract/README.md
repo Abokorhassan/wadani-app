@@ -4,6 +4,10 @@
 **Waddani Mobile Auth API**, extracted from the Swagger UI at
 https://api.wp-membership-system.com/docs/ on 2026-09-19, and re-fetched on 2026-09-21
 (plans gained `iconUrl` and `priceMax`; guest donations and an OTP-based password reset were added).
+On 2026-11-17 it was regenerated from the backend source instead
+(`platform/apps/api/src/api/openapi/mobileAuth.ts`, commit `60125c0`): free plans
+make `amount` and `method` optional on register, and notifications and
+`password/change` were added.
 
 The docs page sits behind HTTP basic auth (the credentials come from the backend
 developer and are deliberately not stored here), so the command needs `-u user:pass`.

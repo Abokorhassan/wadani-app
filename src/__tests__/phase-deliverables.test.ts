@@ -624,6 +624,25 @@ describe('Phase 2 — membership core', () => {
     expect(paymentMethodLabel('CASH')).toBe('Cash');
   });
 
+  it('lets a member join on a free plan, with no payment and no badge (MOBILE_FREE_PLAN.md)', () => {
+    const { planFixtures } = require('../features/membership/api.mock');
+    const { toPlan } = require('../features/membership/mappers');
+    // The server lists its default free plan first.
+    expect(toPlan(planFixtures[0]).free).toBe(true);
+
+    const register = source('app/(auth)/register.tsx');
+    expect(register).toContain('free ? null : quoteFor(');
+    expect(register).toContain("t('register.submitFree')");
+    expect(source('features/registration/resolver.ts')).toContain('withoutChargeErrors');
+    expect(source('features/registration/components/payment-step.tsx')).toContain('FreeSummary');
+
+    // No badge on the free card, on the card screen or on Profile.
+    expect(source('app/(app)/card.tsx')).toContain('showBadge={!free}');
+    expect(source('app/(app)/(tabs)/profile.tsx')).toContain('badgeUrl && !free');
+    expect(hasText('register.free')).toBe(true);
+    expect(hasText('payments.methodFree')).toBe(true);
+  });
+
   it('has the wording for every Phase 2 screen', () => {
     for (const key of [
       'home.greeting',

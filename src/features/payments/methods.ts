@@ -1,4 +1,5 @@
-import { CreditCard, Smartphone, Wallet, type LucideIcon } from 'lucide-react-native';
+import { t } from 'i18next';
+import { CreditCard, Gift, Smartphone, Wallet, type LucideIcon } from 'lucide-react-native';
 
 import type { IconTileTone } from '@/design-system';
 
@@ -39,13 +40,17 @@ const LEGACY_LABELS: Record<string, string> = {
 };
 
 export function paymentMethodLabel(method: PaymentMethod): string {
+  // Not a brand name, so unlike the others it is translated.
+  if (method === 'FREE') return t('payments.methodFree');
   return PAYMENT_METHODS[method as ChargeMethod]?.label ?? LEGACY_LABELS[method] ?? method;
 }
 
 export function paymentMethodIcon(method: PaymentMethod): LucideIcon {
+  if (method === 'FREE') return Gift;
   return PAYMENT_METHODS[method as ChargeMethod]?.icon ?? Wallet;
 }
 
 export function paymentMethodTone(method: PaymentMethod): IconTileTone {
+  if (method === 'FREE') return 'accent';
   return PAYMENT_METHODS[method as ChargeMethod]?.tone ?? 'neutral';
 }

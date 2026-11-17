@@ -4,9 +4,12 @@
  */
 export type ChargeMethod = 'WAAFI' | 'EDAHAB' | 'PREMIER_WALLET' | 'CARD';
 
-/** History can also hold methods recorded by staff in the back office. */
+/**
+ * History can also hold methods recorded by staff in the back office, and the
+ * $0 FREE entry a free plan records in place of a charge.
+ */
 export type PaymentMethod =
-  ChargeMethod | 'ONLINE' | 'CASH' | 'ZAAD' | 'DARASALAAM' | 'DAHABSHIIL' | 'PREMIER_BANK';
+  ChargeMethod | 'FREE' | 'ONLINE' | 'CASH' | 'ZAAD' | 'DARASALAAM' | 'DAHABSHIIL' | 'PREMIER_BANK';
 
 export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'unknown';
 

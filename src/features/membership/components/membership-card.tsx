@@ -35,6 +35,8 @@ export interface MembershipCardProps {
   card: MemberCard;
   /** The plan's badge, when the backend has one for it. */
   badgeUrl?: string;
+  /** False for a free plan, whose card carries no badge at all (MOBILE_FREE_PLAN.md §3). */
+  showBadge?: boolean;
   /** The inner card surface, captured for Save / Share. */
   ref?: Ref<View>;
 }
@@ -52,7 +54,7 @@ export function MembershipCard(props: MembershipCardProps) {
   );
 }
 
-function MembershipCardFace({ card, badgeUrl, ref }: MembershipCardProps) {
+function MembershipCardFace({ card, badgeUrl, showBadge = true, ref }: MembershipCardProps) {
   const theme = useTheme();
   const { t } = useTranslation();
   const expired = isExpired(card);
@@ -230,38 +232,40 @@ function MembershipCardFace({ card, badgeUrl, ref }: MembershipCardProps) {
         </View>
 
         {/* Plan badge, pinned across the panel's bottom edge */}
-        <View
-          accessibilityRole="image"
-          accessibilityLabel={t('register.planBadge', { plan: card.membershipType })}
-          style={{
-            position: 'absolute',
-            right: 16,
-            bottom: FOOTER_HEIGHT + BADGE_OVERLAP - BADGE,
-            width: BADGE,
-            height: BADGE,
-            borderRadius: BADGE / 2,
-            padding: 6,
-            backgroundColor: theme.color.surface,
-          }}>
-          {badgeUrl ? (
-            <Image source={{ uri: badgeUrl }} style={{ flex: 1 }} contentFit="contain" />
-          ) : (
-            <View
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: BADGE / 2,
-                backgroundColor: theme.color.accentTint,
-              }}>
-              <Text
-                variant="headline"
-                style={{ color: theme.color.accentDeep, fontFamily: theme.fonts.display800 }}>
-                {card.membershipType.charAt(0).toUpperCase()}
-              </Text>
-            </View>
-          )}
-        </View>
+        {showBadge ? (
+          <View
+            accessibilityRole="image"
+            accessibilityLabel={t('register.planBadge', { plan: card.membershipType })}
+            style={{
+              position: 'absolute',
+              right: 16,
+              bottom: FOOTER_HEIGHT + BADGE_OVERLAP - BADGE,
+              width: BADGE,
+              height: BADGE,
+              borderRadius: BADGE / 2,
+              padding: 6,
+              backgroundColor: theme.color.surface,
+            }}>
+            {badgeUrl ? (
+              <Image source={{ uri: badgeUrl }} style={{ flex: 1 }} contentFit="contain" />
+            ) : (
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: BADGE / 2,
+                  backgroundColor: theme.color.accentTint,
+                }}>
+                <Text
+                  variant="headline"
+                  style={{ color: theme.color.accentDeep, fontFamily: theme.fonts.display800 }}>
+                  {card.membershipType.charAt(0).toUpperCase()}
+                </Text>
+              </View>
+            )}
+          </View>
+        ) : null}
       </View>
     </View>
   );

@@ -105,7 +105,7 @@ export const authApiMock: AuthApi = {
       memberFullName: member.fullName,
       photoUrl: payload.photoUrl,
       membershipType: plan?.name ?? cardFixture.membershipType,
-      membershipTypeStars: plan?.stars ?? cardFixture.membershipTypeStars,
+      membershipTypeStars: plan ? (plan.stars ?? null) : cardFixture.membershipTypeStars,
     };
     // So a later login, or a refetch, keeps showing this member, not the fixture.
     registerMockCard(member.id, cardDto);
@@ -116,7 +116,7 @@ export const authApiMock: AuthApi = {
      * the member only once the payment is confirmed; the mock creates it now so
      * the login after the (mock) checkout has an account to find.
      */
-    if (payload.charge.method === 'CARD') {
+    if (payload.charge?.method === 'CARD') {
       const checkoutId = `mock-checkout-${Date.now()}`;
       return {
         kind: 'checkout' as const,

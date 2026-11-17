@@ -105,7 +105,8 @@
     "planMembership": "Xubinnimada {{plan}}",
     "emptyTitle": "Weli lacag lama bixin",
     "emptyText": "Lacagaha xubinnimadaada halkan ayay ka soo muuqan doonaan.",
-    "loadFailed": "Lacag bixintaada lama soo rari karin."
+    "loadFailed": "Lacag bixintaada lama soo rari karin.",
+    "methodFree": "Bilaash"
   },
   "profile": {
     "title": "Xogtayda",
@@ -257,7 +258,8 @@
       "personal": "Shakhsiga",
       "address": "Cinwaanka",
       "plan": "Qorshaha",
-      "payment": "Lacag bixinta"
+      "payment": "Lacag bixinta",
+      "confirm": "Xaqiiji"
     },
     "addPhoto": "Ku dar sawir",
     "changePhoto": "Beddel sawirka",
@@ -355,7 +357,12 @@
     "regionChoose": "Dooro gobolkaaga",
     "cityChoose": "Dooro magaaladaada",
     "searchList": "Raadi",
-    "cityPlaceholderAbroad": "tusaale London"
+    "cityPlaceholderAbroad": "tusaale London",
+    "free": "Bilaash",
+    "freeNote": "Wax lacag ah ma bixinaysid. Kaadhkaaga xubinnimada wuu diyaar noqonayaa isla marka aad is diiwaangeliso.",
+    "freeSummaryTitle": "Xubinnimo bilaash ah",
+    "freeSummaryText": "Lacag lagaa jari maayo. Aqbal shuruudaha hoose si aad u samaysato koontadaada oo aad u hesho kaadhkaaga.",
+    "submitFree": "Ku biir bilaash"
   },
   "pending": {
     "title": "Waxaanu xaqiijinaynaa lacag bixintaada",

@@ -9,6 +9,7 @@ import {
   MembershipCardBack,
   useCard,
   useCardActions,
+  useOnFreePlan,
   usePlanBadge,
 } from '@/features/membership';
 
@@ -17,6 +18,7 @@ export default function CardScreen() {
   const { t } = useTranslation();
   const card = useCard();
   const badgeUrl = usePlanBadge(card.data?.membershipType);
+  const free = useOnFreePlan(card.data?.membershipType);
   const cardRef = useRef<View>(null);
   const { save, share, busy } = useCardActions(cardRef);
   const [showBack, setShowBack] = useState(false);
@@ -37,7 +39,7 @@ export default function CardScreen() {
           showBack ? (
             <MembershipCardBack ref={cardRef} />
           ) : (
-            <MembershipCard ref={cardRef} card={card.data} badgeUrl={badgeUrl} />
+            <MembershipCard ref={cardRef} card={card.data} badgeUrl={badgeUrl} showBadge={!free} />
           )
         ) : card.isError ? (
           <ErrorState

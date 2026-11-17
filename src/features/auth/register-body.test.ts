@@ -98,6 +98,20 @@ describe('POST /mobile/auth/register body', () => {
     }
   );
 
+  it('sends no payment fields and no months for a free plan', async () => {
+    requestMock.mockResolvedValue({});
+    await authApi
+      .register({ ...payload('WAAFI'), charge: undefined, membershipMonths: undefined })
+      .catch(() => undefined); // the empty response does not parse; only the body matters
+    const body = (requestMock.mock.calls.at(-1)?.[1] as { body: Record<string, unknown> }).body;
+
+    for (const field of ['amount', 'method', 'payerPhone', 'returnUrl', 'membershipMonths']) {
+      expect(body).not.toHaveProperty(field);
+    }
+    // Still a complete registration by the spec's own rules.
+    for (const field of spec.required) expect(body).toHaveProperty(field);
+  });
+
   it('sends a card payment with a return address and no wallet number', async () => {
     const body = await bodyFor('CARD');
     expect(body.payerPhone).toBeUndefined();

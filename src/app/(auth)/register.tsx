@@ -92,8 +92,10 @@ export default function RegisterScreen() {
   // is left uncompiled rather than restructured around it.
   const values = form.watch();
   const plan = plans.data?.find((candidate) => candidate.id === values.planId);
+  // A free plan charges nothing: no amount, no months, no payment (MOBILE_FREE_PLAN.md).
+  const free = plan?.free === true;
   // What gets charged, or null until the amount and months are both valid.
-  const quote = quoteFor(plan, values.amount, values.months);
+  const quote = free ? null : quoteFor(plan, values.amount, values.months);
 
   /**
    * Flags the email under its field when another member already uses it, and
@@ -168,8 +170,8 @@ export default function RegisterScreen() {
 
     const values = form.getValues();
     const method = values.method as ChargeMethod;
-    // The whole form is valid, so the plan and months are known.
-    if (!quote) {
+    // The whole form is valid, so a paid plan's amount and months are known.
+    if (!free && !quote) {
       setSubmitError(t('register.planUnavailable'));
       return;
     }
@@ -206,7 +208,7 @@ export default function RegisterScreen() {
       professionalWork: values.professionalWork.trim(),
       birthYear: Number(values.birthYear),
       membershipTypeId: values.planId,
-      membershipMonths: quote.months,
+      membershipMonths: quote?.months,
       address: {
         line1: values.line1.trim(),
         city: values.city.trim(),
@@ -215,11 +217,13 @@ export default function RegisterScreen() {
         district: values.district?.trim() || undefined,
       },
       password: values.password,
-      charge: {
-        method,
-        amountUsd: quote.totalUsd,
-        payerPhone: values.payerPhone?.trim() || undefined,
-      },
+      charge: quote
+        ? {
+            method,
+            amountUsd: quote.totalUsd,
+            payerPhone: values.payerPhone?.trim() || undefined,
+          }
+        : undefined,
     };
 
     register.mutate(payload, {
@@ -318,12 +322,14 @@ export default function RegisterScreen() {
    * instead of promising a charge.
    */
   const lastStep = step === STEP_COUNT - 1;
-  const paysByCard = values.method === 'CARD';
+  const paysByCard = !free && values.method === 'CARD';
   const primaryLabel = !lastStep
     ? t('common.next')
-    : paysByCard || !quote
-      ? t('register.submitCard')
-      : t('register.submit', { amount: formatUsd(quote.totalUsd) });
+    : free
+      ? t('register.submitFree')
+      : paysByCard || !quote
+        ? t('register.submitCard')
+        : t('register.submit', { amount: formatUsd(quote.totalUsd) });
 
   const total = quote
     ? {
@@ -340,7 +346,7 @@ export default function RegisterScreen() {
       footer={
         <View style={{ gap: theme.spacing.lg }}>
           {/* The one thing about a wallet payment that surprises people. */}
-          {lastStep && !paysByCard ? (
+          {lastStep && !paysByCard && !free ? (
             <Text variant="caption" color="textMuted" center>
               {t('register.payHint')}
             </Text>
@@ -403,7 +409,8 @@ export default function RegisterScreen() {
             t('register.steps.personal'),
             t('register.steps.address'),
             t('register.steps.plan'),
-            t('register.steps.payment'),
+            // Nothing is paid on a free plan, so the last step only confirms.
+            free ? t('register.steps.confirm') : t('register.steps.payment'),
           ]}
           current={step}
           onStepPress={goTo}
@@ -433,6 +440,7 @@ export default function RegisterScreen() {
             control={form.control}
             total={total}
             wallet={isWalletMethod(values.method as ChargeMethod)}
+            free={free}
             submitError={submitError}
           />
         ) : null}

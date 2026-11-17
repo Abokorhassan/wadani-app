@@ -36,10 +36,11 @@ function registerBody(payload: RegistrationPayload): Record<string, unknown> {
     professionalWork: payload.professionalWork,
     birthYear: payload.birthYear,
     membershipTypeId: payload.membershipTypeId,
-    membershipMonths: payload.membershipMonths,
+    ...(payload.membershipMonths ? { membershipMonths: payload.membershipMonths } : {}),
     address: payload.address,
     password: payload.password,
-    ...chargeBody(payload.charge),
+    // A free plan sends no payment fields at all.
+    ...(payload.charge ? chargeBody(payload.charge) : {}),
   };
 }
 
@@ -69,7 +70,8 @@ export const authApi = {
   /**
    * Creates the member and charges the plan fee in one call. A wallet charge
    * finishes here; a card charge returns a checkout to visit first, and only
-   * `POST /mobile/payments/card/confirm` creates the member.
+   * `POST /mobile/payments/card/confirm` creates the member. A free plan charges
+   * nothing and finishes here like a wallet.
    */
   async register(payload: RegistrationPayload): Promise<RegistrationResult> {
     const data = await request('/mobile/auth/register', {

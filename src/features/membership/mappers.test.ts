@@ -2,6 +2,7 @@ import { cardFixture, planFixtures } from './api.mock';
 import {
   amountInPlanRange,
   badgeForPlanName,
+  isOnFreePlan,
   membershipTotal,
   planRange,
   toMemberCard,
@@ -10,9 +11,11 @@ import {
 } from './mappers';
 import { plansResponse } from './schemas';
 
+const standard = planFixtures.find((plan) => plan.name === 'Standard')!;
+
 describe('membership mappers', () => {
   it('reads the backend plan shape: decimal price, plain benefit lines', () => {
-    const plan = toPlan(planFixtures[0]);
+    const plan = toPlan(standard);
     expect(plan.name).toBe('Standard');
     expect(plan.priceUsd).toBe(25);
     expect(plan.benefits[0]).toBe('Digital membership card & QR check-in');
@@ -40,7 +43,7 @@ describe('membership mappers', () => {
     expect(amountInPlanRange(range, 9.99)).toBe(false);
     expect(amountInPlanRange(range, 50.01)).toBe(false);
 
-    const fixed = toPlan(planFixtures[0]); // $25
+    const fixed = toPlan(standard); // $25
     expect(planRange(fixed)).toEqual({ min: 25, max: 25 });
     expect(amountInPlanRange(fixed, 25)).toBe(true);
     expect(amountInPlanRange(fixed, 30)).toBe(false);
@@ -106,5 +109,29 @@ describe('membership mappers', () => {
     expect(badgeForPlanName(plans, 'Bronze')).toBeUndefined();
     expect(badgeForPlanName(plans, undefined)).toBeUndefined();
     expect(badgeForPlanName([], 'Gold')).toBeUndefined();
+  });
+
+  it("calls a plan free by the backend's rule: no maximum and a price of zero", () => {
+    const plan = (price: string, priceMax?: string | null) =>
+      toPlan({ id: 'p', name: 'P', price, priceMax, benefits: [] });
+    expect(plan('0').free).toBe(true);
+    expect(plan('0.00', null).free).toBe(true);
+    // A range that starts at 0 still asks for an amount and a payment.
+    expect(plan('0.00', '50.00').free).toBe(false);
+    // Even a meaningless max keeps it paid, as on the server.
+    expect(plan('0.00', '0.00').free).toBe(false);
+    expect(plan('25.00').free).toBe(false);
+    expect(toPlan(planFixtures[0]).free).toBe(true); // the server lists Free first
+  });
+
+  it("finds whether a member's plan is free: by plan id, else by the card's plan name", () => {
+    const plans = planFixtures.map(toPlan);
+    const free = plans.find((plan) => plan.free)!;
+    expect(isOnFreePlan(plans, free.id, undefined)).toBe(true);
+    expect(isOnFreePlan(plans, standard.id, 'Free')).toBe(false); // the id wins
+    expect(isOnFreePlan(plans, undefined, 'free')).toBe(true);
+    expect(isOnFreePlan(plans, undefined, 'Standard')).toBe(false);
+    // Plans not loaded: show the badge rather than guess.
+    expect(isOnFreePlan([], free.id, 'Free')).toBe(false);
   });
 });

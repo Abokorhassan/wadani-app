@@ -41,6 +41,15 @@ export const toUsd = (value: string): number => Number(value.replace(/[^0-9.-]/g
 
 export const toAmountString = (usd: number): string => usd.toFixed(2);
 
+/**
+ * The backend's own rule (isFreeMembershipType): no maximum and a price of
+ * zero. Read from the raw values, not the tidied plan, so the app and the
+ * server never disagree: a range that starts at 0 is not free, and the price
+ * may arrive as "0" or "0.00".
+ */
+export const isFreePlanDto = (dto: Pick<PlanDto, 'price' | 'priceMax'>): boolean =>
+  !dto.priceMax && Number(dto.price) === 0;
+
 export function toPlan(dto: PlanDto): Plan {
   const priceMax = dto.priceMax ? toUsd(dto.priceMax) : undefined;
   return {
@@ -49,6 +58,7 @@ export function toPlan(dto: PlanDto): Plan {
     priceUsd: toUsd(dto.price),
     // A max at or below the min would make the range meaningless, so treat it as fixed.
     priceMaxUsd: priceMax !== undefined && priceMax > toUsd(dto.price) ? priceMax : undefined,
+    free: isFreePlanDto(dto),
     iconUrl: dto.iconUrl || undefined,
     stars: dto.stars ?? undefined,
     benefits: dto.benefits,
@@ -138,8 +148,27 @@ export function membershipTotal(monthlyUsd: number, months: number): number {
  * card and this goes away (docs/api-gaps.md).
  */
 export function badgeForPlanName(plans: Plan[], planName: string | undefined): string | undefined {
+  return planNamed(plans, planName)?.iconUrl;
+}
+
+/** The one plan with this name, or undefined when none or several have it. */
+function planNamed(plans: Plan[], planName: string | undefined): Plan | undefined {
   if (!planName) return undefined;
   const wanted = planName.trim().toLowerCase();
   const matches = plans.filter((plan) => plan.name.trim().toLowerCase() === wanted);
-  return matches.length === 1 ? matches[0].iconUrl : undefined;
+  return matches.length === 1 ? matches[0] : undefined;
+}
+
+/**
+ * Whether a member's plan is free, so their card shows no badge. The card does
+ * not carry the price, so the plan is found by the member's plan id, or else
+ * by the card's plan name (MOBILE_FREE_PLAN.md §3).
+ */
+export function isOnFreePlan(
+  plans: Plan[],
+  planId: string | undefined,
+  planName: string | undefined
+): boolean {
+  const plan = plans.find((candidate) => candidate.id === planId) ?? planNamed(plans, planName);
+  return plan?.free === true;
 }

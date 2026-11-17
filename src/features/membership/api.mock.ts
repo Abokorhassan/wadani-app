@@ -45,6 +45,16 @@ export const cardFixture: MembershipCardDto = {
 };
 
 export const planFixtures: PlanDto[] = [
+  // The backend's default free plan: $0, no range, no badge, listed first.
+  {
+    id: '00000000-0000-0000-0000-00000000f4ee',
+    name: 'Free',
+    price: '0.00',
+    priceMax: null,
+    iconUrl: null,
+    stars: null,
+    benefits: [],
+  },
   {
     id: '11111111-1111-1111-1111-111111111111',
     name: 'Standard',

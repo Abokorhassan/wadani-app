@@ -21,6 +21,11 @@ export interface Plan {
   priceUsd: number;
   /** Highest amount accepted; present only for a range-priced plan. */
   priceMaxUsd?: number;
+  /**
+   * A fixed price of zero: the member joins without paying, and the card
+   * carries no badge (platform/docs/MOBILE_FREE_PLAN.md).
+   */
+  free: boolean;
   /** The badge everyone who pays for this plan carries. Absent when none was uploaded. */
   iconUrl?: string;
   /** Tier rank the backend gives the plan; drives the card's rosette count. */

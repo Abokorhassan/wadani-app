@@ -39,6 +39,10 @@
     {
       "name": "News",
       "description": "Public, read-only, paginated -- viewing news needs no member token"
+    },
+    {
+      "name": "Notifications",
+      "description": "The member's in-app inbox: new news/events plus their own payments and donations"
     }
   ],
   "components": {
@@ -273,6 +277,45 @@
           }
         }
       },
+      "Notification": {
+        "type": "object",
+        "description": "NEWS/EVENT are broadcasts to every app member (since they joined); PAYMENT/DONATION are personal. Open entityId with the matching endpoint (e.g. GET /mobile/news/{id}).",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "NEWS",
+              "EVENT",
+              "PAYMENT",
+              "DONATION"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string",
+            "description": "Plain text."
+          },
+          "entityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "The news article / event / payment / donation id."
+          },
+          "isRead": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "Event": {
         "type": "object",
         "description": "Staff-managed, read-only for mobile. Scoped to the fixed \"Online\" organization every mobile member belongs to.",
@@ -371,7 +414,12 @@
           },
           "cardCode": {
             "type": "string",
-            "description": "The QR/scan value, e.g. \"MC-2026-AB12CD\""
+            "description": "Human-readable card code printed under the QR, e.g. \"MC-2026-AB12CD\""
+          },
+          "verifyUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "The value to encode in the card's QR: a link to the public verify page, which any phone camera can open. Absent when the server has no VERIFY_BASE_URL configured -- encode cardCode instead."
           },
           "memberFullName": {
             "type": "string"
@@ -732,6 +780,160 @@
         }
       }
     },
+    "/mobile/notifications": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "List the caller's notifications (paginated)",
+        "description": "Newest first. Includes unreadCount so one call can draw both the list and the badge.",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "notifications": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Notification"
+                      }
+                    },
+                    "unreadCount": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/notifications/unread-count": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Unread notification count (for the bell badge)",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "unreadCount": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/notifications/{id}/read": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Mark one notification as read",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Marked read (idempotent)"
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/notifications/read-all": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Mark all notifications as read",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "All marked read"
+          }
+        }
+      }
+    },
     "/mobile/events/{id}": {
       "get": {
         "tags": [
@@ -785,7 +987,7 @@
           "Registration"
         ],
         "summary": "Self-register a mobile member and pay via Sifalo Pay (Waafi, eDahab or Premier Wallet)",
-        "description": "No ID document / signed-terms upload -- only a photo is required. Attaches the new member to the fixed \"Online\" organization. Sets termsAcceptedAt to the current time (click-through acceptance, not a document). Registration is atomic with payment: amount and method are client-supplied (amount is trusted as-is, not cross-checked against the plan's price) and charged via WAAFI mobile money against payerPhone (separate from the registrant's own phone). If the charge fails the member is rolled back (soft-deleted) -- there is no half-registered, unpaid state.",
+        "description": "No ID document / signed-terms upload -- only a photo is required. Attaches the new member to the fixed \"Online\" organization. Sets termsAcceptedAt to the current time (click-through acceptance, not a document). Registration is atomic with payment: amount and method are client-supplied (amount is trusted as-is, not cross-checked against the plan's price) and charged via WAAFI mobile money against payerPhone (separate from the registrant's own phone). If the charge fails the member is rolled back (soft-deleted) -- there is no half-registered, unpaid state. Free plans (price \"0.00\" with priceMax null) skip payment entirely: omit amount, method and payerPhone (any sent are ignored), and the member is created at once with a $0.00 FREE payment and a membership card -- the same 201 response as a paid wallet registration.",
         "requestBody": {
           "required": true,
           "content": {
@@ -802,9 +1004,7 @@
                   "birthYear",
                   "membershipTypeId",
                   "address",
-                  "password",
-                  "amount",
-                  "method"
+                  "password"
                 ],
                 "properties": {
                   "fullName": {
@@ -825,7 +1025,9 @@
                   },
                   "email": {
                     "type": "string",
-                    "format": "email"
+                    "format": "email",
+                    "nullable": true,
+                    "description": "Optional. Omit, or send an empty string or null, to register without an email."
                   },
                   "photoUrl": {
                     "type": "string"
@@ -891,7 +1093,7 @@
                       "PREMIER_WALLET",
                       "CARD"
                     ],
-                    "description": "Processed through Sifalo Pay. WAAFI covers ZAAD, EVC, eSAHAL, CASHPLUS and JEEB and is charged directly. CARD (Visa/Mastercard) uses hosted checkout: the member is only created after POST /mobile/payments/card/confirm verifies the payment."
+                    "description": "Required (with amount) unless the chosen plan is free. Processed through Sifalo Pay. WAAFI covers ZAAD, EVC, eSAHAL, CASHPLUS and JEEB and is charged directly. CARD (Visa/Mastercard) uses hosted checkout: the member is only created after POST /mobile/payments/card/confirm verifies the payment."
                   }
                 }
               },
@@ -1113,6 +1315,7 @@
           "Auth"
         ],
         "summary": "Log in with phone/email + password",
+        "description": "When mustChangePassword is true the member logged in with a temporary password set by staff: the app must send them straight to a \"choose a new password\" screen and call POST /mobile/auth/password/change before anything else.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1154,6 +1357,10 @@
                     "memberId": {
                       "type": "string",
                       "format": "uuid"
+                    },
+                    "mustChangePassword": {
+                      "type": "boolean",
+                      "description": "True after logging in with a staff-set temporary password"
                     }
                   }
                 }
@@ -1256,7 +1463,7 @@
           "Auth"
         ],
         "summary": "Request a password reset",
-        "description": "Emails a 6-digit OTP via Amazon SES to the email on the member account; it is valid for 10 minutes and only the latest one works. Phones are matched exactly (send the +252 international form); emails case-insensitively.",
+        "description": "Sends a 6-digit OTP via WhatsApp (to the member's WhatsApp number, or phone if none) and via Amazon SES email when the account has an email; it is valid for 10 minutes and only the latest one works. Phones are matched exactly (send the +252 international form); emails case-insensitively.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1280,13 +1487,13 @@
         },
         "responses": {
           "200": {
-            "description": "Code sent to the email on the account"
+            "description": "Code sent to the WhatsApp and/or email on the account"
           },
           "404": {
             "description": "No member matches the phone or email (details.code ACCOUNT_NOT_FOUND)"
           },
           "422": {
-            "description": "The member has no email address, so no code can be sent (details.code NO_EMAIL_ON_FILE)"
+            "description": "No channel can reach the member -- no email on file and WhatsApp is not configured (details.code NO_EMAIL_ON_FILE)"
           }
         }
       }
@@ -1296,7 +1503,7 @@
         "tags": [
           "Auth"
         ],
-        "summary": "Reset password with the emailed OTP",
+        "summary": "Reset password with the OTP sent by WhatsApp or email",
         "description": "The OTP is single-use and expires 10 minutes after issuance.",
         "requestBody": {
           "required": true,
@@ -1338,6 +1545,74 @@
           },
           "400": {
             "description": "Invalid or expired OTP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/auth/password/change": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Change password while logged in",
+        "description": "Required right after a login that returned mustChangePassword: true (staff-set temporary password); clears that flag. Also usable any time to change the password.",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "currentPassword",
+                  "newPassword"
+                ],
+                "properties": {
+                  "currentPassword": {
+                    "type": "string",
+                    "description": "The temporary password, or the current one"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "minLength": 8,
+                    "description": "Must differ from currentPassword"
+                  }
+                }
+              },
+              "example": {
+                "currentPassword": "Temp1234",
+                "newPassword": "NewPassw0rd!"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password changed"
+          },
+          "400": {
+            "description": "Invalid payload, or current password is incorrect (details.code WRONG_CURRENT_PASSWORD)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token",
             "content": {
               "application/json": {
                 "schema": {

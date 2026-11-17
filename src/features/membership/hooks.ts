@@ -7,7 +7,7 @@ import { useSessionStore } from '@/features/auth/session-store';
 
 import { membershipApi } from './api';
 import { membershipApiMock } from './api.mock';
-import { badgeForPlanName } from './mappers';
+import { badgeForPlanName, isOnFreePlan } from './mappers';
 import type { Plan } from './types';
 
 const api = pickApi('membership', membershipApi, membershipApiMock);
@@ -73,6 +73,13 @@ export function useCard() {
 export function usePlanBadge(planName: string | undefined): string | undefined {
   const plans = usePlans();
   return badgeForPlanName(plans.data ?? [], planName);
+}
+
+/** Whether the signed-in member is on a free plan, whose card carries no badge. */
+export function useOnFreePlan(planName: string | undefined): boolean {
+  const me = useMe();
+  const plans = usePlans();
+  return isOnFreePlan(plans.data ?? [], me?.membershipTypeId, planName);
 }
 
 /**

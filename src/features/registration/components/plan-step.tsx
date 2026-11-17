@@ -4,6 +4,7 @@ import {
   ChevronDown,
   ChevronUp,
   Crown,
+  Gift,
   IdCard,
   Star,
   type LucideIcon,
@@ -28,10 +29,14 @@ import { MAX_MONTHS, MIN_MONTHS, monthsOf, type RegistrationForm } from '../form
 import { quoteFor } from '../quote';
 import { amountText, shortUsd, StepperField, suggestedAmounts } from './stepper-field';
 
-/** Plan ids are uuids, so the backend's `stars` rank picks the icon. */
-const PLAN_ICONS: readonly LucideIcon[] = [IdCard, Star, Crown];
+/**
+ * Plan ids are uuids, so the backend's `stars` rank picks the icon. A free plan
+ * gets a gift, never a tier icon, whatever stars it carries (MOBILE_FREE_PLAN.md §3).
+ */
+const PLAN_ICONS: readonly LucideIcon[] = [IdCard, Star, Crown, Gift];
 
-const planIconRank = (stars?: number): number => (!stars || stars <= 1 ? 0 : stars >= 3 ? 2 : 1);
+const planIconIndex = (plan: Plan): number =>
+  plan.free ? 3 : !plan.stars || plan.stars <= 1 ? 0 : plan.stars >= 3 ? 2 : 1;
 
 /** One tap for the lengths most members pick; any other can be typed. */
 const QUICK_MONTHS = [1, 6, 12, 24];
@@ -90,7 +95,8 @@ export function PlanStep({ control, planId, amount, months, setValue }: PlanStep
    */
   const seeded = useRef<string | null>(null);
   useEffect(() => {
-    if (!plan) return;
+    // A free plan has no amount: nothing is charged.
+    if (!plan || plan.free) return;
     const key = `${plan.id}:${plan.priceUsd}:${plan.priceMaxUsd ?? ''}`;
     if (seeded.current === key) return;
     seeded.current = key;
@@ -129,7 +135,7 @@ export function PlanStep({ control, planId, amount, months, setValue }: PlanStep
                     <PlanChip
                       key={option.id}
                       label={option.name}
-                      icon={PLAN_ICONS[planIconRank(option.stars)]}
+                      icon={PLAN_ICONS[planIconIndex(option)]}
                       selected={option.id === field.value}
                       onSelect={() => field.onChange(option.id)}
                     />
@@ -161,7 +167,24 @@ export function PlanStep({ control, planId, amount, months, setValue }: PlanStep
         separate blocks the member had to hold the figures in their head while
         scrolling between them.
       */}
-      {plan && range ? (
+      {plan?.free ? (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.spacing.md,
+            padding: 18,
+            borderRadius: theme.radius.card,
+            borderWidth: 1,
+            borderColor: theme.color.border,
+            backgroundColor: theme.color.surface,
+          }}>
+          <Check size={20} color={theme.color.action} strokeWidth={2.5} />
+          <Text variant="small" color="textSecondary" style={{ flex: 1, lineHeight: 21 }}>
+            {t('register.freeNote')}
+          </Text>
+        </View>
+      ) : plan && range ? (
         <View
           style={{
             gap: theme.spacing.lg,
@@ -328,7 +351,7 @@ function PlanCard({ plan }: { plan: Plan }) {
   const theme = useTheme();
   const { t } = useTranslation();
   const [showAll, setShowAll] = useState(false);
-  const Icon = PLAN_ICONS[planIconRank(plan.stars)];
+  const Icon = PLAN_ICONS[planIconIndex(plan)];
   const range = planRange(plan);
   // A long benefit list buried the choices under it, so only the first few show.
   const hidden = Math.max(0, plan.benefits.length - BENEFITS_SHOWN);
@@ -351,7 +374,7 @@ function PlanCard({ plan }: { plan: Plan }) {
       </View>
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
-        {plan.iconUrl ? (
+        {plan.iconUrl && !plan.free ? (
           // The badge is a shaped, transparent image, so it is shown whole rather
           // than cropped to a circle. It is what members of this plan carry.
           <Image
@@ -380,13 +403,17 @@ function PlanCard({ plan }: { plan: Plan }) {
           </Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'baseline', gap: 5 }}>
             <Text variant="display" color="brand" style={{ fontSize: 30, lineHeight: 34 }}>
-              {isRangePlan(plan)
-                ? t('register.rangeUpTo', { min: shortUsd(range.min), max: shortUsd(range.max) })
-                : shortUsd(range.min)}
+              {plan.free
+                ? t('register.free')
+                : isRangePlan(plan)
+                  ? t('register.rangeUpTo', { min: shortUsd(range.min), max: shortUsd(range.max) })
+                  : shortUsd(range.min)}
             </Text>
-            <Text variant="caption" color="textOnInkSoft">
-              {t('register.perMonth')}
-            </Text>
+            {plan.free ? null : (
+              <Text variant="caption" color="textOnInkSoft">
+                {t('register.perMonth')}
+              </Text>
+            )}
           </View>
         </View>
       </View>
