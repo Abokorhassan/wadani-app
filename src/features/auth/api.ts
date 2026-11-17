@@ -114,9 +114,10 @@ export const authApi = {
   },
 
   /**
-   * Emails a 6-digit code, valid for 10 minutes. A 404 means no member has that
-   * phone or email; a 422 with code NO_EMAIL_ON_FILE means the member has no
-   * email to send it to.
+   * Sends a 6-digit code, valid for 10 minutes, by WhatsApp and by email when
+   * the account has one. A 404 means no member has that phone or email; a 422
+   * with code NO_EMAIL_ON_FILE means neither can reach the member: no email,
+   * and WhatsApp not set up on the server.
    */
   async requestPasswordReset(identifier: string): Promise<void> {
     await request('/mobile/auth/password/forgot', {

@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronLeft, KeyRound, MailCheck } from 'lucide-react-native';
+import { ChevronLeft, KeyRound, MessageSquareText } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -26,9 +26,10 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 type Errors = { identifier?: string; otp?: string; newPassword?: string; confirm?: string };
 
 /**
- * Password reset (build-plan D10): the member asks for a code, the API emails
- * it, and the member types it here with a new password. The code only goes by
- * email, so WhatsApp stays as the way out for members with no email on file.
+ * Password reset (build-plan D10): the member asks for a code, the API sends
+ * it by WhatsApp, and by email too when the account has one (backend,
+ * 2026-11-15), and the member types it here with a new password. Asking the
+ * party on WhatsApp stays as the way out when no code arrives.
  */
 export default function ForgotPasswordScreen() {
   const theme = useTheme();
@@ -54,8 +55,9 @@ export default function ForgotPasswordScreen() {
   const sendError = (error: unknown): string => {
     const details = asApiError(error);
     if (details.kind === 'not_found') return t('forgot.accountNotFound');
+    // Named for its old meaning: now it means neither WhatsApp nor email can reach them.
     if (details.kind === 'declined' && details.code === 'NO_EMAIL_ON_FILE') {
-      return t('forgot.noEmailOnAccount');
+      return t('forgot.noWayToReach');
     }
     if (details.kind === 'network') return t('errors.network');
     return t('forgot.sendFailed');
@@ -143,12 +145,16 @@ export default function ForgotPasswordScreen() {
       </View>
 
       <View style={{ marginTop: 26 }}>
-        <IconTile icon={stage === 'request' ? KeyRound : MailCheck} tone="brand" size={56} />
+        <IconTile
+          icon={stage === 'request' ? KeyRound : MessageSquareText}
+          tone="brand"
+          size={56}
+        />
         <Text variant="hero" style={{ marginTop: theme.spacing.gutter }}>
-          {stage === 'request' ? t('login.forgotTitle') : t('forgot.checkEmailTitle')}
+          {stage === 'request' ? t('login.forgotTitle') : t('forgot.checkCodeTitle')}
         </Text>
         <Text variant="body" color="textMuted" style={{ marginTop: theme.spacing.sm }}>
-          {stage === 'request' ? t('forgot.subtitle') : t('forgot.checkEmailSubtitle')}
+          {stage === 'request' ? t('forgot.subtitle') : t('forgot.checkCodeSubtitle')}
         </Text>
       </View>
 
@@ -225,7 +231,7 @@ export default function ForgotPasswordScreen() {
       <View style={{ flex: 1 }} />
 
       <Text variant="small" color="textMuted" center style={{ marginTop: theme.spacing.xl }}>
-        {t('forgot.noEmail')}{' '}
+        {t('forgot.stillStuck')}{' '}
         <Text
           variant="smallStrong"
           color="actionDeep"

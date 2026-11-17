@@ -98,7 +98,7 @@ export function useEmailExists() {
   };
 }
 
-/** Step 1 of a password reset: email a code to the member. */
+/** Step 1 of a password reset: send the member a code by WhatsApp and email. */
 export function useRequestPasswordReset() {
   return useMutation({
     mutationFn: (identifier: string) => api.requestPasswordReset(identifier),

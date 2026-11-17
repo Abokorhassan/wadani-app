@@ -27,7 +27,7 @@ export const LEGAL_CONTACT = {
 } as const;
 
 /** When the in-app text last changed; shown under each page's title. */
-export const LEGAL_UPDATED = '2026-09-29';
+export const LEGAL_UPDATED = '2026-11-17';
 
 /** Opens a legal page inside the app, from anywhere, signed in or not. */
 export function openLegalPage(page: LegalPage): void {

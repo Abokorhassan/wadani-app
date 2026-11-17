@@ -58,7 +58,7 @@ export default function LoginScreen() {
     );
   };
 
-  /** Email code, then a new password (build-plan D10). */
+  /** A code by WhatsApp or email, then a new password (build-plan D10). */
   const forgotPassword = () =>
     router.push({ pathname: '/forgot-password', params: { identifier: identifier.trim() } });
 

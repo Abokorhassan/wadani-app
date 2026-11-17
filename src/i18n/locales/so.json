@@ -390,14 +390,12 @@
     "paidSignIn": "Lacagta waa la helay, koontadaaduna waa diyaar. Fadlan soo gal si aad u aragto kaadhkaaga."
   },
   "forgot": {
-    "subtitle": "Geli telefoonkaaga ama iimaylkaaga. Waxaan kood 6 god ah u diri doonaa iimaylka koontadaada.",
+    "subtitle": "Geli telefoonkaaga ama iimaylkaaga. Waxaan kood 6 god ah kuugu soo diri doonaa WhatsApp-kaaga, iyo iimaylkaaga haddii aad leedahay.",
     "sendCode": "Dir koodka",
     "sendFailed": "Koodka lama diri karin. Fadlan isku day mar kale.",
-    "checkEmailTitle": "Eeg iimaylkaaga",
-    "checkEmailSubtitle": "Waxaan kood 6 god ah u dirnay iimaylka koontadaada. Wuxuu shaqaynayaa 10 daqiiqo.",
     "code": "Koodka 6 god ah",
-    "codeInvalid": "Geli koodka 6 god ah ee iimaylka.",
-    "codeRejected": "Koodkaasi waa khalad ama wuu dhacay. Eeg iimaylka ama dir kood cusub.",
+    "codeInvalid": "Geli koodka 6 god ah ee aan kuu dirnay.",
+    "codeRejected": "Koodkaasi waa khalad ama wuu dhacay. Eeg farriintii ugu dambeysay ama dir kood cusub.",
     "newPassword": "Furaha sirta ah ee cusub",
     "confirmPassword": "Xaqiiji furaha cusub",
     "passwordTooShort": "Furaha sirta ahi waa inuu ahaadaa ugu yaraan 8 xaraf.",
@@ -408,11 +406,13 @@
     "noCode": "Ma helin?",
     "resend": "Mar kale dir",
     "resent": "Kood cusub ayaan kuu dirnay.",
-    "noEmail": "Koontadaadu iimayl ma leedahay?",
     "askWhatsApp": "Nagala soo xidhiidh WhatsApp",
     "identifierInvalid": "Geli lambar telefoon sax ah (tusaale 63 234 5678) ama iimayl.",
     "accountNotFound": "Lama helin koonto leh telefoonkaas ama iimaylkaas.",
-    "noEmailOnAccount": "Koontadani iimayl ma leh, markaa kood kuma diri karno. Hoos nagala soo xidhiidh WhatsApp."
+    "checkCodeTitle": "Eeg farriimahaaga",
+    "checkCodeSubtitle": "Waxaan kood 6 god ah u dirnay lambarka WhatsApp-ka koontadaada, iyo iimaylkaaga haddii aad leedahay. Wuxuu shaqaynayaa 10 daqiiqo.",
+    "stillStuck": "Weli ma geli kartid?",
+    "noWayToReach": "Koontadan kood uma diri karno. Hoos nagala soo xidhiidh WhatsApp."
   },
   "legal": {
     "updated": "Waxa la cusboonaysiiyay {{date}}",
@@ -469,6 +469,7 @@
               "li": [
                 "Sifalo Pay, oo fuliya lacag bixinta boorsooyinka (Zaad, eDahab, Premier Wallet) iyo kaadhadhka. Faahfaahinta kaadhka waxa lagu qoraa bogga Sifalo; annagu weligeed ma aragno mana kaydinno.",
                 "Amazon Web Services, oo kaydiya sawirada xubnaha oo dira iimaylkayaga.",
+                "Meta (WhatsApp), oo farriimahayaga WhatsApp kuu gudbisa, sida koodhadhka dib-u-dejinta furaha sirta ah iyo farriinta soo dhawaynta marka aad ku biirto.",
                 "Shirkadda martigelisa server-yada, oo haysa kaydka xogta xubinnimada."
               ]
             },
