@@ -6,7 +6,13 @@
 export type ApiError =
   | { kind: 'network' }
   | { kind: 'unauthorized' }
-  | { kind: 'validation'; fieldErrors: Record<string, string>; message?: string }
+  | {
+      kind: 'validation';
+      fieldErrors: Record<string, string>;
+      message?: string;
+      /** e.g. WRONG_CURRENT_PASSWORD, when the server names the problem. */
+      code?: string;
+    }
   /**
    * The request was fine but the payment was refused (422): Sifalo declined the
    * charge, the wallet has no route, the PIN was wrong, and so on. Separate from

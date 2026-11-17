@@ -56,3 +56,31 @@ describe('password reset', () => {
     });
   });
 });
+
+describe('temporary password (staff-registered members)', () => {
+  it('reports mustChangePassword from login, and false when the server leaves it out', async () => {
+    requestMock.mockResolvedValue({
+      accessToken: 'a.b.c',
+      memberId: 'm1',
+      mustChangePassword: true,
+    });
+    expect(
+      (await authApi.login({ identifier: 'a@b.co', password: 'Temp1234' })).mustChangePassword
+    ).toBe(true);
+
+    requestMock.mockResolvedValue({ accessToken: 'a.b.c', memberId: 'm1' });
+    expect((await authApi.login({ identifier: 'a@b.co', password: 'x' })).mustChangePassword).toBe(
+      false
+    );
+  });
+
+  it('changes the password as the signed-in member', async () => {
+    requestMock.mockResolvedValue({ message: 'Password changed' });
+    await authApi.changePassword({ currentPassword: 'Temp1234', newPassword: 'NewPassw0rd!' });
+    // Signed in: no `authenticated: false`, so the token is sent.
+    expect(requestMock).toHaveBeenLastCalledWith('/mobile/auth/password/change', {
+      method: 'POST',
+      body: { currentPassword: 'Temp1234', newPassword: 'NewPassw0rd!' },
+    });
+  });
+});

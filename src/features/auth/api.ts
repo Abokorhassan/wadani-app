@@ -9,6 +9,7 @@ import { emailExistsResponse, loginResponse, registerResponse } from './schemas'
 import type {
   AuthSession,
   Credentials,
+  PasswordChangeInput,
   PasswordResetInput,
   RegistrationPayload,
   RegistrationResult,
@@ -64,7 +65,11 @@ export const authApi = {
       console.log('[auth] access-token claims:', claims ?? '(not a JWT)');
     }
 
-    return parsed;
+    return {
+      accessToken: parsed.accessToken,
+      memberId: parsed.memberId,
+      mustChangePassword: parsed.mustChangePassword === true,
+    };
   },
 
   /**
@@ -119,6 +124,15 @@ export const authApi = {
       body: { identifier: toIdentifier(identifier) },
       authenticated: false,
     });
+  },
+
+  /**
+   * Changes the password of the signed-in member. Required straight after a
+   * login that returned mustChangePassword, and allowed at any time. A wrong
+   * current password is a 400 with code WRONG_CURRENT_PASSWORD.
+   */
+  async changePassword(input: PasswordChangeInput): Promise<void> {
+    await request('/mobile/auth/password/change', { method: 'POST', body: input });
   },
 
   /** A wrong, expired or used code comes back as a 400 "Invalid or expired OTP". */

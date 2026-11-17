@@ -134,7 +134,8 @@
     "appearanceLight": "Light",
     "appearanceDark": "Dark",
     "switchToDark": "Switch to dark mode",
-    "switchToLight": "Switch to light mode"
+    "switchToLight": "Switch to light mode",
+    "changePassword": "Change password"
   },
   "communications": {
     "title": "Communications",
@@ -608,5 +609,20 @@
         }
       ]
     }
+  },
+  "changePassword": {
+    "titleForced": "Choose your own password",
+    "subtitleForced": "You logged in with a temporary password from the party. Choose a new one that only you know.",
+    "title": "Change password",
+    "subtitle": "Enter your current password, then the new one.",
+    "temporary": "Temporary password",
+    "current": "Current password",
+    "currentRequired": "Please enter your current password.",
+    "wrongCurrent": "That password isn't right. Check it and try again.",
+    "sameAsCurrent": "Choose a password different from the current one.",
+    "submit": "Save new password",
+    "done": "Password changed.",
+    "failed": "We couldn't change your password. Please try again.",
+    "logOutInstead": "Log out instead"
   }
 }

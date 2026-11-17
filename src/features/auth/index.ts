@@ -1,6 +1,7 @@
 export { authApi } from './api';
 export { DEMO_PASSWORD } from './api.mock';
 export {
+  useChangePassword,
   useEmailExists,
   useFinishCardRegistration,
   useLogin,
@@ -12,6 +13,7 @@ export { selectIsSignedIn, useSessionStore, type SessionStatus } from './session
 export type {
   AuthSession,
   Credentials,
+  PasswordChangeInput,
   PasswordResetInput,
   RegistrationPayload,
   RegistrationResult,

@@ -37,6 +37,7 @@ void SplashScreen.preventAutoHideAsync();
 function useAuthGate() {
   const status = useSessionStore((state) => state.status);
   const memberStatus = useSessionStore((state) => state.member?.status);
+  const mustChangePassword = useSessionStore((state) => state.mustChangePassword);
   const segments = useSegments();
   const router = useRouter();
 
@@ -51,12 +52,15 @@ function useAuthGate() {
 
     if (status === 'signed-out' && inAppGroup) {
       router.replace('/welcome');
+    } else if (status === 'signed-in' && mustChangePassword) {
+      // A staff-set temporary password: nothing else until the member picks their own.
+      if (segments[1] !== 'change-password') router.replace('/change-password');
     } else if (status === 'signed-in' && awaitingReview && !inAuthGroup) {
       router.replace('/pending');
     } else if (status === 'signed-in' && !awaitingReview && inAuthGroup) {
       router.replace('/home');
     }
-  }, [status, memberStatus, segments, router]);
+  }, [status, memberStatus, mustChangePassword, segments, router]);
 
   return status;
 }

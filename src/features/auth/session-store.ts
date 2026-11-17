@@ -10,6 +10,7 @@ import { storage } from '@/lib/storage';
 
 const MEMBER_KEY = 'session-member';
 const MEMBER_ID_KEY = 'session-member-id';
+const MUST_CHANGE_PASSWORD_KEY = 'session-must-change-password';
 
 export type SessionStatus = 'restoring' | 'signed-out' | 'signed-in';
 
@@ -23,9 +24,28 @@ interface SessionState {
    * (docs/api-gaps.md, question 5).
    */
   member: Member | null;
+  /**
+   * Signed in with a temporary password set by staff: the app shows nothing
+   * but "choose a new password" until it is changed. Saved, so closing the app
+   * does not skip it.
+   */
+  mustChangePassword: boolean;
+  /**
+   * That temporary password, so the member is not asked to type it twice.
+   * Memory only: a password is never written to the phone.
+   */
+  temporaryPassword: string | null;
   /** Reads the saved session on launch. */
   restore: () => Promise<void>;
-  signIn: (params: { accessToken: string; memberId: string; member?: Member }) => Promise<void>;
+  signIn: (params: {
+    accessToken: string;
+    memberId: string;
+    member?: Member;
+    mustChangePassword?: boolean;
+    temporaryPassword?: string;
+  }) => Promise<void>;
+  /** The member has chosen their own password. */
+  passwordChanged: () => void;
   setMember: (member: Member) => void;
   signOut: () => Promise<void>;
 }
@@ -45,26 +65,54 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   accessToken: null,
   memberId: null,
   member: null,
+  mustChangePassword: false,
+  temporaryPassword: null,
 
   restore: async () => {
     const accessToken = await getSecure(SecureKey.accessToken);
     const memberId = storage.getString(MEMBER_ID_KEY) ?? null;
 
     if (accessToken && memberId) {
-      set({ status: 'signed-in', accessToken, memberId, member: readMember() });
+      set({
+        status: 'signed-in',
+        accessToken,
+        memberId,
+        member: readMember(),
+        mustChangePassword: storage.getBoolean(MUST_CHANGE_PASSWORD_KEY) === true,
+      });
     } else {
       set({ status: 'signed-out', accessToken: null, memberId: null, member: null });
     }
   },
 
-  signIn: async ({ accessToken, memberId, member }) => {
+  signIn: async ({
+    accessToken,
+    memberId,
+    member,
+    mustChangePassword = false,
+    temporaryPassword,
+  }) => {
     await setSecure(SecureKey.accessToken, accessToken);
     storage.set(MEMBER_ID_KEY, memberId);
+    if (mustChangePassword) storage.set(MUST_CHANGE_PASSWORD_KEY, true);
+    else storage.remove(MUST_CHANGE_PASSWORD_KEY);
     // Keep an earlier profile if this sign-in did not bring one.
     const kept = member ?? (get().memberId === memberId ? get().member : null) ?? readMember();
     const next = kept && kept.id === memberId ? kept : (member ?? null);
     if (next) storage.set(MEMBER_KEY, JSON.stringify(next));
-    set({ status: 'signed-in', accessToken, memberId, member: next });
+    set({
+      status: 'signed-in',
+      accessToken,
+      memberId,
+      member: next,
+      mustChangePassword,
+      temporaryPassword: mustChangePassword ? (temporaryPassword ?? null) : null,
+    });
+  },
+
+  passwordChanged: () => {
+    storage.remove(MUST_CHANGE_PASSWORD_KEY);
+    set({ mustChangePassword: false, temporaryPassword: null });
   },
 
   setMember: (member) => {
@@ -77,10 +125,18 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     await deleteSecure(SecureKey.refreshToken);
     storage.remove(MEMBER_KEY);
     storage.remove(MEMBER_ID_KEY);
+    storage.remove(MUST_CHANGE_PASSWORD_KEY);
     // The next person to use this phone must not see this one's half-finished form.
     useDraftStore.getState().clear();
     queryClient.clear();
-    set({ status: 'signed-out', accessToken: null, memberId: null, member: null });
+    set({
+      status: 'signed-out',
+      accessToken: null,
+      memberId: null,
+      member: null,
+      mustChangePassword: false,
+      temporaryPassword: null,
+    });
   },
 }));
 

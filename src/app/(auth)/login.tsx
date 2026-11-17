@@ -44,7 +44,8 @@ export default function LoginScreen() {
     login.mutate(
       { identifier: identifier.trim(), password },
       {
-        onSuccess: () => router.replace('/home'),
+        onSuccess: (session) =>
+          router.replace(session.mustChangePassword ? '/change-password' : '/home'),
         onError: (error) => {
           const details = isApiError(error) ? asApiError(error) : null;
           if (details?.kind === 'validation') {

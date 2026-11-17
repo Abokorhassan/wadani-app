@@ -144,7 +144,7 @@ export async function request(path: string, options: RequestOptions = {}): Promi
   // 400 means the payload is wrong; 422 means the payment itself was refused.
   if (response.status === 400) {
     const { fieldErrors, message } = parseValidationBody(json);
-    throw new ApiRequestError({ kind: 'validation', fieldErrors, message });
+    throw new ApiRequestError({ kind: 'validation', fieldErrors, message, code: errorCode(json) });
   }
   if (response.status === 422) {
     const { message } = parseValidationBody(json);

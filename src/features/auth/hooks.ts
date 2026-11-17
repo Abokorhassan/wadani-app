@@ -12,6 +12,7 @@ import { registerResponse } from './schemas';
 import { useSessionStore } from './session-store';
 import type {
   Credentials,
+  PasswordChangeInput,
   PasswordResetInput,
   RegistrationPayload,
   RegistrationResult,
@@ -23,6 +24,9 @@ const api = pickApi('auth', authApi, authApiMock);
 async function adoptSession(params: {
   accessToken: string;
   memberId: string;
+  mustChangePassword?: boolean;
+  /** The password just used, kept only when it is a temporary one. */
+  temporaryPassword?: string;
   member?: Member;
   card?: MemberCard;
 }) {
@@ -30,6 +34,8 @@ async function adoptSession(params: {
     accessToken: params.accessToken,
     memberId: params.memberId,
     member: params.member,
+    mustChangePassword: params.mustChangePassword,
+    temporaryPassword: params.mustChangePassword ? params.temporaryPassword : undefined,
   });
   if (params.card) queryClient.setQueryData(membershipKeys.card, params.card);
 }
@@ -37,7 +43,19 @@ async function adoptSession(params: {
 export function useLogin() {
   return useMutation({
     mutationFn: (credentials: Credentials) => api.login(credentials),
-    onSuccess: (session) => adoptSession(session),
+    onSuccess: (session, credentials) =>
+      adoptSession({ ...session, temporaryPassword: credentials.password }),
+  });
+}
+
+/**
+ * Sets a new password for the signed-in member, which also ends the "must
+ * change your temporary password" state.
+ */
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (input: PasswordChangeInput) => api.changePassword(input),
+    onSuccess: () => useSessionStore.getState().passwordChanged(),
   });
 }
 

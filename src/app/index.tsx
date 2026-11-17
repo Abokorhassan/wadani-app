@@ -6,9 +6,11 @@ import { useSessionStore } from '@/features/auth/session-store';
 export default function Index() {
   const status = useSessionStore((state) => state.status);
   const memberStatus = useSessionStore((state) => state.member?.status);
+  const mustChangePassword = useSessionStore((state) => state.mustChangePassword);
 
   if (status === 'restoring') return null;
   if (status !== 'signed-in') return <Redirect href="/welcome" />;
+  if (mustChangePassword) return <Redirect href="/change-password" />;
   // The card is only issued once Sifalo settles the charge (build-plan D2).
   if (memberStatus === 'registered' || memberStatus === 'paymentPending')
     return <Redirect href="/pending" />;

@@ -577,6 +577,39 @@ describe('Phase 1 — onboarding', () => {
   });
 });
 
+describe('Temporary passwords set by staff', () => {
+  it('holds the member on "choose a new password" until they do', () => {
+    expect(exists('app/(app)/change-password.tsx')).toBe(true);
+    expect(source('app/_layout.tsx')).toContain("router.replace('/change-password')");
+    expect(source('app/index.tsx')).toContain('<Redirect href="/change-password" />');
+    // The temporary password lives in memory only, never on the phone.
+    const store = source('features/auth/session-store.ts');
+    expect(store).toContain('MUST_CHANGE_PASSWORD_KEY');
+    expect(store).not.toMatch(/storage\.set\([^)]*temporaryPassword/);
+    expect(source('app/(app)/(tabs)/profile.tsx')).toContain("router.push('/change-password')");
+    expect(hasText('changePassword.titleForced')).toBe(true);
+  });
+
+  it('works end to end against the mock: forced change, wrong password refused', async () => {
+    const { authApiMock, DEMO_TEMPORARY_LOGIN } = require('../features/auth/api.mock');
+    const { phone, password } = DEMO_TEMPORARY_LOGIN;
+
+    const first = await authApiMock.login({ identifier: phone, password });
+    expect(first.mustChangePassword).toBe(true);
+
+    await expect(
+      authApiMock.changePassword({ currentPassword: 'wrong', newPassword: 'MyOwnPass1' })
+    ).rejects.toMatchObject({ error: { kind: 'validation', code: 'WRONG_CURRENT_PASSWORD' } });
+
+    await authApiMock.changePassword({ currentPassword: password, newPassword: 'MyOwnPass1' });
+    const again = await authApiMock.login({ identifier: phone, password: 'MyOwnPass1' });
+    expect(again.mustChangePassword).toBe(false);
+
+    // Put the temporary password back for anyone testing by hand.
+    await authApiMock.changePassword({ currentPassword: 'MyOwnPass1', newPassword: password });
+  });
+});
+
 describe('Guest donation', () => {
   it('lets anyone donate from Welcome without an account', () => {
     expect(exists('app/(auth)/give.tsx')).toBe(true);

@@ -5,6 +5,7 @@ import {
   cardFixture,
   planFixtures,
   registerMockCard,
+  registerMockMember,
   setActiveMockMember,
 } from '@/features/membership/api.mock';
 import { toEducationDto, toGenderDto, toMember, toMemberCard } from '@/features/membership/mappers';
@@ -17,15 +18,50 @@ import type { RegistrationPayload } from './types';
 /** The member from the fixtures signs in with this password. */
 export const DEMO_PASSWORD = 'waddani123';
 
+/**
+ * A member a staff user registered with a temporary password. Logging in as
+ * them leads straight to "choose a new password".
+ */
+export const DEMO_TEMPORARY_LOGIN = { phone: '+252634000001', password: 'Temp1234' };
+
 /** The mock "emails" this reset code for every account. */
 export const DEMO_RESET_CODE = '123456';
 
 interface Account {
   member: MemberDto;
   password: string;
+  mustChangePassword?: boolean;
 }
 
-const accounts: Account[] = [{ member: memberFixture, password: DEMO_PASSWORD }];
+const accounts: Account[] = [
+  { member: memberFixture, password: DEMO_PASSWORD },
+  {
+    member: {
+      ...memberFixture,
+      id: 'mock-staff-registered',
+      fullName: 'Hodan Staff-Registered',
+      phone: DEMO_TEMPORARY_LOGIN.phone,
+      email: null,
+    },
+    password: DEMO_TEMPORARY_LOGIN.password,
+    mustChangePassword: true,
+  },
+];
+
+// The staff-registered member has a card of their own, not the demo member's.
+for (const { member } of accounts.slice(1)) {
+  registerMockMember(member.id, member);
+  registerMockCard(member.id, {
+    ...cardFixture,
+    id: `card-${member.id}`,
+    memberId: member.id,
+    memberFullName: member.fullName,
+    cardCode: 'MC-2026-TMP001',
+  });
+}
+
+/** Who the mock's token belongs to, for calls that need a signed-in member. */
+let signedIn: Account | undefined;
 
 const matches = (account: Account, identifier: string) => {
   const value = identifier.trim().toLowerCase();
@@ -54,7 +90,27 @@ export const authApiMock: AuthApi = {
     }
     // getCard() answers for whichever account this is, not always the fixture.
     setActiveMockMember(account.member.id);
-    return { accessToken: `mock-token-${account.member.id}`, memberId: account.member.id };
+    signedIn = account;
+    return {
+      accessToken: `mock-token-${account.member.id}`,
+      memberId: account.member.id,
+      mustChangePassword: account.mustChangePassword === true,
+    };
+  },
+
+  changePassword: async ({ currentPassword, newPassword }) => {
+    await mockRespond(null, 600);
+    if (!signedIn) throw new ApiRequestError({ kind: 'unauthorized' });
+    if (signedIn.password !== currentPassword) {
+      throw new ApiRequestError({
+        kind: 'validation',
+        fieldErrors: {},
+        message: 'Current password is incorrect',
+        code: 'WRONG_CURRENT_PASSWORD',
+      });
+    }
+    signedIn.password = newPassword;
+    signedIn.mustChangePassword = false;
   },
 
   register: async (payload: RegistrationPayload) => {

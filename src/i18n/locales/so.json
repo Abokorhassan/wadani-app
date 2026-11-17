@@ -134,7 +134,8 @@
     "appearanceLight": "Iftiin",
     "appearanceDark": "Mugdi",
     "switchToDark": "U beddel qaabka mugdiga",
-    "switchToLight": "U beddel qaabka iftiinka"
+    "switchToLight": "U beddel qaabka iftiinka",
+    "changePassword": "Beddel furaha sirta ah"
   },
   "communications": {
     "title": "Farriimaha",
@@ -608,5 +609,20 @@
         }
       ]
     }
+  },
+  "changePassword": {
+    "titleForced": "Dooro furahaaga sirta ah",
+    "subtitleForced": "Waxaad ku soo gashay fure sir ah oo ku meel gaadh ah oo xisbigu ku siiyay. Dooro mid cusub oo adiga keliya aad taqaan.",
+    "title": "Beddel furaha sirta ah",
+    "subtitle": "Geli furahaaga sirta ah ee hadda, kadibna kan cusub.",
+    "temporary": "Furaha sirta ah ee ku meel gaadhka ah",
+    "current": "Furaha sirta ah ee hadda",
+    "currentRequired": "Fadlan geli furahaaga sirta ah ee hadda.",
+    "wrongCurrent": "Furahaas sirta ah sax maaha. Hubi oo isku day mar kale.",
+    "sameAsCurrent": "Dooro fure sir ah oo ka duwan kan hadda.",
+    "submit": "Kaydi furaha cusub",
+    "done": "Furaha sirta ah waa la beddelay.",
+    "failed": "Ma beddeli karin furahaaga sirta ah. Fadlan isku day mar kale.",
+    "logOutInstead": "Ka bax halkii"
   }
 }

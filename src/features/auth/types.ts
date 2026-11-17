@@ -53,6 +53,19 @@ export type RegistrationResult =
 export interface AuthSession {
   accessToken: string;
   memberId: string;
+  /**
+   * The member signed in with a temporary password a staff member set, and
+   * must choose their own before using the app.
+   */
+  mustChangePassword: boolean;
+}
+
+/** POST /mobile/auth/password/change. */
+export interface PasswordChangeInput {
+  /** The temporary password, or the current one. */
+  currentPassword: string;
+  /** At least 8 characters, and not the same as the current one. */
+  newPassword: string;
 }
 
 /** The code emailed by the forgot-password request, plus the new password. */

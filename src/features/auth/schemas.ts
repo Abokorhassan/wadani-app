@@ -12,6 +12,8 @@ import { memberDto, membershipCardDto } from '@/features/membership/schemas';
 export const loginResponse = z.looseObject({
   accessToken: z.string(),
   memberId: z.string(),
+  /** True after logging in with a temporary password set by staff. */
+  mustChangePassword: z.boolean().optional(),
 });
 
 export const registerResponse = z.object({

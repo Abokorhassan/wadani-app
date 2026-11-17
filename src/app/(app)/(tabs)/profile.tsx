@@ -1,7 +1,9 @@
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import {
   ChevronRight,
   FileText,
+  KeyRound,
   Languages,
   SunMoon,
   LogOut,
@@ -43,6 +45,7 @@ import { formatMonthYear } from '@/lib/format';
 
 export default function ProfileScreen() {
   const theme = useTheme();
+  const router = useRouter();
   const { t } = useTranslation();
   const member = useMe();
   const card = useCard();
@@ -247,6 +250,12 @@ export default function ProfileScreen() {
           backgroundColor: theme.color.surface,
           overflow: 'hidden',
         }}>
+        <LinkRow
+          icon={KeyRound}
+          label={t('profile.changePassword')}
+          onPress={() => router.push('/change-password')}
+        />
+        <View style={{ height: 1, backgroundColor: theme.color.border, marginLeft: 70 }} />
         <LinkRow
           icon={ShieldCheck}
           label={t('profile.privacy')}
