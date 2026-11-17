@@ -10,7 +10,10 @@
     "icon": "./assets/brand/icon.png",
     "ios": {
       "bundleIdentifier": "so.waddani.membership",
-      "supportsTablet": false
+      "supportsTablet": false,
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "so.waddani.membership",
