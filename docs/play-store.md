@@ -31,7 +31,7 @@ Let EAS generate the keystore. Upload the first `.aab` by hand to
 Graphics are in `assets/store/` (made by `npm run brand:assets`). Screenshots:
 at least 2 phone screenshots (Welcome, Home, Card, Payments, News).
 
-- **App name:** Waddani
+- **App name:** Waddani Party
 - **Category:** Social
 - **Short description (80 max)**
   - EN: Join Xisbiga Waddani, carry your membership card and pay your dues.
@@ -91,7 +91,7 @@ at least 2 phone screenshots (Welcome, Home, Card, Payments, News).
 | Data type                      | What                                    | Required?                         | Purpose                                      |
 | ------------------------------ | --------------------------------------- | --------------------------------- | -------------------------------------------- |
 | Name                           | Full name                               | Required                          | App functionality, Account management        |
-| Email address                  | Email                                   | Optional                          | Account management, Developer communications |
+| Email address                  | Email                                   | Required                          | Account management, Developer communications |
 | Phone number                   | Phone, WhatsApp                         | Phone required, WhatsApp optional | Account management, Developer communications |
 | Address                        | Street, district, city, region, country | Required                          | App functionality                            |
 | User IDs                       | Member ID, card number                  | Required                          | App functionality, Account management        |
