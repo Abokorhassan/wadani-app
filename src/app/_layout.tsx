@@ -54,7 +54,7 @@ function useAuthGate() {
       router.replace('/welcome');
     } else if (status === 'signed-in' && mustChangePassword) {
       // A staff-set temporary password: nothing else until the member picks their own.
-      if (segments[1] !== 'change-password') router.replace('/change-password');
+      if (segments.at(1) !== 'change-password') router.replace('/change-password');
     } else if (status === 'signed-in' && awaitingReview && !inAuthGroup) {
       router.replace('/pending');
     } else if (status === 'signed-in' && !awaitingReview && inAuthGroup) {

@@ -75,10 +75,13 @@ deliverables as a checklist.
    any emulator restart run `adb shell am force-stop so.waddani.membership`, then
    relaunch. For a truly fresh boot add `-no-snapshot-load`.
 
-**iOS is still blocked.** Expo SDK 57's `expo-modules-jsi` does not compile
-under Xcode 26.1.1 / Swift 6.2.1. `patches/expo-modules-jsi+57.1.0.patch` fixes
-two of the three errors. Build iOS with **EAS Build** until Expo ships a fix; an
-older Xcode may simply work.
+**iOS builds locally and on EAS** since `expo-modules-jsi` 57.1.2 (Expo
+57.0.33), which fixed the Xcode 26 compile errors. Do not patch that package:
+the old `patches/expo-modules-jsi+57.1.0.patch` shipped prebuilt binaries with
+an empty iPhone slice, so TestFlight build 1 crashed at launch
+(`Library not loaded: ExpoModulesJSI.framework`) while the Simulator worked.
+Before shipping an iOS build, check the device `.app` has a non-empty
+`Frameworks/ExpoModulesJSI.framework/ExpoModulesJSI`.
 
 ## 3. Where the project stands
 
