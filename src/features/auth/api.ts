@@ -7,6 +7,7 @@ import { toInternationalPhone } from '@/lib/phone';
 
 import { emailExistsResponse, loginResponse, registerResponse } from './schemas';
 import type {
+  AccountDeletionInput,
   AuthSession,
   Credentials,
   PasswordChangeInput,
@@ -24,6 +25,14 @@ function toIdentifier(raw: string): string {
   const identifier = raw.trim();
   return identifier.includes('@') ? identifier : (toInternationalPhone(identifier) ?? identifier);
 }
+
+/**
+ * Not in the API yet (docs/api-gaps.md, question 15): the live server answers
+ * 404 here today. Apple requires in-app deletion (App Review 5.1.1(v)), so the
+ * app calls this and falls back to the request instructions until it exists.
+ * If the backend picks another path, change it here only.
+ */
+export const DELETE_ACCOUNT_PATH = '/mobile/auth/me';
 
 function registerBody(payload: RegistrationPayload): Record<string, unknown> {
   return {
@@ -134,6 +143,15 @@ export const authApi = {
    */
   async changePassword(input: PasswordChangeInput): Promise<void> {
     await request('/mobile/auth/password/change', { method: 'POST', body: input });
+  },
+
+  /**
+   * Permanently deletes the signed-in member's account. A wrong password is
+   * expected as a 400 with code WRONG_PASSWORD (not a 401, which would sign the
+   * member out); a 404 means the server does not offer deletion yet.
+   */
+  async deleteAccount(input: AccountDeletionInput): Promise<void> {
+    await request(DELETE_ACCOUNT_PATH, { method: 'DELETE', body: { password: input.password } });
   },
 
   /** A wrong, expired or used code comes back as a 400 "Invalid or expired OTP". */

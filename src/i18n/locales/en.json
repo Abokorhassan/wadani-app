@@ -126,7 +126,7 @@
     "languageHint": "Choose the app's language",
     "privacy": "Privacy policy",
     "deleteAccount": "Delete my account",
-    "deleteAccountHint": "Ask the party to delete your account and data",
+    "deleteAccountHint": "Permanently delete your account and data",
     "terms": "Membership terms",
     "follow": "Follow the party",
     "followHint": "News and updates from Xisbiga Waddani",
@@ -626,5 +626,25 @@
     "done": "Password changed.",
     "failed": "We couldn't change your password. Please try again.",
     "logOutInstead": "Log out instead"
+  },
+  "deleteAccount": {
+    "title": "Delete your account",
+    "subtitle": "This can't be undone. Your membership ends and you will be signed out on this phone.",
+    "deleted": "Deleted: your profile, photo, password, address and contact details, and your membership card.",
+    "kept": "Kept: records of payments and donations, for as long as the law or our accounting requires. They are no longer linked to an account.",
+    "noRefund": "Fees already paid are not refunded.",
+    "password": "Your password",
+    "passwordRequired": "Enter your password to confirm it's you.",
+    "wrongPassword": "That password isn't right. Check it and try again.",
+    "submit": "Delete my account",
+    "readMore": "How account deletion works",
+    "confirmTitle": "Delete your account?",
+    "confirmMessage": "Your membership and card will be deleted for good. This can't be undone.",
+    "confirm": "Delete",
+    "done": "Your account has been deleted.",
+    "failed": "We couldn't delete your account. Please try again.",
+    "unavailableTitle": "Not available in the app yet",
+    "unavailableMessage": "Deleting from the app isn't switched on yet. You can still ask the party to delete your account by WhatsApp or email.",
+    "howToAsk": "How to ask"
   }
 }

@@ -76,3 +76,8 @@ export interface PasswordResetInput {
   otp: string;
   newPassword: string;
 }
+
+export interface AccountDeletionInput {
+  /** The member's password, asked again so a phone left unlocked cannot delete the account. */
+  password: string;
+}

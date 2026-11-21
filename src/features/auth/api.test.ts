@@ -84,3 +84,14 @@ describe('temporary password (staff-registered members)', () => {
     });
   });
 });
+
+describe('account deletion', () => {
+  it('deletes the signed-in member with the password re-entered', async () => {
+    requestMock.mockResolvedValue(null);
+    await authApi.deleteAccount({ password: 'secret12345' });
+    expect(requestMock).toHaveBeenLastCalledWith('/mobile/auth/me', {
+      method: 'DELETE',
+      body: { password: 'secret12345' },
+    });
+  });
+});

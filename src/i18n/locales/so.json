@@ -126,7 +126,7 @@
     "languageHint": "Dooro luqadda app-ka",
     "privacy": "Siyaasadda xogta gaarka ah",
     "deleteAccount": "Tirtir koontadayda",
-    "deleteAccountHint": "Ka codso xisbiga inay tirtiraan koontadaada iyo xogtaada",
+    "deleteAccountHint": "Si joogto ah u tirtir koontadaada iyo xogtaada",
     "terms": "Shuruudaha xubinnimada",
     "follow": "Raac xisbiga",
     "followHint": "Warka iyo warbixinnada Xisbiga Waddani",
@@ -626,5 +626,25 @@
     "done": "Furaha sirta ah waa la beddelay.",
     "failed": "Ma beddeli karin furahaaga sirta ah. Fadlan isku day mar kale.",
     "logOutInstead": "Ka bax halkii"
+  },
+  "deleteAccount": {
+    "title": "Tirtir koontadaada",
+    "subtitle": "Tan dib looma celin karo. Xubinnimadaadu way dhammaanaysaa, waxaana lagaa saarayaa taleefankan.",
+    "deleted": "Waa la tirtirayaa: xogtaada shakhsiga ah, sawirkaaga, furaha sirta ah, cinwaankaaga iyo xidhiidhkaaga, iyo kaadhka xubinnimada.",
+    "kept": "Waa la hayaa: diiwaanka lacag-bixinta iyo deeqaha, inta sharcigu ama xisaabaadkayagu u baahan yihiin. Kuma xidhna koonto.",
+    "noRefund": "Lacagaha horay loo bixiyay dib looma celiyo.",
+    "password": "Furahaaga sirta ah",
+    "passwordRequired": "Geli furahaaga sirta ah si aad u xaqiijiso inaad adigu tahay.",
+    "wrongPassword": "Furahaas sirta ah sax maaha. Hubi oo isku day mar kale.",
+    "submit": "Tirtir koontadayda",
+    "readMore": "Sida tirtiridda koontadu u shaqeyso",
+    "confirmTitle": "Ma tirtirtaa koontadaada?",
+    "confirmMessage": "Xubinnimadaada iyo kaadhkaaga si joogto ah ayaa loo tirtirayaa. Tan dib looma celin karo.",
+    "confirm": "Tirtir",
+    "done": "Koontadaada waa la tirtiray.",
+    "failed": "Ma tirtiri karin koontadaada. Fadlan isku day mar kale.",
+    "unavailableTitle": "Weli kuma jiro app-ka",
+    "unavailableMessage": "Ka tirtiridda app-ka weli lama shidin. Weli waxaad xisbiga ka codsan kartaa inay tirtiraan koontadaada adoo WhatsApp ama email u diraya.",
+    "howToAsk": "Sida loo codsado"
   }
 }

@@ -272,7 +272,7 @@ export default function ProfileScreen() {
           icon={Trash2}
           label={t('profile.deleteAccount')}
           hint={t('profile.deleteAccountHint')}
-          onPress={() => openLegalPage('deleteAccount')}
+          onPress={() => router.push('/delete-account')}
         />
       </View>
 

@@ -11,6 +11,7 @@ import { authApiMock } from './api.mock';
 import { registerResponse } from './schemas';
 import { useSessionStore } from './session-store';
 import type {
+  AccountDeletionInput,
   Credentials,
   PasswordChangeInput,
   PasswordResetInput,
@@ -56,6 +57,17 @@ export function useChangePassword() {
   return useMutation({
     mutationFn: (input: PasswordChangeInput) => api.changePassword(input),
     onSuccess: () => useSessionStore.getState().passwordChanged(),
+  });
+}
+
+/**
+ * Deletes the signed-in member's account, then clears everything this phone
+ * holds about them. The auth gate then shows the welcome screen.
+ */
+export function useDeleteAccount() {
+  return useMutation({
+    mutationFn: (input: AccountDeletionInput) => api.deleteAccount(input),
+    onSuccess: () => useSessionStore.getState().signOut(),
   });
 }
 

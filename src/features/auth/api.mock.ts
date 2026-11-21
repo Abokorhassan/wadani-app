@@ -194,6 +194,23 @@ export const authApiMock: AuthApi = {
   },
 
   logout: () => mockRespond(undefined, 200),
+
+  // After an app restart the mock no longer knows who is signed in; the demo member stands in.
+  deleteAccount: async ({ password }) => {
+    await mockRespond(null, 800);
+    const account = signedIn ?? accounts[0];
+    if (!account || account.password !== password) {
+      throw new ApiRequestError({
+        kind: 'validation',
+        fieldErrors: {},
+        message: 'Password is incorrect',
+        code: 'WRONG_PASSWORD',
+      });
+    }
+    // Gone until the app restarts: logging in as this account now fails, as it would live.
+    accounts.splice(accounts.indexOf(account), 1);
+    signedIn = undefined;
+  },
   requestPasswordReset: () => mockRespond(undefined, 500),
 
   resetPassword: async ({ identifier, otp, newPassword }) => {
