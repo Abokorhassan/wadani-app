@@ -1,8 +1,9 @@
-import { request } from '@/api/client';
+import { request, signOutUnauthorized } from '@/api/client';
+import { ApiRequestError, asApiError } from '@/api/errors';
 
 import { authApi } from './api';
 
-jest.mock('@/api/client', () => ({ request: jest.fn() }));
+jest.mock('@/api/client', () => ({ request: jest.fn(), signOutUnauthorized: jest.fn() }));
 
 const requestMock = request as jest.Mock;
 
@@ -89,9 +90,27 @@ describe('account deletion', () => {
   it('deletes the signed-in member with the password re-entered', async () => {
     requestMock.mockResolvedValue(null);
     await authApi.deleteAccount({ password: 'secret12345' });
-    expect(requestMock).toHaveBeenLastCalledWith('/mobile/auth/me', {
+    expect(requestMock).toHaveBeenLastCalledWith('/mobile/members/me', {
       method: 'DELETE',
       body: { password: 'secret12345' },
+      signOutOnUnauthorized: false,
     });
+  });
+
+  const failWith401 = (message?: string) =>
+    requestMock.mockRejectedValue(new ApiRequestError({ kind: 'unauthorized', message }));
+
+  it('treats a 401 about the password as a wrong password, without signing out', async () => {
+    failWith401('Password is incorrect');
+    const failure = await authApi.deleteAccount({ password: 'x' }).catch((e: unknown) => e);
+    expect(asApiError(failure)).toMatchObject({ kind: 'validation', code: 'WRONG_PASSWORD' });
+    expect(signOutUnauthorized).not.toHaveBeenCalled();
+  });
+
+  it('signs out on a 401 about the token', async () => {
+    failWith401('Invalid or expired token');
+    const failure = await authApi.deleteAccount({ password: 'x' }).catch((e: unknown) => e);
+    expect(asApiError(failure).kind).toBe('unauthorized');
+    expect(signOutUnauthorized).toHaveBeenCalledTimes(1);
   });
 });

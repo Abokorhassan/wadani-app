@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, View } from 'react-native';
 
-import { asApiError, isApiError } from '@/api/errors';
+import { asApiError, isApiError, serverMessage } from '@/api/errors';
 import {
   Button,
   IconButton,
@@ -23,7 +23,7 @@ const WRONG_PASSWORD_CODES = new Set(['WRONG_PASSWORD', 'WRONG_CURRENT_PASSWORD'
 /**
  * Deleting the account from inside the app (App Review 5.1.1(v)). The password
  * is asked again, then a last "are you sure", then the member is signed out.
- * Until the backend offers deletion, a 404 sends the member to the request
+ * If the server ever answers 404, the member is sent to the request
  * instructions instead.
  */
 export default function DeleteAccountScreen() {
@@ -64,8 +64,13 @@ export default function DeleteAccountScreen() {
             );
             return;
           }
+          // Signed out already if the session had expired; the gate shows the welcome screen.
+          if (details?.kind === 'unauthorized') return;
+          // Any other refusal (an unpaid balance, say) is shown in the server's own words.
           toast.show(
-            details?.kind === 'network' ? t('errors.network') : t('deleteAccount.failed'),
+            details?.kind === 'network'
+              ? t('errors.network')
+              : ((details && serverMessage(details)) ?? t('deleteAccount.failed')),
             'danger'
           );
         },

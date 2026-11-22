@@ -25,14 +25,13 @@ the backend developer.
 
 ## 2. Things the app has, with no endpoint behind them
 
-| App feature                                                 | Status                                                                                                                                                                       |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Family members** (list + add, Phase 4)                    | No endpoints at all. Shown as "Coming soon" (2026-09-19); the feature module is kept for when they land.                                                                     |
-| **Event RSVP**                                              | No RSVP endpoint. Removed from the app (2026-09-19).                                                                                                                         |
-| **Communications** (notification history)                   | No endpoint. The backend sends WhatsApp/email, but the app can't list what was sent.                                                                                         |
-| **Profile details** (phone, email, education, member since) | `GET /mobile/auth/me` returns only `{id, organizationId}`. The app keeps what registration returned; a member signing in on another device sees only what the card carries.  |
-| **Contact details and FAQs**                                | No endpoints. Fine to keep in the app as static content, unless the party wants to edit them.                                                                                |
-| **Delete account** (Profile)                                | No endpoint; the live server answers 404 (checked 2026-11-21). The app calls `DELETE /mobile/auth/me` and, on a 404, shows how to ask by WhatsApp or email. See question 15. |
+| App feature                                                 | Status                                                                                                                                                                      |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Family members** (list + add, Phase 4)                    | No endpoints at all. Shown as "Coming soon" (2026-09-19); the feature module is kept for when they land.                                                                    |
+| **Event RSVP**                                              | No RSVP endpoint. Removed from the app (2026-09-19).                                                                                                                        |
+| **Communications** (notification history)                   | No endpoint. The backend sends WhatsApp/email, but the app can't list what was sent.                                                                                        |
+| **Profile details** (phone, email, education, member since) | `GET /mobile/auth/me` returns only `{id, organizationId}`. The app keeps what registration returned; a member signing in on another device sees only what the card carries. |
+| **Contact details and FAQs**                                | No endpoints. Fine to keep in the app as static content, unless the party wants to edit them.                                                                               |
 
 ## 3. Where the app and the API disagreed — and what the app now does
 
@@ -219,23 +218,12 @@ Still open:
     it is not the app. Is the WAAFI channel (Zaad/Telesom numbers) enabled on the
     Sifalo merchant account? Trace IDs: `dc23c5c981ce731c5edc3c06810f22bc`,
     `462a4e1c4e3708e3a880ab418afbf8d8`, `c6386369db9af668bac6a14e0ed308df`.
-15. **Delete account (needed for the App Store, Guideline 5.1.1(v))**. Apple
-    requires that a member can delete their account from inside the app. The app
-    is ready and calls:
-
-    ```
-    DELETE /mobile/auth/me
-    Authorization: Bearer <access token>
-    { "password": "<the member's current password>" }
-    ```
-
-    - `204` (or `200`): deleted. The app signs out at once.
-    - `400` with `details.code: "WRONG_PASSWORD"`: wrong password. **Not `401`**,
-      because a `401` signs the member out of the app.
-    - Delete or anonymise the profile, photo, password, contact details and
-      card. Keep payment and donation records if the accounting requires it,
-      unlinked from the account (as the in-app deletion page already says).
-    - Invalidate the member's tokens, so other phones are signed out too.
-
-    A different path is fine: it is one constant (`DELETE_ACCOUNT_PATH` in
-    `src/features/auth/api.ts`).
+15. ~~**Delete account**~~ (App Store Guideline 5.1.1(v)). The backend added
+    `DELETE /mobile/members/me` on 2026-11-22: it answers `401 Missing bearer
+token` without a session, where it answered `404` the day before. The app
+    calls it with `{ "password": "..." }` and signs out on success. Still to
+    confirm with the backend developer, since the docs were not readable:
+    - Is the password checked? (If not, the app's field is only a speed bump.)
+    - What does a wrong password return? The app copes with a `400`
+      (`WRONG_PASSWORD`) or a `401` whose message is not about the token.
+    - Are the member's other sessions signed out, and what is kept?

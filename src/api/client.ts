@@ -32,6 +32,11 @@ export interface RequestOptions {
   /** Send the access token. On by default; auth endpoints opt out. */
   authenticated?: boolean;
   signal?: AbortSignal;
+  /**
+   * Sign out on a 401. On by default. Off for a call where a 401 can also mean
+   * a wrong password rather than a dead session; the caller then decides.
+   */
+  signOutOnUnauthorized?: boolean;
 }
 
 function buildUrl(path: string, query?: RequestOptions['query']): string {
@@ -56,7 +61,14 @@ export function redacted(body: unknown): unknown {
  * before it reaches a screen, so `unknown` is deliberate here.
  */
 export async function request(path: string, options: RequestOptions = {}): Promise<unknown> {
-  const { method = 'GET', body, query, authenticated = true, signal } = options;
+  const {
+    method = 'GET',
+    body,
+    query,
+    authenticated = true,
+    signal,
+    signOutOnUnauthorized = true,
+  } = options;
 
   if (!env.apiUrl) {
     throw new ApiRequestError(
@@ -135,8 +147,8 @@ export async function request(path: string, options: RequestOptions = {}): Promi
   if (response.ok) return json;
 
   if (response.status === 401) {
-    onUnauthorized();
-    throw new ApiRequestError({ kind: 'unauthorized' });
+    if (signOutOnUnauthorized) onUnauthorized();
+    throw new ApiRequestError({ kind: 'unauthorized', message: parseValidationBody(json).message });
   }
   if (response.status === 404) {
     throw new ApiRequestError({ kind: 'not_found' });
@@ -168,6 +180,11 @@ export async function request(path: string, options: RequestOptions = {}): Promi
     status: response.status,
     message: serverMsg,
   });
+}
+
+/** Signs the member out, for a caller that turned off `signOutOnUnauthorized` and found a dead session. */
+export function signOutUnauthorized(): void {
+  onUnauthorized();
 }
 
 function safeParse(text: string): unknown {

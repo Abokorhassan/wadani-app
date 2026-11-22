@@ -5,7 +5,7 @@
  */
 export type ApiError =
   | { kind: 'network' }
-  | { kind: 'unauthorized' }
+  | { kind: 'unauthorized'; message?: string }
   | {
       kind: 'validation';
       fieldErrors: Record<string, string>;

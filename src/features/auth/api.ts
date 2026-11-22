@@ -1,4 +1,5 @@
-import { request } from '@/api/client';
+import { request, signOutUnauthorized } from '@/api/client';
+import { ApiRequestError, asApiError } from '@/api/errors';
 import { parseResponse } from '@/api/parse';
 import { toEducationDto, toGenderDto, toMember, toMemberCard } from '@/features/membership/mappers';
 import { asCardCheckout, chargeBody } from '@/features/payments/api';
@@ -27,12 +28,14 @@ function toIdentifier(raw: string): string {
 }
 
 /**
- * Not in the API yet (docs/api-gaps.md, question 15): the live server answers
- * 404 here today. Apple requires in-app deletion (App Review 5.1.1(v)), so the
- * app calls this and falls back to the request instructions until it exists.
- * If the backend picks another path, change it here only.
+ * Live since 2026-11-22 (docs/api-gaps.md, question 15). Apple requires
+ * in-app deletion (App Review 5.1.1(v)). If the server ever answers 404, the
+ * screen falls back to the request-by-WhatsApp/email instructions.
  */
-export const DELETE_ACCOUNT_PATH = '/mobile/auth/me';
+export const DELETE_ACCOUNT_PATH = '/mobile/members/me';
+
+/** The server's wording for a missing or dead session, as opposed to a wrong password. */
+const SESSION_401 = /token|session|expired/i;
 
 function registerBody(payload: RegistrationPayload): Record<string, unknown> {
   return {
@@ -146,12 +149,34 @@ export const authApi = {
   },
 
   /**
-   * Permanently deletes the signed-in member's account. A wrong password is
-   * expected as a 400 with code WRONG_PASSWORD (not a 401, which would sign the
-   * member out); a 404 means the server does not offer deletion yet.
+   * Permanently deletes the signed-in member's account. The password goes along
+   * as confirmation; a server that does not check it ignores the field.
+   *
+   * A wrong password may come back as a 400 or as a 401. A 401 normally signs
+   * the member out, so here it does that only when the server says the token
+   * itself is bad; any other 401 is reported as a wrong password.
    */
   async deleteAccount(input: AccountDeletionInput): Promise<void> {
-    await request(DELETE_ACCOUNT_PATH, { method: 'DELETE', body: { password: input.password } });
+    try {
+      await request(DELETE_ACCOUNT_PATH, {
+        method: 'DELETE',
+        body: { password: input.password },
+        signOutOnUnauthorized: false,
+      });
+    } catch (error) {
+      const details = asApiError(error);
+      if (details.kind !== 'unauthorized') throw error;
+      if (!details.message || SESSION_401.test(details.message)) {
+        signOutUnauthorized();
+        throw error;
+      }
+      throw new ApiRequestError({
+        kind: 'validation',
+        fieldErrors: {},
+        message: details.message,
+        code: 'WRONG_PASSWORD',
+      });
+    }
   },
 
   /** A wrong, expired or used code comes back as a 400 "Invalid or expired OTP". */
