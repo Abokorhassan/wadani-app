@@ -158,8 +158,8 @@
     "registered": "La diiwaan geliyay",
     "paymentPending": "Lacagta ayaa la sugayaa",
     "paid": "La bixiyay",
-    "cardIssued": "Firfircoon",
-    "active": "Firfircoon",
+    "cardIssued": "Fircoon",
+    "active": "Fircoon",
     "expired": "Dhacay",
     "pending": "Sugaya",
     "completed": "Dhammaaday",
@@ -613,7 +613,7 @@
               "li": [
                 "Koontadaada waxaanu tirtiraynaa 30 maalmood gudahood marka aanu xaqiijino codsiga.",
                 "Waa la tirtirayaa: xogtaada, sawirkaaga, furahaaga sirta ah, cinwaankaaga iyo xidhiidhkaaga, iyo kaadhkaaga xubinnimada.",
-                "Waa la hayaa: diiwaanka lacag bixinta iyo deeqaha, inta sharcigu ama xisaabaadkayagu u baahdaan. Mar dambe laguma xidhna koonto firfircoon.",
+                "Waa la hayaa: diiwaanka lacag bixinta iyo deeqaha, inta sharcigu ama xisaabaadkayagu u baahdaan. Mar dambe laguma xidhna koonto fircoon.",
                 "Tirtiridda koontadu waxay soo afjaraysaa xubinnimadaada. Lacagta horay loo bixiyay dib looma celiyo."
               ]
             }
