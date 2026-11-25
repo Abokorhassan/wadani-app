@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 import { ChevronLeft, KeyRound } from 'lucide-react-native';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { View, type TextInput } from 'react-native';
 
 import { asApiError, isApiError } from '@/api/errors';
 import {
@@ -37,6 +37,9 @@ export default function ChangePasswordScreen() {
   // The temporary password was typed a moment ago at login, so it is not asked
   // for again. After an app restart it is gone, and the field comes back.
   const [askCurrent, setAskCurrent] = useState(!(forced && temporaryPassword));
+  // The keyboard's Next key moves down the fields, and Done on the last one saves.
+  const newRef = useRef<TextInput>(null);
+  const confirmRef = useRef<TextInput>(null);
   const [current, setCurrent] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -84,24 +87,13 @@ export default function ChangePasswordScreen() {
     );
   };
 
+  /*
+   * The button sits under the fields, not pinned above the keyboard: on a page
+   * this short a pinned button covered the next field and nothing could scroll
+   * it out of the way (2026-11-25). Login and password reset work the same way.
+   */
   return (
-    <Screen
-      footer={
-        <View style={{ gap: theme.spacing.lg }}>
-          <Button label={t('changePassword.submit')} loading={change.isPending} onPress={submit} />
-          {forced ? (
-            // The only way out without a new password: someone else's phone, say.
-            <Text
-              variant="smallStrong"
-              color="actionDeep"
-              center
-              accessibilityRole="button"
-              onPress={() => void signOut()}>
-              {t('changePassword.logOutInstead')}
-            </Text>
-          ) : null}
-        </View>
-      }>
+    <Screen>
       {forced ? (
         <View style={{ paddingTop: theme.spacing.xl }}>
           <IconTile icon={KeyRound} tone="action" size={56} />
@@ -135,10 +127,15 @@ export default function ChangePasswordScreen() {
               clear('current');
             }}
             error={errors.current}
+            returnKeyType="next"
+            submitBehavior="submit"
+            onSubmitEditing={() => newRef.current?.focus()}
           />
         ) : null}
         <PasswordField
+          ref={newRef}
           label={t('forgot.newPassword')}
+          autoComplete="new-password"
           value={newPassword}
           onChangeText={(value) => {
             setNewPassword(value);
@@ -146,16 +143,38 @@ export default function ChangePasswordScreen() {
           }}
           error={errors.newPassword}
           placeholder={t('register.passwordPlaceholder')}
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => confirmRef.current?.focus()}
         />
         <PasswordField
+          ref={confirmRef}
           label={t('forgot.confirmPassword')}
+          autoComplete="new-password"
           value={confirm}
           onChangeText={(value) => {
             setConfirm(value);
             clear('confirm');
           }}
           error={errors.confirm}
+          returnKeyType="done"
+          onSubmitEditing={submit}
         />
+      </View>
+
+      <View style={{ gap: theme.spacing.lg, marginTop: theme.spacing.xl }}>
+        <Button label={t('changePassword.submit')} loading={change.isPending} onPress={submit} />
+        {forced ? (
+          // The only way out without a new password: someone else's phone, say.
+          <Text
+            variant="smallStrong"
+            color="actionDeep"
+            center
+            accessibilityRole="button"
+            onPress={() => void signOut()}>
+            {t('changePassword.logOutInstead')}
+          </Text>
+        ) : null}
       </View>
     </Screen>
   );

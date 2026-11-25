@@ -126,7 +126,15 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
   );
 });
 
-export function PasswordField(props: TextFieldProps) {
+/**
+ * A TextField with a show/hide toggle. Takes a ref, so the keyboard's "Next"
+ * key can move to the following field, and an `autoComplete` of
+ * "new-password" where one is being chosen.
+ */
+export const PasswordField = forwardRef<TextInput, TextFieldProps>(function PasswordField(
+  { autoComplete = 'password', ...props },
+  ref
+) {
   const theme = useTheme();
   const [hidden, setHidden] = useState(true);
   const Icon = hidden ? EyeOff : Eye;
@@ -134,9 +142,10 @@ export function PasswordField(props: TextFieldProps) {
   return (
     <TextField
       {...props}
+      ref={ref}
       secureTextEntry={hidden}
       autoCapitalize="none"
-      autoComplete="password"
+      autoComplete={autoComplete}
       autoCorrect={false}
       trailing={
         <Pressable
@@ -149,4 +158,4 @@ export function PasswordField(props: TextFieldProps) {
       }
     />
   );
-}
+});

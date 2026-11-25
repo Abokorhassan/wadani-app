@@ -88,27 +88,12 @@ export default function DeleteAccountScreen() {
     ]);
   };
 
+  /*
+   * The button sits under the field, not pinned above the keyboard: pinned, it
+   * covered the password field completely while typing (2026-11-25).
+   */
   return (
-    <Screen
-      footer={
-        <View style={{ gap: theme.spacing.lg }}>
-          <Button
-            label={t('deleteAccount.submit')}
-            icon={Trash2}
-            variant="danger"
-            loading={remove.isPending}
-            onPress={submit}
-          />
-          <Text
-            variant="smallStrong"
-            color="actionDeep"
-            center
-            accessibilityRole="link"
-            onPress={() => openLegalPage('deleteAccount')}>
-            {t('deleteAccount.readMore')}
-          </Text>
-        </View>
-      }>
+    <Screen>
       <View style={{ paddingTop: theme.spacing.md }}>
         <IconButton
           icon={ChevronLeft}
@@ -149,7 +134,27 @@ export default function DeleteAccountScreen() {
             setError(undefined);
           }}
           error={error}
+          returnKeyType="done"
+          onSubmitEditing={submit}
         />
+      </View>
+
+      <View style={{ gap: theme.spacing.lg, marginTop: theme.spacing.xl }}>
+        <Button
+          label={t('deleteAccount.submit')}
+          icon={Trash2}
+          variant="danger"
+          loading={remove.isPending}
+          onPress={submit}
+        />
+        <Text
+          variant="smallStrong"
+          color="actionDeep"
+          center
+          accessibilityRole="link"
+          onPress={() => openLegalPage('deleteAccount')}>
+          {t('deleteAccount.readMore')}
+        </Text>
       </View>
     </Screen>
   );
