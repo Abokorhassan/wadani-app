@@ -1,10 +1,10 @@
 import { Image } from 'expo-image';
 import { QrCode } from 'lucide-react-native';
-import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
 import { Rosette, StatusPill, Text, useTheme } from '@/design-system';
 
+import { useCardTranslation } from '../card-language';
 import { isExpired } from '../status';
 import type { MemberCard } from '../types';
 
@@ -18,7 +18,7 @@ export interface MiniCardProps {
 /** Compact membership card on Home; opens the full card. */
 export function MiniCard({ card, onPress }: MiniCardProps) {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const t = useCardTranslation();
   const expired = isExpired(card);
 
   return (

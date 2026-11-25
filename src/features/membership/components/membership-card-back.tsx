@@ -1,17 +1,21 @@
 import { Image } from 'expo-image';
 import type { Ref } from 'react';
-import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Text, useTheme, WhatsAppIcon, lightTheme, ThemeProvider } from '@/design-system';
 import { env } from '@/lib/env';
 
-const officeStamp = require('@/assets/brand/office-stamp.jpg');
+import { useCardTranslation } from '../card-language';
+
+// The party's gold Membership Office seal (2026-11-25), cut out of its white background.
+const membershipStamp = require('@/assets/brand/membership-stamp.png');
 const sealColor = require('@/assets/brand/seal-color.png');
 const wordmarkBlack = require('@/assets/brand/wordmark-black.png');
 
 export interface MembershipCardBackProps {
   ref?: Ref<View>;
+  /** The member's own WhatsApp, or their phone when they gave none. */
+  memberWhatsApp?: string;
 }
 
 /** The reverse of the printed membership card: ownership notice + return instructions. */
@@ -27,9 +31,9 @@ export function MembershipCardBack(props: MembershipCardBackProps) {
   );
 }
 
-function MembershipCardBackFace({ ref }: MembershipCardBackProps) {
+function MembershipCardBackFace({ ref, memberWhatsApp }: MembershipCardBackProps) {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const t = useCardTranslation();
 
   return (
     <View style={[{ borderRadius: 30 }, theme.shadow.ticket]}>
@@ -95,26 +99,20 @@ function MembershipCardBackFace({ ref }: MembershipCardBackProps) {
           {t('cardBack.ifFound')}
         </Text>
 
-        {/* Party WhatsApp, for whoever finds the card */}
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 12,
-            marginTop: 22,
-          }}>
-          <WhatsAppIcon size={34} color={theme.color.text} />
-          <Text variant="heading" style={{ fontSize: 20, color: theme.color.text }}>
-            {formatWhatsApp(env.partyWhatsApp)}
-          </Text>
+        {/* The party's customer care first: the sentence above leads into it. */}
+        <View style={{ gap: 14, marginTop: 22 }}>
+          <WhatsAppLine label={t('cardBack.customerCare')} number={env.partyWhatsApp} />
+          {memberWhatsApp ? (
+            <WhatsAppLine label={t('cardBack.member')} number={memberWhatsApp} />
+          ) : null}
         </View>
 
-        {/* Membership-office stamp, bottom-right */}
-        <View style={{ flex: 1 }} />
+        {/* Membership Office seal, bottom-right */}
+        <View style={{ flex: 1, minHeight: 12 }} />
         <View style={{ alignItems: 'flex-end' }}>
           <Image
-            source={officeStamp}
-            style={{ width: 120, height: 120 }}
+            source={membershipStamp}
+            style={{ width: 132, height: 132 }}
             contentFit="contain"
             accessibilityLabel={t('cardBack.stampLabel')}
           />
@@ -124,7 +122,24 @@ function MembershipCardBackFace({ ref }: MembershipCardBackProps) {
   );
 }
 
-/** "252634001122" -> "+252 63 400 1122" for display. */
+function WhatsAppLine({ label, number }: { label: string; number: string }) {
+  const theme = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+      <WhatsAppIcon size={34} color={theme.color.text} />
+      <View style={{ flexShrink: 1 }}>
+        <Text variant="captionStrong" style={{ color: theme.color.textMuted }}>
+          {label}
+        </Text>
+        <Text variant="heading" style={{ fontSize: 20, color: theme.color.text }}>
+          {formatWhatsApp(number)}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+/** "252634001122" or "+252634001122" -> "+252 63 400 1122" for display. */
 function formatWhatsApp(digits: string): string {
   const d = digits.replace(/\D/g, '');
   if (d.startsWith('252') && d.length === 12) {

@@ -1,7 +1,6 @@
 import { Image } from 'expo-image';
 import { Globe } from 'lucide-react-native';
 import type { ComponentType, Ref } from 'react';
-import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
@@ -17,6 +16,7 @@ import {
   ThemeProvider,
 } from '@/design-system';
 
+import { useCardTranslation } from '../card-language';
 import { isExpired, SOCIAL_HANDLE } from '../status';
 import type { MemberCard } from '../types';
 
@@ -33,10 +33,11 @@ const BADGE_OVERLAP = 26;
 
 export interface MembershipCardProps {
   card: MemberCard;
-  /** The plan's badge, when the backend has one for it. */
+  /**
+   * The plan's badge image. No badge is drawn without one: not for a free plan
+   * (usePlanBadge gives none), and not a stand-in for a plan with no image.
+   */
   badgeUrl?: string;
-  /** False for a free plan, whose card carries no badge at all (MOBILE_FREE_PLAN.md §3). */
-  showBadge?: boolean;
   /** The inner card surface, captured for Save / Share. */
   ref?: Ref<View>;
 }
@@ -54,9 +55,9 @@ export function MembershipCard(props: MembershipCardProps) {
   );
 }
 
-function MembershipCardFace({ card, badgeUrl, showBadge = true, ref }: MembershipCardProps) {
+function MembershipCardFace({ card, badgeUrl, ref }: MembershipCardProps) {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const t = useCardTranslation();
   const expired = isExpired(card);
 
   return (
@@ -192,7 +193,8 @@ function MembershipCardFace({ card, badgeUrl, showBadge = true, ref }: Membershi
             variant="heading"
             color="textOnBrand"
             center
-            style={{ marginTop: 10, marginBottom: BADGE_OVERLAP + 8 }}>
+            // Room for the badge reaching up into the panel, only when there is one.
+            style={{ marginTop: 10, marginBottom: badgeUrl ? BADGE_OVERLAP + 8 : 18 }}>
             <Text
               variant="heading"
               color="textOnBrandSoft"
@@ -215,7 +217,7 @@ function MembershipCardFace({ card, badgeUrl, showBadge = true, ref }: Membershi
             gap: 5,
             paddingLeft: 16,
             // Keep the row clear of the badge sitting over the right corner.
-            paddingRight: BADGE + 22,
+            paddingRight: badgeUrl ? BADGE + 22 : 16,
           }}>
           <SocialTile Icon={GlobeIcon} />
           <SocialTile Icon={FacebookIcon} />
@@ -232,7 +234,8 @@ function MembershipCardFace({ card, badgeUrl, showBadge = true, ref }: Membershi
         </View>
 
         {/* Plan badge, pinned across the panel's bottom edge */}
-        {showBadge ? (
+        {badgeUrl ? (
+          // The badge fills its whole circle (party, 2026-11-25).
           <View
             accessibilityRole="image"
             accessibilityLabel={t('register.planBadge', { plan: card.membershipType })}
@@ -242,28 +245,11 @@ function MembershipCardFace({ card, badgeUrl, showBadge = true, ref }: Membershi
               bottom: FOOTER_HEIGHT + BADGE_OVERLAP - BADGE,
               width: BADGE,
               height: BADGE,
+              overflow: 'hidden',
               borderRadius: BADGE / 2,
-              padding: 6,
               backgroundColor: theme.color.surface,
             }}>
-            {badgeUrl ? (
-              <Image source={{ uri: badgeUrl }} style={{ flex: 1 }} contentFit="contain" />
-            ) : (
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: BADGE / 2,
-                  backgroundColor: theme.color.accentTint,
-                }}>
-                <Text
-                  variant="headline"
-                  style={{ color: theme.color.accentDeep, fontFamily: theme.fonts.display800 }}>
-                  {card.membershipType.charAt(0).toUpperCase()}
-                </Text>
-              </View>
-            )}
+            <Image source={{ uri: badgeUrl }} style={{ flex: 1 }} contentFit="cover" />
           </View>
         ) : null}
       </View>

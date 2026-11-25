@@ -69,17 +69,16 @@ export function useCard() {
   });
 }
 
-/** The plan badge for a card, or undefined while plans load or when none matches. */
+/**
+ * The plan badge for a card: undefined while plans load, when none matches, or
+ * when the member is on a free plan, whose card carries no badge at all
+ * (MOBILE_FREE_PLAN.md §3). Screens show a badge only when this gives one.
+ */
 export function usePlanBadge(planName: string | undefined): string | undefined {
-  const plans = usePlans();
-  return badgeForPlanName(plans.data ?? [], planName);
-}
-
-/** Whether the signed-in member is on a free plan, whose card carries no badge. */
-export function useOnFreePlan(planName: string | undefined): boolean {
   const me = useMe();
   const plans = usePlans();
-  return isOnFreePlan(plans.data ?? [], me?.membershipTypeId, planName);
+  if (isOnFreePlan(plans.data ?? [], me?.membershipTypeId, planName)) return undefined;
+  return badgeForPlanName(plans.data ?? [], planName);
 }
 
 /**

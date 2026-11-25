@@ -7,7 +7,6 @@ export {
   membershipKeys,
   useCard,
   useMe,
-  useOnFreePlan,
   usePeriods,
   usePlanBadge,
   usePlans,

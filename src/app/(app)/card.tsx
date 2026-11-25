@@ -9,7 +9,7 @@ import {
   MembershipCardBack,
   useCard,
   useCardActions,
-  useOnFreePlan,
+  useMe,
   usePlanBadge,
 } from '@/features/membership';
 
@@ -18,7 +18,7 @@ export default function CardScreen() {
   const { t } = useTranslation();
   const card = useCard();
   const badgeUrl = usePlanBadge(card.data?.membershipType);
-  const free = useOnFreePlan(card.data?.membershipType);
+  const me = useMe();
   const cardRef = useRef<View>(null);
   const { save, share, busy } = useCardActions(cardRef);
   const [showBack, setShowBack] = useState(false);
@@ -37,9 +37,10 @@ export default function CardScreen() {
       <View style={{ marginTop: 22 }}>
         {card.data ? (
           showBack ? (
-            <MembershipCardBack ref={cardRef} />
+            // WhatsApp is optional at registration, so the phone stands in for it.
+            <MembershipCardBack ref={cardRef} memberWhatsApp={me?.whatsapp ?? me?.phone} />
           ) : (
-            <MembershipCard ref={cardRef} card={card.data} badgeUrl={badgeUrl} showBadge={!free} />
+            <MembershipCard ref={cardRef} card={card.data} badgeUrl={badgeUrl} />
           )
         ) : card.isError ? (
           <ErrorState
