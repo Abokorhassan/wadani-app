@@ -6,10 +6,11 @@ import {
   membershipTotal,
   planRange,
   toMemberCard,
+  toMyPlan,
   toPlan,
   toUsd,
 } from './mappers';
-import { plansResponse } from './schemas';
+import { myPlanResponse, plansResponse } from './schemas';
 
 const standard = planFixtures.find((plan) => plan.name === 'Standard')!;
 
@@ -133,5 +134,36 @@ describe('membership mappers', () => {
     expect(isOnFreePlan(plans, undefined, 'Standard')).toBe(false);
     // Plans not loaded: show the badge rather than guess.
     expect(isOnFreePlan([], free.id, 'Free')).toBe(false);
+  });
+
+  it("reads the member's own plan, with its benefits, description and parent", () => {
+    // The API docs' own example for GET /mobile/members/me/plan.
+    const body = {
+      plan: {
+        id: '00000000-0000-0000-0000-000000000000',
+        name: 'Gold',
+        description: 'Our most popular tier',
+        price: '5.00',
+        priceMax: '50.00',
+        iconUrl: null,
+        benefits: ['Priority event seating', 'Monthly newsletter'],
+        stars: 2,
+        durationType: 'SELECTABLE',
+        durationMonths: null,
+        parent: { id: '11111111-1111-1111-1111-111111111111', name: 'Standard' },
+      },
+    };
+    const parsed = myPlanResponse.parse(body);
+    const plan = toMyPlan(parsed.plan!);
+    expect(plan).toMatchObject({
+      name: 'Gold',
+      description: 'Our most popular tier',
+      parentName: 'Standard',
+      benefits: ['Priority event seating', 'Monthly newsletter'],
+      free: false,
+    });
+    expect(plan.iconUrl).toBeUndefined();
+    // A plan staff deleted since the member joined.
+    expect(myPlanResponse.parse({ plan: null }).plan).toBeNull();
   });
 });

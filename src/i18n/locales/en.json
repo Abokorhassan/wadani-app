@@ -140,7 +140,10 @@
     "appearanceDark": "Dark",
     "switchToDark": "Switch to dark mode",
     "switchToLight": "Switch to light mode",
-    "changePassword": "Change password"
+    "changePassword": "Change password",
+    "yourPlan": "Your plan",
+    "benefits": "Your benefits",
+    "noBenefits": "No benefits listed for this plan yet."
   },
   "communications": {
     "title": "Notifications",

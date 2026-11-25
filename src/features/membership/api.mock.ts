@@ -1,7 +1,7 @@
 import { mockRespond } from '@/api/mock/latency';
 
 import type { MembershipApi } from './api';
-import { toMember, toMemberCard, toMembershipPeriod, toPlan } from './mappers';
+import { toMember, toMemberCard, toMembershipPeriod, toMyPlan, toPlan } from './mappers';
 import type { MemberDto, MembershipCardDto, MembershipPeriodDto, PlanDto } from './schemas';
 
 /** Fixtures mirror the live payloads field for field (api-contract/). */
@@ -135,5 +135,15 @@ export const membershipApiMock: MembershipApi = {
   getPlans: () => mockRespond(planFixtures.map(toPlan)),
   getPeriods: () => mockRespond(periodFixtures.map(toMembershipPeriod), 350),
   getMe: () => mockRespond(toMember(memberRegistry.get(activeMemberId) ?? memberFixture), 200),
+  getMyPlan: () => {
+    const member = memberRegistry.get(activeMemberId) ?? memberFixture;
+    const plan = planFixtures.find((candidate) => candidate.id === member.membershipTypeId);
+    return mockRespond(
+      plan
+        ? toMyPlan({ ...plan, description: 'Membership of Xisbiga Waddani.', parent: null })
+        : null,
+      250
+    );
+  },
   getCard: () => mockRespond(toMemberCard(cardRegistry.get(activeMemberId) ?? cardFixture)),
 };

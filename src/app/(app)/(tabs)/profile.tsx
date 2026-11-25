@@ -27,7 +27,15 @@ import {
   useTheme,
 } from '@/design-system';
 import { useSessionStore } from '@/features/auth/session-store';
-import { isExpired, MEMBER_STATUS_TONE, useCard, useMe, usePlanBadge } from '@/features/membership';
+import {
+  isExpired,
+  MEMBER_STATUS_TONE,
+  PlanBenefitsCard,
+  useCard,
+  useMe,
+  useMyPlan,
+  usePlanBadge,
+} from '@/features/membership';
 import {
   AppearanceSwitch,
   LanguageSwitch,
@@ -42,6 +50,7 @@ export default function ProfileScreen() {
   const { t } = useTranslation();
   const member = useMe();
   const card = useCard();
+  const myPlan = useMyPlan();
   const signOut = useSessionStore((state) => state.signOut);
   const badgeUrl = usePlanBadge(card.data?.membershipType);
 
@@ -71,7 +80,10 @@ export default function ProfileScreen() {
       refreshControl={
         <RefreshControl
           refreshing={card.isRefetching}
-          onRefresh={() => void card.refetch()}
+          onRefresh={() => {
+            void card.refetch();
+            void myPlan.refetch();
+          }}
           tintColor={theme.color.brand}
         />
       }>
@@ -171,6 +183,8 @@ export default function ProfileScreen() {
               </View>
             ))}
           </View>
+
+          {myPlan.data ? <PlanBenefitsCard plan={myPlan.data} style={{ marginTop: 14 }} /> : null}
         </>
       ) : card.isError ? (
         <View style={{ marginTop: 22 }}>

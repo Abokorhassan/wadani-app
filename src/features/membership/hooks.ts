@@ -18,6 +18,7 @@ export const membershipKeys = {
   me: ['me'] as const,
   /** Persisted to disk so the card opens offline (see src/api/query-client.ts). */
   card: ['card'] as const,
+  myPlan: ['my-plan'] as const,
 };
 
 export function usePlans() {
@@ -69,14 +70,32 @@ export function useCard() {
   });
 }
 
+/** The signed-in member's own plan and its benefits. null if staff deleted the plan. */
+export function useMyPlan() {
+  const signedIn = useSessionStore((state) => state.status === 'signed-in');
+  return useQuery({
+    queryKey: membershipKeys.myPlan,
+    queryFn: () => api.getMyPlan(),
+    enabled: signedIn,
+  });
+}
+
 /**
- * The plan badge for a card: undefined while plans load, when none matches, or
- * when the member is on a free plan, whose card carries no badge at all
- * (MOBILE_FREE_PLAN.md §3). Screens show a badge only when this gives one.
+ * The plan badge for a card: undefined while loading, when the plan has no
+ * badge image, or when the member is on a free plan, whose card carries no
+ * badge at all (MOBILE_FREE_PLAN.md §3). Screens show a badge only when this
+ * gives one.
+ *
+ * The member's own plan answers it exactly. Until that has loaded (or if it
+ * cannot), the plans list is matched by the card's plan name instead.
  */
 export function usePlanBadge(planName: string | undefined): string | undefined {
   const me = useMe();
   const plans = usePlans();
+  const myPlan = useMyPlan();
+  if (myPlan.data !== undefined) {
+    return myPlan.data && !myPlan.data.free ? myPlan.data.iconUrl : undefined;
+  }
   if (isOnFreePlan(plans.data ?? [], me?.membershipTypeId, planName)) return undefined;
   return badgeForPlanName(plans.data ?? [], planName);
 }

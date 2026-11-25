@@ -1,9 +1,15 @@
 import { request } from '@/api/client';
 import { parseResponse } from '@/api/parse';
 
-import { toMember, toMemberCard, toMembershipPeriod, toPlan } from './mappers';
-import { cardResponse, meResponse, periodsResponse, plansResponse } from './schemas';
-import type { Member, MemberCard, MembershipPeriod, Plan } from './types';
+import { toMember, toMemberCard, toMembershipPeriod, toMyPlan, toPlan } from './mappers';
+import {
+  cardResponse,
+  meResponse,
+  myPlanResponse,
+  periodsResponse,
+  plansResponse,
+} from './schemas';
+import type { Member, MemberCard, MembershipPeriod, MyPlan, Plan } from './types';
 
 /** Live endpoints, from api-contract/waddani-mobile-api.openapi.json. */
 export const membershipApi = {
@@ -25,6 +31,13 @@ export const membershipApi = {
   async getMe(): Promise<Member> {
     const data = await request('/mobile/auth/me');
     return toMember(parseResponse(meResponse, data, 'GET /mobile/auth/me').member);
+  },
+
+  /** The member's own plan with its benefits; null if staff have since deleted it. */
+  async getMyPlan(): Promise<MyPlan | null> {
+    const data = await request('/mobile/members/me/plan');
+    const { plan } = parseResponse(myPlanResponse, data, 'GET /mobile/members/me/plan');
+    return plan ? toMyPlan(plan) : null;
   },
 
   async getCard(): Promise<MemberCard> {

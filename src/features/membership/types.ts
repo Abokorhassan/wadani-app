@@ -39,6 +39,13 @@ export interface Plan {
   benefits: string[];
 }
 
+/** The signed-in member's own plan (GET /mobile/members/me/plan). */
+export interface MyPlan extends Plan {
+  description?: string;
+  /** The top-level plan's name, when this is one of its sub-types. */
+  parentName?: string;
+}
+
 export interface MembershipPeriod {
   id: string;
   label: string;

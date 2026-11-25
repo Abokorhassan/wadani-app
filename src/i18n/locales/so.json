@@ -140,7 +140,10 @@
     "appearanceDark": "Mugdi",
     "switchToDark": "U beddel qaabka mugdiga",
     "switchToLight": "U beddel qaabka iftiinka",
-    "changePassword": "Beddel furaha sirta ah"
+    "changePassword": "Beddel furaha sirta ah",
+    "yourPlan": "Qorshahaaga",
+    "benefits": "Faa'iidooyinkaaga",
+    "noBenefits": "Qorshahan weli faa'iidooyin looma qorin."
   },
   "communications": {
     "title": "Ogeysiisyo",

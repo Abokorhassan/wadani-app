@@ -1,12 +1,14 @@
 export { MembershipCard } from './components/membership-card';
 export { MembershipCardBack } from './components/membership-card-back';
 export { MiniCard } from './components/mini-card';
+export { PlanBenefitsCard } from './components/plan-benefits-card';
 export { cardFixture, memberFixture, periodFixtures, planFixtures } from './api.mock';
 export {
   getCachedPlan,
   membershipKeys,
   useCard,
   useMe,
+  useMyPlan,
   usePeriods,
   usePlanBadge,
   usePlans,
@@ -38,5 +40,6 @@ export type {
   MemberStatus,
   MemberSummary,
   MembershipPeriod,
+  MyPlan,
   Plan,
 } from './types';

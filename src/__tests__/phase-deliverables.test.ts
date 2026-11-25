@@ -619,6 +619,19 @@ describe('Membership card feedback (2026-11-25)', () => {
   });
 });
 
+describe("The member's own plan and benefits", () => {
+  it('shows them on Profile, and takes the badge from them', async () => {
+    expect(source('features/membership/api.ts')).toContain("'/mobile/members/me/plan'");
+    expect(source('app/(app)/(tabs)/profile.tsx')).toContain('<PlanBenefitsCard');
+    expect(source('features/membership/hooks.ts')).toContain('myPlan.data.iconUrl');
+    const { membershipApiMock } = require('../features/membership/api.mock');
+    const plan = await membershipApiMock.getMyPlan();
+    expect(plan.name).toBe('Standard');
+    expect(plan.benefits.length).toBeGreaterThan(0);
+    expect(hasText('profile.benefits')).toBe(true);
+  });
+});
+
 describe('Temporary passwords set by staff', () => {
   it('holds the member on "choose a new password" until they do', () => {
     expect(exists('app/(app)/change-password.tsx')).toBe(true);

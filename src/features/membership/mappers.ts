@@ -1,4 +1,10 @@
-import type { MemberDto, MembershipCardDto, MembershipPeriodDto, PlanDto } from './schemas';
+import type {
+  MemberDto,
+  MembershipCardDto,
+  MembershipPeriodDto,
+  MyPlanDto,
+  PlanDto,
+} from './schemas';
 import type {
   EducationLevel,
   Gender,
@@ -6,6 +12,7 @@ import type {
   MemberStatus,
   MemberCard,
   MembershipPeriod,
+  MyPlan,
   Plan,
 } from './types';
 
@@ -66,6 +73,14 @@ export function toPlan(dto: PlanDto): Plan {
     iconUrl: dto.iconUrl || undefined,
     stars: dto.stars ?? undefined,
     benefits: dto.benefits,
+  };
+}
+
+export function toMyPlan(dto: MyPlanDto): MyPlan {
+  return {
+    ...toPlan(dto),
+    description: dto.description?.trim() || undefined,
+    parentName: dto.parent?.name,
   };
 }
 

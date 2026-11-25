@@ -32,6 +32,16 @@ export const planDto = z.object({
 
 export const plansResponse = z.object({ plans: z.array(planDto) });
 
+/** GET /mobile/members/me/plan: a plans-list item, plus description and parent. */
+export const myPlanDto = planDto.extend({
+  description: optional(z.string()),
+  /** The top-level plan, when the member is on one of its sub-types. */
+  parent: optional(z.object({ id: z.string(), name: z.string() })),
+});
+
+/** plan is null only when staff deleted it after the member joined. */
+export const myPlanResponse = z.object({ plan: myPlanDto.nullable() });
+
 export const membershipPeriodDto = z.object({
   id: z.string(),
   label: z.string(),
@@ -101,6 +111,7 @@ export const cardResponse = z.object({ membershipCard: membershipCardDto });
 export const meResponse = z.object({ member: memberDto });
 
 export type PlanDto = z.infer<typeof planDto>;
+export type MyPlanDto = z.infer<typeof myPlanDto>;
 export type MembershipPeriodDto = z.infer<typeof membershipPeriodDto>;
 export type MemberDto = z.infer<typeof memberDto>;
 export type MembershipCardDto = z.infer<typeof membershipCardDto>;

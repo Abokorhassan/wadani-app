@@ -564,6 +564,19 @@
                           "stars": {
                             "type": "integer",
                             "nullable": true
+                          },
+                          "durationType": {
+                            "type": "string",
+                            "enum": [
+                              "SELECTABLE",
+                              "FIXED"
+                            ],
+                            "description": "FIXED: the plan sets the membership length -- do not ask for months; durationMonths is what every member gets. SELECTABLE: the member chooses membershipMonths at registration."
+                          },
+                          "durationMonths": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "Membership length in months for a FIXED plan; null for SELECTABLE."
                           }
                         }
                       }
@@ -582,7 +595,9 @@
                         "Membership card",
                         "Event access"
                       ],
-                      "stars": null
+                      "stars": null,
+                      "durationType": "FIXED",
+                      "durationMonths": 12
                     },
                     {
                       "id": "11111111-1111-1111-1111-111111111111",
@@ -594,7 +609,9 @@
                         "Everything in Standard",
                         "Priority support"
                       ],
-                      "stars": 1
+                      "stars": 1,
+                      "durationType": "SELECTABLE",
+                      "durationMonths": null
                     }
                   ]
                 }
@@ -1063,7 +1080,7 @@
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 60,
-                    "description": "Optional. How many months the membership lasts, typed in by the member: minimum 1 month, maximum 60 (5 years). Sets expiry (payment date + months) and each renewal. Omit for the default 12 months."
+                    "description": "Optional. How many months the membership lasts, typed in by the member: minimum 1 month, maximum 60 (5 years). Sets expiry (payment date + months) and each renewal. Omit for the default 12 months. Ignored for a FIXED plan (durationType FIXED in /mobile/plans) -- the plan's durationMonths applies instead."
                   },
                   "address": {
                     "$ref": "#/components/schemas/Address"
@@ -1624,6 +1641,67 @@
         }
       }
     },
+    "/mobile/members/me": {
+      "delete": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Delete (soft) the caller's own membership",
+        "description": "Soft-deletes the authenticated member (sets deletedAt) -- always scoped to the token's own member, never a URL param. Requires the current password so a stolen token alone can't delete the account. Payment, donation and card records are kept. Afterwards login fails and any existing token is rejected with 401 (details.code ACCOUNT_DELETED), so the app should discard its token on 204.",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "password"
+                ],
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "description": "The member's current password"
+                  }
+                }
+              },
+              "example": {
+                "password": "MyPassw0rd!"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Membership deleted"
+          },
+          "400": {
+            "description": "Invalid payload, or password is incorrect (details.code WRONG_PASSWORD)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token, or account already deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/mobile/members/me/card": {
       "get": {
         "tags": [
@@ -1654,6 +1732,140 @@
           },
           "401": {
             "description": "Missing/invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mobile/members/me/plan": {
+      "get": {
+        "tags": [
+          "Membership Card"
+        ],
+        "summary": "Get the caller's own plan and benefits",
+        "description": "View only -- always scoped to the authenticated member. plan has the same fields as an item of GET /mobile/plans, plus description and parent (the top-level plan when the member is on a sub-type, else null). plan is null only if staff have deleted it since the member joined.",
+        "security": [
+          {
+            "memberBearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "plan": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "price": {
+                          "type": "string",
+                          "description": "Decimal string; the low end when priceMax is set."
+                        },
+                        "priceMax": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "iconUrl": {
+                          "type": "string",
+                          "format": "uri",
+                          "nullable": true
+                        },
+                        "benefits": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "stars": {
+                          "type": "integer",
+                          "nullable": true
+                        },
+                        "durationType": {
+                          "type": "string",
+                          "enum": [
+                            "SELECTABLE",
+                            "FIXED"
+                          ]
+                        },
+                        "durationMonths": {
+                          "type": "integer",
+                          "nullable": true,
+                          "description": "The plan's fixed length; null for SELECTABLE."
+                        },
+                        "parent": {
+                          "type": "object",
+                          "nullable": true,
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "plan": {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "name": "Gold",
+                    "description": "Our most popular tier",
+                    "price": "5.00",
+                    "priceMax": "50.00",
+                    "iconUrl": null,
+                    "benefits": [
+                      "Priority event seating",
+                      "Monthly newsletter"
+                    ],
+                    "stars": 2,
+                    "durationType": "SELECTABLE",
+                    "durationMonths": null,
+                    "parent": {
+                      "id": "11111111-1111-1111-1111-111111111111",
+                      "name": "Standard"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Member not found",
             "content": {
               "application/json": {
                 "schema": {
