@@ -2,16 +2,52 @@ import '@/i18n';
 
 import { toPlan } from '@/features/membership/mappers';
 
-import { quoteFor } from './quote';
+import { describeQuote, quoteFor } from './quote';
 
 const range = toPlan({ id: 'r', name: 'R', price: '10', priceMax: '50', benefits: [] });
 const fixed = toPlan({ id: 'f', name: 'F', price: '25', benefits: [] });
 
 describe('quoteFor', () => {
   it('is the chosen monthly amount times the months', () => {
-    expect(quoteFor(range, '17', '6')).toEqual({ monthlyUsd: 17, months: 6, totalUsd: 102 });
+    expect(quoteFor(range, '17', '6')).toEqual({
+      priceUsd: 17,
+      months: 6,
+      fixedLength: false,
+      totalUsd: 102,
+    });
     expect(quoteFor(range, '37.50', '12')?.totalUsd).toBe(450);
     expect(quoteFor(fixed, '25', '3')?.totalUsd).toBe(75);
+  });
+
+  it('charges a fixed-length plan once, for its own months, whatever was typed', () => {
+    const yearly = toPlan({
+      id: 'y',
+      name: 'Y',
+      price: '50',
+      benefits: [],
+      durationType: 'FIXED',
+      durationMonths: 12,
+    });
+    expect(yearly.fixedMonths).toBe(12);
+    const quote = quoteFor(yearly, '50', '3');
+    expect(quote).toEqual({ priceUsd: 50, months: 12, fixedLength: true, totalUsd: 50 });
+    // Even with no months typed at all, or nonsense.
+    expect(quoteFor(yearly, '50', '')?.months).toBe(12);
+    expect(describeQuote(quote!)).toBe('One payment for 12 months');
+    expect(describeQuote(quoteFor(range, '17', '6')!)).toBe('$17.00 × 6 months');
+  });
+
+  it('treats SELECTABLE, or no duration type at all, as months the member chooses', () => {
+    const selectable = toPlan({
+      id: 's',
+      name: 'S',
+      price: '5',
+      benefits: [],
+      durationType: 'SELECTABLE',
+      durationMonths: null,
+    });
+    expect(selectable.fixedMonths).toBeUndefined();
+    expect(quoteFor(selectable, '5', '6')?.totalUsd).toBe(30);
   });
 
   it('is null until there is a plan', () => {

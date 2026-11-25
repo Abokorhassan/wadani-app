@@ -99,7 +99,9 @@
   "cardBack": {
     "exclusive": "Aqoonsigani waxa uu gaar u yahay xubnaha Xisbiga WADDANI.",
     "ifFound": "Haddii aad hesho aqoonsigan fadlan ku hagaaji xafiiska kuugu dhow ee xisbiga ama nagala soo xidhiidh lambarkan WhatsApp-ka ah:",
-    "stampLabel": "Shaabadda Xafiiska Xubinnimada"
+    "stampLabel": "Shaabadda Xafiiska Xubinnimada",
+    "customerCare": "Adeegga macaamiisha",
+    "member": "Xubinta"
   },
   "payments": {
     "title": "Taariikhda lacag bixinta",
@@ -364,7 +366,12 @@
     "freeNote": "Wax lacag ah ma bixinaysid. Kaadhkaaga xubinnimada wuu diyaar noqonayaa isla marka aad is diiwaangeliso.",
     "freeSummaryTitle": "Xubinnimo bilaash ah",
     "freeSummaryText": "Lacag lagaa jari maayo. Aqbal shuruudaha hoose si aad u samaysato koontadaada oo aad u hesho kaadhkaaga.",
-    "submitFree": "Ku biir bilaash"
+    "submitFree": "Ku biir bilaash",
+    "amount": "Lacagta",
+    "fixedLengthHint": "Qorshahan ayaa go'aamiya",
+    "totalFixed": "Hal lacag-bixin oo loogu talagalay {{months}}",
+    "perMonths_one": "/ {{count}} bil",
+    "perMonths_other": "/ {{count}} bilood"
   },
   "pending": {
     "title": "Waxaanu xaqiijinaynaa lacag bixintaada",

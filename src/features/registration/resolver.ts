@@ -22,6 +22,8 @@ import { registrationSchema, walletPhoneMessage, type RegistrationForm } from '.
  *   be told about the wallet until they had fixed everything else.
  * - **A free plan.** Nothing is charged, so the amount, months, method and
  *   wallet are neither shown nor checked (MOBILE_FREE_PLAN.md §2).
+ * - **A fixed-length plan.** The plan sets the months, so the months field is
+ *   hidden and not checked.
  */
 export const registrationResolver: Resolver<RegistrationForm> = async (
   values,
@@ -30,8 +32,9 @@ export const registrationResolver: Resolver<RegistrationForm> = async (
 ) => {
   const base = await zodResolver(registrationSchema)(values, context, options);
   const plan = values.planId ? getCachedPlan(values.planId) : undefined;
-  if (plan?.free) return withoutChargeErrors(base, values);
+  if (plan?.free) return withoutErrorsOn(CHARGE_FIELDS, base, values);
 
+  const result = plan?.fixedMonths ? withoutErrorsOn(['months'], base, values) : base;
   const extra: FieldErrors<RegistrationForm> = {};
 
   const wallet = walletPhoneMessage(values);
@@ -46,11 +49,11 @@ export const registrationResolver: Resolver<RegistrationForm> = async (
     };
   }
 
-  if (Object.keys(extra).length === 0) return base;
+  if (Object.keys(extra).length === 0) return result;
 
   return {
     values: {},
-    errors: { ...('errors' in base ? base.errors : {}), ...extra },
+    errors: { ...result.errors, ...extra },
   } as Awaited<ReturnType<Resolver<RegistrationForm>>>;
 };
 
@@ -59,12 +62,17 @@ const CHARGE_FIELDS = ['amount', 'months', 'method', 'payerPhone'] as const;
 
 type ResolverResult = Awaited<ReturnType<Resolver<RegistrationForm>>>;
 
-function withoutChargeErrors(result: ResolverResult, values: RegistrationForm): ResolverResult {
+/** The result with no errors on fields that do not apply to the chosen plan. */
+function withoutErrorsOn(
+  fields: readonly (keyof RegistrationForm)[],
+  result: ResolverResult,
+  values: RegistrationForm
+): ResolverResult {
   if (Object.keys(result.errors).length === 0) return result;
   const errors = { ...result.errors };
-  for (const field of CHARGE_FIELDS) delete errors[field];
+  for (const field of fields) delete errors[field];
   if (Object.keys(errors).length > 0) return { values: {}, errors };
-  // Only charge fields failed, so the form is valid; zod hands back no values on
+  // Only those fields failed, so the form is valid; zod hands back no values on
   // a failure, so these are the member's own.
   return { values, errors: {} };
 }

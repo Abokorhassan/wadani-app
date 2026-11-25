@@ -26,7 +26,7 @@ import { formatUsd } from '@/lib/format';
 import { parseMoney } from '@/lib/money';
 
 import { MAX_MONTHS, MIN_MONTHS, monthsOf, type RegistrationForm } from '../form';
-import { quoteFor } from '../quote';
+import { describeQuote, quoteFor } from '../quote';
 import { amountText, shortUsd, StepperField, suggestedAmounts } from './stepper-field';
 
 /**
@@ -201,7 +201,8 @@ export function PlanStep({ control, planId, amount, months, setValue }: PlanStep
                 name="amount"
                 render={({ field, fieldState }) => (
                   <StepperField
-                    label={t('register.monthlyAmount')}
+                    // A fixed-length plan's price covers the whole period, not one month.
+                    label={plan.fixedMonths ? t('register.amount') : t('register.monthlyAmount')}
                     hint={t('register.amountRange', {
                       min: shortUsd(range.min),
                       max: shortUsd(range.max),
@@ -236,40 +237,55 @@ export function PlanStep({ control, planId, amount, months, setValue }: PlanStep
             </>
           ) : null}
 
-          <Controller
-            control={control}
-            name="months"
-            render={({ field, fieldState }) => (
-              <StepperField
-                label={t('register.months')}
-                hint={t('register.monthsHint', { min: MIN_MONTHS, max: MAX_MONTHS })}
-                suffix={t('register.monthsWord', { count: monthsOf(field.value) ?? 0 })}
-                value={field.value}
-                onChange={(next) => {
-                  const typed = monthsOf(next);
-                  setChoice(
-                    'months',
-                    next,
-                    typed !== null && typed >= MIN_MONTHS && typed <= MAX_MONTHS
-                  );
-                }}
-                onBlur={field.onBlur}
-                min={MIN_MONTHS}
-                max={MAX_MONTHS}
-                step={1}
-                options={QUICK_MONTHS}
-                optionLabel={String}
-                optionA11yLabel={(value) => t('register.monthsUnit', { count: value })}
-                format={String}
-                parse={monthsOf}
-                keyboardType="number-pad"
-                maxLength={2}
-                lowerLabel={t('register.monthsLower')}
-                higherLabel={t('register.monthsHigher')}
-                error={fieldState.error?.message}
-              />
-            )}
-          />
+          {plan.fixedMonths ? (
+            // The plan sets the length; the member has nothing to choose.
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text variant="label" color="textSecondary">
+                  {t('register.months')}
+                </Text>
+                <Text variant="caption" color="textMuted">
+                  {t('register.fixedLengthHint')}
+                </Text>
+              </View>
+              <Text variant="heading">{t('register.monthsUnit', { count: plan.fixedMonths })}</Text>
+            </View>
+          ) : (
+            <Controller
+              control={control}
+              name="months"
+              render={({ field, fieldState }) => (
+                <StepperField
+                  label={t('register.months')}
+                  hint={t('register.monthsHint', { min: MIN_MONTHS, max: MAX_MONTHS })}
+                  suffix={t('register.monthsWord', { count: monthsOf(field.value) ?? 0 })}
+                  value={field.value}
+                  onChange={(next) => {
+                    const typed = monthsOf(next);
+                    setChoice(
+                      'months',
+                      next,
+                      typed !== null && typed >= MIN_MONTHS && typed <= MAX_MONTHS
+                    );
+                  }}
+                  onBlur={field.onBlur}
+                  min={MIN_MONTHS}
+                  max={MAX_MONTHS}
+                  step={1}
+                  options={QUICK_MONTHS}
+                  optionLabel={String}
+                  optionA11yLabel={(value) => t('register.monthsUnit', { count: value })}
+                  format={String}
+                  parse={monthsOf}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  lowerLabel={t('register.monthsLower')}
+                  higherLabel={t('register.monthsHigher')}
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+          )}
 
           <Divider />
 
@@ -280,10 +296,7 @@ export function PlanStep({ control, planId, amount, months, setValue }: PlanStep
               </Text>
               {quote ? (
                 <Text variant="caption" color="textMuted">
-                  {t('register.totalFormula', {
-                    price: formatUsd(quote.monthlyUsd),
-                    months: t('register.monthsUnit', { count: quote.months }),
-                  })}
+                  {describeQuote(quote)}
                 </Text>
               ) : null}
             </View>
@@ -411,7 +424,9 @@ function PlanCard({ plan }: { plan: Plan }) {
             </Text>
             {plan.free ? null : (
               <Text variant="caption" color="textOnInkSoft">
-                {t('register.perMonth')}
+                {plan.fixedMonths
+                  ? t('register.perMonths', { count: plan.fixedMonths })
+                  : t('register.perMonth')}
               </Text>
             )}
           </View>

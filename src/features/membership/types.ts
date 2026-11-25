@@ -26,6 +26,12 @@ export interface Plan {
    * carries no badge (platform/docs/MOBILE_FREE_PLAN.md).
    */
   free: boolean;
+  /**
+   * A fixed-length plan: every member gets this many months, which they do not
+   * choose, and the price is paid once for the whole period, not per month
+   * (backend, 2026-11-22). Absent when the member chooses the months.
+   */
+  fixedMonths?: number;
   /** The badge everyone who pays for this plan carries. Absent when none was uploaded. */
   iconUrl?: string;
   /** Tier rank the backend gives the plan; drives the card's rosette count. */

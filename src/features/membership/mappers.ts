@@ -59,6 +59,10 @@ export function toPlan(dto: PlanDto): Plan {
     // A max at or below the min would make the range meaningless, so treat it as fixed.
     priceMaxUsd: priceMax !== undefined && priceMax > toUsd(dto.price) ? priceMax : undefined,
     free: isFreePlanDto(dto),
+    fixedMonths:
+      dto.durationType === 'FIXED' && dto.durationMonths && dto.durationMonths > 0
+        ? dto.durationMonths
+        : undefined,
     iconUrl: dto.iconUrl || undefined,
     stars: dto.stars ?? undefined,
     benefits: dto.benefits,

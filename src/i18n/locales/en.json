@@ -99,7 +99,9 @@
   "cardBack": {
     "exclusive": "This ID belongs exclusively to members of the WADDANI Party.",
     "ifFound": "If you find this card, please return it to the nearest party office or contact us on WhatsApp:",
-    "stampLabel": "Membership Office seal"
+    "stampLabel": "Membership Office seal",
+    "customerCare": "Customer care",
+    "member": "Member"
   },
   "payments": {
     "title": "Payment history",
@@ -364,7 +366,12 @@
     "freeNote": "Nothing to pay. Your membership card is ready the moment you register.",
     "freeSummaryTitle": "Free membership",
     "freeSummaryText": "You won't be charged. Accept the terms below to create your account and get your card.",
-    "submitFree": "Join for free"
+    "submitFree": "Join for free",
+    "amount": "Amount",
+    "fixedLengthHint": "Set by this plan",
+    "totalFixed": "One payment for {{months}}",
+    "perMonths_one": "/ {{count}} month",
+    "perMonths_other": "/ {{count}} months"
   },
   "pending": {
     "title": "We're confirming your payment",

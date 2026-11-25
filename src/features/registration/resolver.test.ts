@@ -16,6 +16,14 @@ const rangePlan = toPlan({
 });
 
 const freePlan = toPlan({ id: 'plan-free', name: 'Free', price: '0.00', benefits: [] });
+const yearlyPlan = toPlan({
+  id: 'plan-yearly',
+  name: 'Yearly',
+  price: '50',
+  benefits: [],
+  durationType: 'FIXED',
+  durationMonths: 12,
+});
 
 const valid: RegistrationForm = {
   ...emptyRegistration,
@@ -49,7 +57,9 @@ async function errorsFor(values: RegistrationForm) {
 }
 
 describe('registration resolver', () => {
-  beforeEach(() => queryClient.setQueryData(membershipKeys.plans, [rangePlan, freePlan]));
+  beforeEach(() =>
+    queryClient.setQueryData(membershipKeys.plans, [rangePlan, freePlan, yearlyPlan])
+  );
   afterEach(() => queryClient.clear());
 
   it('accepts a complete, valid registration', async () => {
@@ -109,6 +119,12 @@ describe('registration resolver', () => {
 
     const errors = await errorsFor({ ...free, acceptedTerms: false as unknown as true });
     expect(Object.keys(errors)).toEqual(['acceptedTerms']);
+  });
+
+  it('does not check the hidden months on a fixed-length plan, but still the amount', async () => {
+    const yearly = { ...valid, planId: 'plan-yearly', amount: '50', months: '' };
+    expect(await errorsFor(yearly)).toEqual({});
+    expect((await errorsFor({ ...yearly, amount: '49' })).amount).toBeDefined();
   });
 
   it('asks for no wallet when paying by card', async () => {

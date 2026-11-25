@@ -578,6 +578,47 @@ describe('Phase 1 — onboarding', () => {
   });
 });
 
+describe('Fixed-length plans (durationType FIXED)', () => {
+  it("uses the plan's own months, and charges its price once", () => {
+    const { planFixtures } = require('../features/membership/api.mock');
+    const { toPlan } = require('../features/membership/mappers');
+    const { quoteFor } = require('../features/registration/quote');
+    const silver = toPlan(planFixtures.find((plan: { name: string }) => plan.name === 'Silver'));
+    expect(silver.fixedMonths).toBe(12);
+    expect(quoteFor(silver, '50', '3')).toMatchObject({ months: 12, totalUsd: 50 });
+    // The months picker is replaced by a read-only length on these plans.
+    expect(source('features/registration/components/plan-step.tsx')).toContain(
+      "t('register.fixedLengthHint')"
+    );
+  });
+});
+
+describe('Membership card feedback (2026-11-25)', () => {
+  it('always reads in Somali, front, back and the Home mini card', () => {
+    for (const file of ['membership-card', 'membership-card-back', 'mini-card']) {
+      const code = source(`features/membership/components/${file}.tsx`);
+      expect(code).toContain('useCardTranslation()');
+      expect(code).not.toContain('useTranslation()');
+    }
+    expect(source('features/membership/card-language.ts')).toContain("CARD_LANGUAGE = 'so'");
+  });
+
+  it("has the member's WhatsApp and the party's on the back, and the gold seal", () => {
+    const back = source('features/membership/components/membership-card-back.tsx');
+    expect(back).toContain("t('cardBack.member')");
+    expect(back).toContain("t('cardBack.customerCare')");
+    expect(back).toContain('membership-stamp.png');
+    expect(existsSync(join(ROOT, 'assets/brand/membership-stamp.png'))).toBe(true);
+    expect(source('app/(app)/card.tsx')).toContain('me?.whatsapp ?? me?.phone');
+  });
+
+  it('fills the circle with the badge', () => {
+    expect(source('features/membership/components/membership-card.tsx')).toContain(
+      'contentFit="cover"'
+    );
+  });
+});
+
 describe('Temporary passwords set by staff', () => {
   it('holds the member on "choose a new password" until they do', () => {
     expect(exists('app/(app)/change-password.tsx')).toBe(true);
@@ -682,12 +723,17 @@ describe('Phase 2 — membership core', () => {
     const register = source('app/(auth)/register.tsx');
     expect(register).toContain('free ? null : quoteFor(');
     expect(register).toContain("t('register.submitFree')");
-    expect(source('features/registration/resolver.ts')).toContain('withoutChargeErrors');
+    expect(source('features/registration/resolver.ts')).toContain('withoutErrorsOn(CHARGE_FIELDS');
     expect(source('features/registration/components/payment-step.tsx')).toContain('FreeSummary');
 
-    // No badge on the free card, on the card screen or on Profile.
-    expect(source('app/(app)/card.tsx')).toContain('showBadge={!free}');
-    expect(source('app/(app)/(tabs)/profile.tsx')).toContain('badgeUrl && !free');
+    // No badge on the free card, on the card screen or on Profile: usePlanBadge
+    // gives none for a free plan, and the card draws no stand-in without one.
+    expect(source('features/membership/hooks.ts')).toMatch(
+      /isOnFreePlan\([^)]*\)\) return undefined/
+    );
+    expect(source('features/membership/components/membership-card.tsx')).not.toContain(
+      'membershipType.charAt(0)'
+    );
     expect(hasText('register.free')).toBe(true);
     expect(hasText('payments.methodFree')).toBe(true);
   });

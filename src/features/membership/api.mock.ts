@@ -73,7 +73,10 @@ export const planFixtures: PlanDto[] = [
   {
     id: '44444444-4444-4444-4444-444444444444',
     name: 'Silver',
+    // Fixed length: one payment of $50 covers 12 months, chosen by the plan.
     price: '50.00',
+    durationType: 'FIXED',
+    durationMonths: 12,
     stars: 2,
     benefits: [
       'Everything in Standard',

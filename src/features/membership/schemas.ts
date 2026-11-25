@@ -21,6 +21,13 @@ export const planDto = z.object({
   iconUrl: optional(z.string()),
   benefits: z.array(z.string()).default([]),
   stars: optional(z.number().int()),
+  /**
+   * FIXED: the plan sets the membership length, durationMonths, and its price
+   * covers that whole period. SELECTABLE (or absent, before 2026-11): the
+   * member chooses the months and pays the price for each one.
+   */
+  durationType: optional(z.string()),
+  durationMonths: optional(z.number().int()),
 });
 
 export const plansResponse = z.object({ plans: z.array(planDto) });

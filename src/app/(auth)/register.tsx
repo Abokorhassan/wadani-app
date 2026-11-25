@@ -26,6 +26,7 @@ import { isWalletMethod, useCardCheckout, type ChargeMethod } from '@/features/p
 import {
   AddressStep,
   describeFormErrors,
+  describeQuote,
   draftDefaults,
   emptyRegistration,
   formFieldFor,
@@ -332,13 +333,7 @@ export default function RegisterScreen() {
         : t('register.submit', { amount: formatUsd(quote.totalUsd) });
 
   const total = quote
-    ? {
-        amount: formatUsd(quote.totalUsd),
-        formula: t('register.totalFormula', {
-          price: formatUsd(quote.monthlyUsd),
-          months: t('register.monthsUnit', { count: quote.months }),
-        }),
-      }
+    ? { amount: formatUsd(quote.totalUsd), formula: describeQuote(quote) }
     : undefined;
 
   return (
