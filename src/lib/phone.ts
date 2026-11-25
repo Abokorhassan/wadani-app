@@ -46,3 +46,19 @@ export function samePhone(a: string, b: string): boolean {
   const right = toInternationalPhone(b) ?? b.replace(/\D/g, '');
   return left !== '' && left === right;
 }
+
+/**
+ * A phone number for people to read: "+252 63 234 5678" for a Somali number,
+ * "+44 7911123456" for one abroad. A number that cannot be made sense of is
+ * shown as it was saved, rather than with a "+" that would make it another
+ * country's ("63000000" is not +63, the Philippines).
+ */
+export function formatPhoneForDisplay(raw: string): string {
+  const international = toInternationalPhone(raw);
+  if (!international) return raw.trim();
+  const digits = international.slice(1);
+  if (digits.startsWith('252')) {
+    return `+252 ${digits.slice(3, 5)} ${digits.slice(5, 8)} ${digits.slice(8)}`;
+  }
+  return international;
+}

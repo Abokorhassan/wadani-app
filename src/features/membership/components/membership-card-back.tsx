@@ -4,6 +4,7 @@ import { View } from 'react-native';
 
 import { Text, useTheme, WhatsAppIcon, lightTheme, ThemeProvider } from '@/design-system';
 import { env } from '@/lib/env';
+import { formatPhoneForDisplay } from '@/lib/phone';
 
 import { useCardTranslation } from '../card-language';
 
@@ -99,11 +100,38 @@ function MembershipCardBackFace({ ref, memberWhatsApp }: MembershipCardBackProps
           {t('cardBack.ifFound')}
         </Text>
 
-        {/* The party's customer care first: the sentence above leads into it. */}
-        <View style={{ gap: 14, marginTop: 22 }}>
-          <WhatsAppLine label={t('cardBack.customerCare')} number={env.partyWhatsApp} />
+        {/*
+          One WhatsApp panel for both numbers, each saying whose it is. The
+          party's customer care comes first, because the sentence above leads
+          into it; then the card holder's, so a finder can reach them too.
+        */}
+        <View
+          style={{
+            marginTop: 22,
+            borderRadius: 18,
+            borderWidth: 1,
+            borderColor: theme.color.border,
+            backgroundColor: theme.color.background,
+          }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 8,
+              paddingHorizontal: 16,
+              paddingTop: 12,
+              paddingBottom: 10,
+            }}>
+            <WhatsAppIcon size={20} color={theme.color.whatsapp} />
+            <Text
+              variant="captionStrong"
+              style={{ letterSpacing: 1, textTransform: 'uppercase', color: theme.color.text }}>
+              WhatsApp
+            </Text>
+          </View>
+          <ContactRow label={t('cardBack.customerCare')} number={env.partyWhatsApp} />
           {memberWhatsApp ? (
-            <WhatsAppLine label={t('cardBack.member')} number={memberWhatsApp} />
+            <ContactRow label={t('cardBack.member')} number={memberWhatsApp} />
           ) : null}
         </View>
 
@@ -122,28 +150,29 @@ function MembershipCardBackFace({ ref, memberWhatsApp }: MembershipCardBackProps
   );
 }
 
-function WhatsAppLine({ label, number }: { label: string; number: string }) {
+/** One number in the WhatsApp panel: whose it is, then the number itself. */
+function ContactRow({ label, number }: { label: string; number: string }) {
   const theme = useTheme();
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-      <WhatsAppIcon size={34} color={theme.color.text} />
-      <View style={{ flexShrink: 1 }}>
-        <Text variant="captionStrong" style={{ color: theme.color.textMuted }}>
-          {label}
-        </Text>
-        <Text variant="heading" style={{ fontSize: 20, color: theme.color.text }}>
-          {formatWhatsApp(number)}
-        </Text>
-      </View>
+    <View
+      style={{
+        gap: 2,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderTopWidth: 1,
+        borderTopColor: theme.color.border,
+      }}>
+      <Text variant="captionStrong" style={{ color: theme.color.textMuted }}>
+        {label}
+      </Text>
+      <Text
+        variant="heading"
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.8}
+        style={{ fontSize: 20, color: theme.color.text }}>
+        {formatPhoneForDisplay(number)}
+      </Text>
     </View>
   );
-}
-
-/** "252634001122" or "+252634001122" -> "+252 63 400 1122" for display. */
-function formatWhatsApp(digits: string): string {
-  const d = digits.replace(/\D/g, '');
-  if (d.startsWith('252') && d.length === 12) {
-    return `+252 ${d.slice(3, 5)} ${d.slice(5, 8)} ${d.slice(8)}`;
-  }
-  return `+${d}`;
 }

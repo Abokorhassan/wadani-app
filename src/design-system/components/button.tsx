@@ -110,7 +110,16 @@ export function Button({
       ) : (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: md ? 10 : 8 }}>
           {Icon ? <Icon size={md ? 20 : 18} color={c.fg} strokeWidth={2} /> : null}
-          <Text variant={md ? 'button' : 'smallStrong'} style={{ color: c.fg }}>
+          {/*
+            One line, broken the simple way: Android measured the custom font a
+            little narrow and pushed the last word ("back" in "View back") onto
+            a second line the button then hid (2026-11-25).
+          */}
+          <Text
+            variant={md ? 'button' : 'smallStrong'}
+            numberOfLines={1}
+            textBreakStrategy="simple"
+            style={{ color: c.fg }}>
             {label}
           </Text>
           {IconRight ? <IconRight size={md ? 20 : 18} color={c.fg} strokeWidth={2} /> : null}

@@ -1,4 +1,4 @@
-import { samePhone, toInternationalPhone } from './phone';
+import { formatPhoneForDisplay, samePhone, toInternationalPhone } from './phone';
 
 describe('toInternationalPhone', () => {
   it.each([
@@ -41,5 +41,24 @@ describe('samePhone', () => {
   it('never matches an email or an empty value', () => {
     expect(samePhone('a@b.co', 'c@d.co')).toBe(false);
     expect(samePhone('', '')).toBe(false);
+  });
+});
+
+describe('formatPhoneForDisplay', () => {
+  it('spaces a Somali number however it was saved', () => {
+    for (const saved of ['+252634567890', '252634567890', '0634567890', '634567890']) {
+      expect(formatPhoneForDisplay(saved)).toBe('+252 63 456 7890');
+    }
+    // The party's own number, as it sits in the app's settings.
+    expect(formatPhoneForDisplay('252653140475')).toBe('+252 65 314 0475');
+  });
+
+  it('keeps a number from abroad in its international form', () => {
+    expect(formatPhoneForDisplay('+447911123456')).toBe('+447911123456');
+  });
+
+  it('shows a number it cannot read as saved, never as another country', () => {
+    expect(formatPhoneForDisplay('63000000')).toBe('63000000');
+    expect(formatPhoneForDisplay(' 12345 ')).toBe('12345');
   });
 });
